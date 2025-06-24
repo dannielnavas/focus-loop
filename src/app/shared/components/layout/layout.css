@@ -1,0 +1,14 @@
+/* Ajuste para la barra de título personalizada */
+.container {
+  padding-top: 32px;
+  /* Altura de la barra de título */
+}
+
+/* Asegurar que el contenido no se superponga con la barra de título */
+app-title-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}

@@ -19,6 +19,14 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./private/pages/principal/principal'),
       },
+      {
+        path: 'work',
+        loadComponent: () => import('./private/pages/work/work'),
+      },
+      {
+        path: 'timer',
+        loadComponent: () => import('./private/pages/timer/timer'),
+      },
     ],
   },
 ];

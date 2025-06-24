@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 })
 export default class Login {
   private readonly router = inject(Router);
+
   login() {
     this.router.navigate(['/private']);
   }

@@ -37,6 +37,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
   showNotification: (title, body) => {
     ipcRenderer.send("show-notification", { title, body });
   },
+
+  // Métodos para redimensionar la ventana
+  resizeWindow: (width, height) =>
+    ipcRenderer.invoke("resize-window", { width, height }),
+  resetWindowSize: () => ipcRenderer.invoke("reset-window-size"),
+
+  // Métodos para ventana flotante
+  makeWindowFloating: (width, height) =>
+    ipcRenderer.invoke("make-window-floating", { width, height }),
+  resetWindowFloating: () => ipcRenderer.invoke("reset-window-floating"),
 });
 
 // Manejar eventos de la aplicación

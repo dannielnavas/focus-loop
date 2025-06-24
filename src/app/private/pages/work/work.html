@@ -1,0 +1,83 @@
+<div class="min-h-screen w-[440px] bg-gradient-to-br from-gray-900 via-gray-800 to-black p-6">
+  <div class="max-w-7xl mx-auto">
+
+      <!-- Today Column -->
+      <div class="bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+          <h2 class="text-xl font-semibold text-white flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            Hoy
+          </h2>
+          <p class="text-blue-200 text-sm mt-1">{{today.length}} tareas</p>
+        </div>
+
+        <div
+          cdkDropList
+          (cdkDropListDropped)="drop($event)"
+          class="p-4 min-h-[400px] bg-gray-900 flex flex-col"
+          >
+
+          <!-- Contenedor para las tareas -->
+          <div class="flex-1">
+            @for (item of today; track item; let i = $index) {
+              <div
+                class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4 mb-3 cursor-move hover:bg-gray-750 hover:border-gray-600 transition-all duration-200 group"
+                cdkDrag
+                [cdkDragData]="item"
+                [cdkDragDisabled]="false">
+                <!-- Contenido real del elemento -->
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center flex-1">
+                    <div class="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0 mr-3"></div>
+                    <p class="text-gray-100 font-medium">{{item}}</p>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <button
+                      (click)="marcarComoCompletada(i)"
+                      class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm transition-colors duration-200">
+                      Done
+                    </button>
+                    <button
+                      (click)="eliminarTarea(i)"
+                      class="w-6 h-6 text-gray-400 hover:text-red-400 transition-colors">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (today.length === 0) {
+              <div class="text-center text-gray-500 py-8">
+                <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <p class="text-sm">No hay tareas para hoy</p>
+              </div>
+            }
+          </div>
+
+          <!-- Botón Iniciar Tareas con degradado en el borde -->
+          <button
+            (click)="iniciarTareas()"
+            class="relative w-full bg-gray-800 hover:bg-gray-750 rounded-lg p-4 mt-4 text-white font-medium transition-all duration-300 overflow-hidden group cursor-pointer">
+            <!-- Degradado en el borde con animación -->
+            <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-cyan-500 opacity-100 group-hover:animate-pulse group-hover:scale-105 transition-all duration-500"></div>
+            <div class="absolute inset-[2px] bg-gray-800 rounded-lg group-hover:bg-gray-750 transition-colors duration-300"></div>
+
+            <!-- Contenido del botón -->
+            <div class="relative flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              <span class="text-gray-100 group-hover:text-white transition-colors">Iniciar</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+</div>

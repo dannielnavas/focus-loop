@@ -1,11 +1,5 @@
 <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-6">
   <div class="max-w-7xl mx-auto">
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-white mb-2">Mi Tracker</h1>
-      <p class="text-gray-300">Organiza tus tareas de manera eficiente</p>
-    </div>
-
     <!-- Columns Container -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -58,7 +52,7 @@
           @if (!showTodoInput) {
             <button
               (click)="showTodoInput = true"
-              class="w-full bg-gray-800 hover:bg-gray-750 border-2 border-dashed border-gray-600 hover:border-orange-500 rounded-lg p-4 mb-3 text-gray-400 hover:text-orange-400 transition-all duration-200 flex items-center justify-center">
+              class="w-full bg-gray-800 hover:bg-gray-750 border-2 border-dashed border-gray-600 hover:border-orange-500 rounded-lg p-4 mb-3 text-gray-400 hover:text-orange-400 transition-all duration-200 flex items-center justify-center cursor-pointer">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
@@ -128,7 +122,7 @@
           <!-- Botón Iniciar Tareas con degradado en el borde -->
           <button
             (click)="iniciarTareas()"
-            class="relative w-full bg-gray-800 hover:bg-gray-750 rounded-lg p-4 mt-4 text-white font-medium transition-all duration-300 overflow-hidden group">
+            class="relative w-full bg-gray-800 hover:bg-gray-750 rounded-lg p-4 mt-4 text-white font-medium transition-all duration-300 overflow-hidden group cursor-pointer">
             <!-- Degradado en el borde con animación -->
             <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-cyan-500 opacity-100 group-hover:animate-pulse group-hover:scale-105 transition-all duration-500"></div>
             <div class="absolute inset-[2px] bg-gray-800 rounded-lg group-hover:bg-gray-750 transition-colors duration-300"></div>

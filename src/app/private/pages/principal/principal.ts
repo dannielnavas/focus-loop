@@ -71,9 +71,11 @@ export default class Principal {
 
   // Método para navegar a la pantalla de iniciar tareas
   iniciarTareas() {
-    // Aquí puedes cambiar la ruta según tu estructura de navegación
-    this.router.navigate(['/iniciar-tareas']);
-    // O si prefieres usar una ruta específica:
-    // this.router.navigate(['/tareas/nueva']);
+    if (this.today.length > 0) {
+      // Aquí puedes cambiar la ruta según tu estructura de navegación
+      this.router.navigate(['/private/work']);
+      // O si prefieres usar una ruta específica:
+      // this.router.navigate(['/tareas/nueva']);
+    }
   }
 }

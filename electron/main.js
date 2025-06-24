@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain } = require("electron");
 const path = require("path");
 const isDev = process.env.NODE_ENV === "development";
 
@@ -17,6 +17,17 @@ function createWindow() {
     },
     icon: path.join(__dirname, "../public/favicon.ico"),
     show: false,
+    // Configurar para mostrar solo controles nativos del sistema operativo
+    titleBarStyle: "default", // Usar controles nativos
+    frame: true, // Mantener el marco nativo con controles del sistema
+    // Hacer la ventana redimensionable
+    resizable: true,
+    // Permitir minimizar y maximizar
+    minimizable: true,
+    maximizable: true,
+    // Configuraciones adicionales para una mejor experiencia
+    transparent: false,
+    hasShadow: true,
   });
 
   // Cargar la aplicación Angular
@@ -122,3 +133,48 @@ const template = [
 
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
+
+// Agregar listeners para IPC
+ipcMain.handle("resize-window", (event, { width, height }) => {
+  if (mainWindow) {
+    mainWindow.setSize(width, height);
+    // Centrar la ventana en la pantalla
+    mainWindow.center();
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle("reset-window-size", () => {
+  if (mainWindow) {
+    mainWindow.setSize(1200, 800);
+    mainWindow.center();
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle("make-window-floating", (event, { width, height }) => {
+  if (mainWindow) {
+    // Hacer la ventana siempre visible sobre otras aplicaciones
+    mainWindow.setAlwaysOnTop(true);
+    // Redimensionar la ventana
+    mainWindow.setSize(width, height);
+    // Centrar la ventana
+    mainWindow.center();
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle("reset-window-floating", () => {
+  if (mainWindow) {
+    // Quitar la propiedad de siempre visible
+    mainWindow.setAlwaysOnTop(false);
+    // Restaurar tamaño original
+    mainWindow.setSize(1200, 800);
+    mainWindow.center();
+    return true;
+  }
+  return false;
+});

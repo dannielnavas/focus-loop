@@ -1,3 +1,5 @@
+import { TaskResponse } from '@/core/models/task.model';
+import { Task as TaskService } from '@/core/services/task';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -5,7 +7,8 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -16,19 +19,46 @@ import { Router } from '@angular/router';
   styleUrl: './principal.css',
 })
 export default class Principal {
-  todo: string[] = [];
+  // todo: string[] = [];
 
-  today: string[] = [];
+  // today: string[] = [];
 
-  done: string[] = [];
+  // done: string[] = [];
 
   // Variables para manejar la entrada de nuevas tareas (solo para Pendiente)
   newTodoTask = '';
   showTodoInput = false;
 
-  constructor(private router: Router) {}
+  private readonly router = inject(Router);
+  private readonly taskService = inject(TaskService);
 
-  drop(event: CdkDragDrop<string[]>) {
+  resourcesTasks = rxResource<TaskResponse[], { user_id: string }>({
+    stream: ({ params }) => this.taskService.getTasks(params.user_id),
+    params: () => ({
+      user_id: '1',
+    }),
+    defaultValue: [],
+  });
+
+  todo = computed(() => {
+    const tasks = this.resourcesTasks.value();
+    if (!tasks) return [];
+    return tasks.filter((task) => task.statusTask.status_task_id === 1);
+  });
+
+  today = computed(() => {
+    const tasks = this.resourcesTasks.value();
+    if (!tasks) return [];
+    return tasks.filter((task) => task.statusTask.status_task_id === 2);
+  });
+
+  done = computed(() => {
+    const tasks = this.resourcesTasks.value();
+    if (!tasks) return [];
+    return tasks.filter((task) => task.statusTask.status_task_id === 3);
+  });
+
+  drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -42,13 +72,57 @@ export default class Principal {
         event.previousIndex,
         event.currentIndex
       );
+      debugger;
+      // Obtener la tarea movida
+      const movedTask = event.container.data[event.currentIndex];
+      console.log(movedTask);
+      console.log(event.container.id);
+
+      // Determinar el nuevo estado según la lista destino
+      let newStatus = 1; // Por defecto "todo"
+      if (
+        event.container.id &&
+        event.container.id.includes('cdk-drop-list-1')
+      ) {
+        newStatus = 2;
+      } else if (
+        event.container.id &&
+        event.container.id.includes('cdk-drop-list-2')
+      ) {
+        newStatus = 3;
+      }
+
+      // Llamar al servicio para actualizar el estado de la tarea
+      this.taskService
+        .updateTask(movedTask.task_id, {
+          title: movedTask.title,
+          status_task_id: newStatus,
+          user_id: 1,
+        })
+        .subscribe({
+          next: () => this.resourcesTasks.reload(),
+          error: (err) => console.log(err),
+        });
     }
   }
 
-  // Método para agregar tarea a Pendiente
   addTodoTask() {
     if (this.newTodoTask.trim()) {
-      this.todo.unshift(this.newTodoTask.trim());
+      this.taskService
+        .createTask({
+          title: this.newTodoTask.trim(),
+          status_task_id: 1,
+          user_id: 1,
+        })
+        .subscribe({
+          next: (res) => {
+            console.log(res);
+            this.resourcesTasks.reload();
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
       this.newTodoTask = '';
       this.showTodoInput = false;
     }

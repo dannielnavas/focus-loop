@@ -39,10 +39,12 @@ export default class Timer implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
 
-  resourcesTasks = rxResource<TaskResponse[], { user_id: string }>({
+  user_id = computed(() => localStorage.getItem('user_id'));
+
+  resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({
     stream: ({ params }) => this.taskService.getTasks(params.user_id),
     params: () => ({
-      user_id: '1',
+      user_id: Number(this.user_id()) || 0,
     }),
     defaultValue: [],
   });

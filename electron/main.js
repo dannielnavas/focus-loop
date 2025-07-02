@@ -168,3 +168,13 @@ ipcMain.handle("show-titlebar", () => {
   }
   return false;
 });
+
+ipcMain.handle("hide-menu", () => {
+  Menu.setApplicationMenu(null);
+  return true;
+});
+
+ipcMain.handle("show-menu", () => {
+  Menu.setApplicationMenu(menu);
+  return true;
+});

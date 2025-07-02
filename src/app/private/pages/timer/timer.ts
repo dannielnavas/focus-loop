@@ -25,6 +25,8 @@ declare global {
       showTitlebar: () => Promise<boolean>;
       showNotification: (title: string, body: string) => Promise<boolean>;
       hideNotification: () => Promise<boolean>;
+      hideMenu: () => Promise<boolean>;
+      showMenu: () => Promise<boolean>;
     };
   }
 }
@@ -38,7 +40,8 @@ declare global {
 export default class Timer implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
-
+  private audio: HTMLAudioElement | null = null;
+  statusTimer = signal<string>('init');
   user_id = computed(() => localStorage.getItem('user_id'));
 
   resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({
@@ -67,6 +70,12 @@ export default class Timer implements OnInit, OnDestroy {
     if (window.electronAPI?.hideTitlebar) {
       window.electronAPI.hideTitlebar();
     }
+    // Ocultar menú de Electron
+    if (window.electronAPI?.hideMenu) {
+      window.electronAPI.hideMenu();
+    } else if ((window as any).electron?.ipcRenderer) {
+      (window as any).electron.ipcRenderer.invoke('hide-menu');
+    }
   }
 
   ngOnDestroy() {
@@ -76,13 +85,19 @@ export default class Timer implements OnInit, OnDestroy {
     if (window.electronAPI?.showTitlebar) {
       window.electronAPI.showTitlebar();
     }
+    // Restaurar menú de Electron
+    if (window.electronAPI?.showMenu) {
+      window.electronAPI.showMenu();
+    } else if ((window as any).electron?.ipcRenderer) {
+      (window as any).electron.ipcRenderer.invoke('show-menu');
+    }
   }
 
   private async makeWindowFloating() {
     if (window.electronAPI) {
       try {
         // Hacer la ventana flotante con dimensiones 373x90
-        await window.electronAPI.makeWindowFloating(373, 120);
+        await window.electronAPI.makeWindowFloating(432, 160);
       } catch (error) {
         console.error('Error al hacer la ventana flotante:', error);
       }
@@ -117,10 +132,14 @@ export default class Timer implements OnInit, OnDestroy {
   listenTimer() {
     this.timer.subscribe((timerState) => {
       this.timerState.set(timerState);
-      if (this.timerState()?.status === 'finished') {
-        this.timer.next();
-        this.goToNextTask();
+      console.log(this.timerState()?.status);
+      if (this.statusTimer() !== this.timerState()?.status) {
+        this.statusTimer.set(this.timerState()?.status || 'init');
+        this.audio = new Audio('assets/notification.mp3');
+        this.audio.volume = 0.5;
+        this.audio.play();
       }
+
       // Actualizar tiempo total
       if (timerState.status === 'work') {
         this.totalTime.update((current) => current + 1);

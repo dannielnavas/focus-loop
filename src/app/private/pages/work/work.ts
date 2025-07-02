@@ -30,6 +30,8 @@ declare global {
       showTitlebar: () => Promise<boolean>;
       showNotification: (title: string, body: string) => Promise<boolean>;
       hideNotification: () => Promise<boolean>;
+      hideMenu: () => Promise<boolean>;
+      showMenu: () => Promise<boolean>;
     };
   }
 }

@@ -7,7 +7,7 @@
       <span class="text-gray-400 text-xs font-medium mb-1">
         Actually working on
       </span>
-      <p class="text-white text-sm font-bold text-center text-balance max-w-32">
+      <p class="text-white text-lg font-bold text-center truncate max-w-32">
         {{ task()?.title }}
       </p>
     </div>
@@ -53,7 +53,7 @@
       @if(!timerState()?.status) {
       <button
         (click)="start()"
-        class="flex items-center justify-center w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+        class="flex items-center justify-center w-8 h-8 bg-blue-500 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
         title="Iniciar"
       >
         <svg
@@ -110,7 +110,7 @@
 
       <button
         (click)="goToNextTask()"
-        class="flex items-center justify-center w-8 h-8 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200"
+        class="flex items-center justify-center w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
         title="Terminar tarea"
       >
         <svg

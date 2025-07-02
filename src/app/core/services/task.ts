@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { Task as TaskModel, TaskResponse } from '../models/task.model';
 
 @Injectable({
@@ -7,33 +7,38 @@ import { Task as TaskModel, TaskResponse } from '../models/task.model';
 })
 export class Task {
   private readonly http = inject(HttpClient);
+  private readonly session = computed(() => localStorage.getItem('token'));
 
-  getTasks(userId: string) {
+  getTasks(userId: string | number) {
     return this.http.get<TaskResponse[]>(
-      `http://localhost:3000/tasks?user_id=${userId}`,
+      `https://my-tracker-backend-pied.vercel.app/tasks?user_id=${userId}`,
       {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJzdWIiOjEsImlhdCI6MTc1MTMzNDczOH0.d-c1ir582hacgL0pD1h5hXsbSIssXQAeCNexrE197rU`,
+          Authorization: `Bearer ${this.session()}`,
         },
       }
     );
   }
 
   createTask(task: TaskModel) {
-    return this.http.post<TaskModel>('http://localhost:3000/tasks', task, {
-      headers: {
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJzdWIiOjEsImlhdCI6MTc1MTMzNDczOH0.d-c1ir582hacgL0pD1h5hXsbSIssXQAeCNexrE197rU`,
-      },
-    });
-  }
-
-  updateTask(id: number, task: TaskModel) {
-    return this.http.patch<TaskModel>(
-      `http://localhost:3000/tasks/${id}`,
+    return this.http.post<TaskModel>(
+      'https://my-tracker-backend-pied.vercel.app/tasks',
       task,
       {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJzdWIiOjEsImlhdCI6MTc1MTMzNDczOH0.d-c1ir582hacgL0pD1h5hXsbSIssXQAeCNexrE197rU`,
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
+  }
+
+  updateTask(id: number, task: Partial<TaskModel>) {
+    return this.http.patch<TaskModel>(
+      `https://my-tracker-backend-pied.vercel.app/tasks/${id}`,
+      task,
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
         },
       }
     );

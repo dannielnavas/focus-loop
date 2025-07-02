@@ -76,57 +76,22 @@ app.on("window-all-closed", () => {
 // Configurar el menú de la aplicación
 const template = [
   {
-    label: "Archivo",
+    label: "Config",
     submenu: [
       {
-        label: "Nueva Ventana",
-        accelerator: "CmdOrCtrl+N",
-        click: () => {
-          createWindow();
-        },
+        label: "Config (without action)",
+        enabled: false,
       },
       {
         type: "separator",
       },
+      { role: "toggleDevTools", label: "DevTools" },
       {
-        label: "Salir",
-        accelerator: process.platform === "darwin" ? "Cmd+Q" : "Ctrl+Q",
+        label: "Exit App",
         click: () => {
           app.quit();
         },
       },
-    ],
-  },
-  {
-    label: "Editar",
-    submenu: [
-      { role: "undo", label: "Deshacer" },
-      { role: "redo", label: "Rehacer" },
-      { type: "separator" },
-      { role: "cut", label: "Cortar" },
-      { role: "copy", label: "Copiar" },
-      { role: "paste", label: "Pegar" },
-    ],
-  },
-  {
-    label: "Ver",
-    submenu: [
-      { role: "reload", label: "Recargar" },
-      { role: "forceReload", label: "Forzar Recarga" },
-      { role: "toggleDevTools", label: "Herramientas de Desarrollo" },
-      { type: "separator" },
-      { role: "resetZoom", label: "Zoom Normal" },
-      { role: "zoomIn", label: "Acercar" },
-      { role: "zoomOut", label: "Alejar" },
-      { type: "separator" },
-      { role: "togglefullscreen", label: "Pantalla Completa" },
-    ],
-  },
-  {
-    label: "Ventana",
-    submenu: [
-      { role: "minimize", label: "Minimizar" },
-      { role: "close", label: "Cerrar" },
     ],
   },
 ];
@@ -174,6 +139,31 @@ ipcMain.handle("reset-window-floating", () => {
     // Restaurar tamaño original
     mainWindow.setSize(1200, 800);
     mainWindow.center();
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle("move-window", (event, { x, y }) => {
+  if (mainWindow) {
+    mainWindow.setPosition(x, y);
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle("hide-titlebar", () => {
+  if (mainWindow) {
+    mainWindow.setWindowButtonVisibility(false); // Solo en macOS
+    // Para Windows/Linux, se requiere recrear la ventana sin frame, lo cual es más complejo.
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle("show-titlebar", () => {
+  if (mainWindow) {
+    mainWindow.setWindowButtonVisibility(true); // Solo en macOS
     return true;
   }
   return false;

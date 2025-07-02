@@ -28,14 +28,15 @@ export default class Principal {
   // Variables para manejar la entrada de nuevas tareas (solo para Pendiente)
   newTodoTask = '';
   showTodoInput = false;
+  user_id = computed(() => localStorage.getItem('user_id'));
 
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
 
-  resourcesTasks = rxResource<TaskResponse[], { user_id: string }>({
+  resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({
     stream: ({ params }) => this.taskService.getTasks(params.user_id),
     params: () => ({
-      user_id: '1',
+      user_id: Number(this.user_id()) || 0,
     }),
     defaultValue: [],
   });
@@ -72,11 +73,9 @@ export default class Principal {
         event.previousIndex,
         event.currentIndex
       );
-      debugger;
+
       // Obtener la tarea movida
       const movedTask = event.container.data[event.currentIndex];
-      console.log(movedTask);
-      console.log(event.container.id);
 
       // Determinar el nuevo estado según la lista destino
       let newStatus = 1; // Por defecto "todo"
@@ -97,11 +96,11 @@ export default class Principal {
         .updateTask(movedTask.task_id, {
           title: movedTask.title,
           status_task_id: newStatus,
-          user_id: 1,
+          user_id: Number(this.user_id()),
         })
         .subscribe({
           next: () => this.resourcesTasks.reload(),
-          error: (err) => console.log(err),
+          error: (err) => console.error(err),
         });
     }
   }
@@ -112,15 +111,14 @@ export default class Principal {
         .createTask({
           title: this.newTodoTask.trim(),
           status_task_id: 1,
-          user_id: 1,
+          user_id: Number(this.user_id()),
         })
         .subscribe({
           next: (res) => {
-            console.log(res);
             this.resourcesTasks.reload();
           },
           error: (err) => {
-            console.log(err);
+            console.error(err);
           },
         });
       this.newTodoTask = '';
@@ -145,7 +143,7 @@ export default class Principal {
 
   // Método para navegar a la pantalla de iniciar tareas
   iniciarTareas() {
-    if (this.today.length > 0) {
+    if (this.today().length > 0) {
       // Aquí puedes cambiar la ruta según tu estructura de navegación
       this.router.navigate(['/private/work']);
       // O si prefieres usar una ruta específica:

@@ -1,5 +1,5 @@
 import { Login as LoginService } from '@/core/services/login';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -18,9 +18,17 @@ export default class Login implements OnInit {
   private readonly router = inject(Router);
   private readonly loginService = inject(LoginService);
   private readonly formBuilder = inject(FormBuilder);
+  session = computed(() => localStorage.getItem('token'));
 
   formLogin!: FormGroup;
 
+  constructor() {
+    effect(() => {
+      if (this.session() && this.session() !== 'undefined') {
+        this.router.navigate(['/private']);
+      }
+    });
+  }
   ngOnInit(): void {
     this.initForm();
   }
@@ -34,11 +42,14 @@ export default class Login implements OnInit {
 
     this.loginService.login(this.formLogin.value).subscribe({
       next: (res) => {
-        console.log(res);
+        localStorage.setItem('token', res.access_token);
+        localStorage.setItem('user_id', res.user.user_id.toString());
+        localStorage.setItem('user_name', res.user.full_name);
+        localStorage.setItem('user_email', res.user.email);
         this.router.navigate(['/private']);
       },
       error: (err) => {
-        console.log(err);
+        console.error(err);
       },
     });
   }

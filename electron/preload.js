@@ -47,6 +47,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
   makeWindowFloating: (width, height) =>
     ipcRenderer.invoke("make-window-floating", { width, height }),
   resetWindowFloating: () => ipcRenderer.invoke("reset-window-floating"),
+
+  // Método para mover la ventana
+  moveWindow: (x, y) => ipcRenderer.invoke("move-window", { x, y }),
+
+  // Métodos para ocultar/mostrar la barra de título (solo macOS)
+  hideTitlebar: () => ipcRenderer.invoke("hide-titlebar"),
+  showTitlebar: () => ipcRenderer.invoke("show-titlebar"),
 });
 
 // Manejar eventos de la aplicación

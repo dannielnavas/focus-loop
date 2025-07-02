@@ -1,5 +1,15 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { TaskResponse } from '@/core/models/task.model';
+import { Task as TaskService } from '@/core/services/task';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import TimerPomodoro, { TimerState } from 'timer-for-pomodoro';
 
 // Declarar la interfaz para el API de Electron
@@ -10,33 +20,60 @@ declare global {
       resetWindowSize: () => Promise<boolean>;
       makeWindowFloating: (width: number, height: number) => Promise<boolean>;
       resetWindowFloating: () => Promise<boolean>;
+      moveWindow: (x: number, y: number) => Promise<boolean>;
+      hideTitlebar: () => Promise<boolean>;
+      showTitlebar: () => Promise<boolean>;
+      showNotification: (title: string, body: string) => Promise<boolean>;
+      hideNotification: () => Promise<boolean>;
     };
   }
 }
 
 @Component({
   selector: 'app-timer',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
 })
 export default class Timer implements OnInit, OnDestroy {
   private readonly router = inject(Router);
-  timer = new TimerPomodoro(1, 1, 999);
+  private readonly taskService = inject(TaskService);
+
+  resourcesTasks = rxResource<TaskResponse[], { user_id: string }>({
+    stream: ({ params }) => this.taskService.getTasks(params.user_id),
+    params: () => ({
+      user_id: '1',
+    }),
+    defaultValue: [],
+  });
+
+  task = computed(() => {
+    const tasks = this.resourcesTasks.value();
+    if (!tasks) return undefined;
+    return tasks.filter((task) => task.statusTask.status_task_id === 2)[0];
+  });
+  timer = new TimerPomodoro(60, 15, 999);
   timerState = signal<TimerState | undefined>(undefined);
-  task = signal<string>('Tarea 1');
+  // task = signal<string>('Tarea 1');
   totalTime = signal<number>(0);
   status = signal<boolean>(false);
 
   ngOnInit() {
-    console.log('Timer iniciado', this.timer);
     // Hacer la ventana flotante cuando se carga el componente timer
     this.makeWindowFloating();
+    // Ocultar barra de botones (solo macOS)
+    if (window.electronAPI?.hideTitlebar) {
+      window.electronAPI.hideTitlebar();
+    }
   }
 
   ngOnDestroy() {
     // Restaurar el estado normal de la ventana cuando se sale del componente
     this.resetWindowFloating();
+    // Restaurar barra de botones (solo macOS)
+    if (window.electronAPI?.showTitlebar) {
+      window.electronAPI.showTitlebar();
+    }
   }
 
   private async makeWindowFloating() {
@@ -80,7 +117,7 @@ export default class Timer implements OnInit, OnDestroy {
       this.timerState.set(timerState);
       if (this.timerState()?.status === 'finished') {
         this.timer.next();
-        console.log('Estado:', this.timerState());
+        this.goToNextTask();
       }
       // Actualizar tiempo total
       if (timerState.status === 'work') {
@@ -124,10 +161,20 @@ export default class Timer implements OnInit, OnDestroy {
   }
 
   goToNextTask() {
-    this.router.navigate(['/private/work']);
+    this.timer.stop();
+    this.taskService
+      .updateTask(this.task()?.task_id || 0, {
+        status_task_id: 3,
+      })
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/private/work']);
+        },
+      });
   }
 
   backToWork() {
+    this.timer.stop();
     this.router.navigate(['/private/work']);
   }
 }

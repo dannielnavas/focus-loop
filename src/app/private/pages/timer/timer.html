@@ -1,9 +1,15 @@
 <section class="flex items-start justify-start p-0">
-  <div class="group flex items-center gap-4 bg-gray-800 rounded-lg p-4 shadow-lg border border-gray-700 hover:bg-gray-750 transition-all duration-300">
+  <div
+    class="group flex items-center gap-4 bg-gray-800 rounded-lg p-4 shadow-lg border border-gray-700 hover:bg-gray-750 transition-all duration-300"
+  >
     <!-- Tarea actual -->
     <div class="flex flex-col items-center min-w-0">
-      <span class="text-gray-400 text-xs font-medium mb-1">Tarea actual</span>
-      <p class="text-white text-lg font-bold text-center truncate max-w-32">{{ task() }}</p>
+      <span class="text-gray-400 text-xs font-medium mb-1">
+        Actually working on
+      </span>
+      <p class="text-white text-sm font-bold text-center text-balance max-w-32">
+        {{ task()?.title }}
+      </p>
     </div>
 
     <!-- Separador vertical -->
@@ -11,9 +17,10 @@
 
     <!-- Timer -->
     <div class="flex flex-col items-center min-w-0">
-      <span class="text-gray-400 text-xs font-medium mb-1">Tiempo</span>
+      <span class="text-gray-400 text-xs font-medium mb-1">Time</span>
       <div class="text-white text-3xl font-mono font-bold">
-        {{ formatTime((timerState()?.minutes || 0) * 60 + (timerState()?.seconds || 0)) }}
+        {{ formatTime((timerState()?.minutes || 0) * 60 + (timerState()?.seconds
+        || 0)) }}
       </div>
     </div>
 
@@ -21,44 +28,84 @@
     <div class="w-px h-12 bg-gray-600"></div>
 
     <!-- Controles - Aparecen solo en hover -->
-    <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+    <div class="flex items-center gap-2">
       <!-- Botón Agregar -->
       <button
         class="flex items-center justify-center w-8 h-8 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200"
         title="Agregar tarea"
         (click)="backToWork()"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          ></path>
         </svg>
       </button>
 
       @if(!timerState()?.status) {
-        <button
-          (click)="start()"
-          class="flex items-center justify-center w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
-          title="Iniciar"
+      <button
+        (click)="start()"
+        class="flex items-center justify-center w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+        title="Iniciar"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z"></path>
-          </svg>
-        </button>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z"
+          ></path>
+        </svg>
+      </button>
       } @else {
-        <button
-          (click)="status() ? pause() : play()"
-          class="flex items-center justify-center w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
-          title="Pausar/Continuar"
+      <button
+        (click)="status() ? pause() : play()"
+        class="flex items-center justify-center w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+        title="Pausar/Continuar"
+      >
+        @if (status()) {
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          @if (status()) {
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path>
-            </svg>
-          } @else {
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z"></path>
-            </svg>
-          }
-        </button>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 9v6m4-6v6"
+          ></path>
+        </svg>
+        } @else {
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z"
+          ></path>
+        </svg>
+        }
+      </button>
       }
 
       <button
@@ -66,8 +113,18 @@
         class="flex items-center justify-center w-8 h-8 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200"
         title="Terminar tarea"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
         </svg>
       </button>
     </div>

@@ -15,16 +15,16 @@ function createWindow() {
       enableRemoteModule: false,
       preload: path.join(__dirname, "preload.js"),
     },
-    icon: path.join(__dirname, "../public/favicon.ico"),
+    icon: path.join(__dirname, "../src/assets/icon.png"),
     show: false,
     // Configurar para mostrar solo controles nativos del sistema operativo
     titleBarStyle: "default", // Usar controles nativos
     frame: true, // Mantener el marco nativo con controles del sistema
     // Hacer la ventana redimensionable
-    resizable: true,
+    resizable: false,
     // Permitir minimizar y maximizar
-    minimizable: true,
-    maximizable: true,
+    minimizable: false,
+    maximizable: false,
     // Configuraciones adicionales para una mejor experiencia
     transparent: false,
     hasShadow: true,

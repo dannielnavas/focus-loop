@@ -9,24 +9,24 @@ jobs:
     steps:
       - uses: actions/checkout@master
         with:
-          ref: electron
+          ref: main
       - uses: actions/setup-node@master
         with:
-          node-version: 10.16
+          node-version: 22.17.0
       - name: Ver contenido de la carpeta electron
         run: ls ./electron
       - name: Instalar dependencias
-        run: yarn install
+        run: npm install
       - name: Build en MacOS
         env:
           ELECTRON: true
           APP_VERSION_NUMBER: 0.5.9
-        run: yarn build
+        run: npm run build
       - name: Build Electron (sin firma)
         env:
           ELECTRON: true
           APP_VERSION_NUMBER: 0.5.9
-        run: yarn electron:buildUnix
+        run: npm run electron:buildUnix
       - name: Ver contenido raíz
         run: ls
       - name: Ver contenido de electron_dist
@@ -44,10 +44,10 @@ jobs:
     steps:
       - uses: actions/checkout@master
         with:
-          ref: feature/github-actions
+          ref: main
       - uses: actions/setup-node@master
         with:
-          node-version: 10.16
+          node-version: 22.17.0
       - name: instalar windows-build-tools
         run: npm install --global --production windows-build-tools@4.0.0
       - name: instalar node-gyp
@@ -59,17 +59,17 @@ jobs:
       - name: Workaround para Windows Server 2019
         run: set path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin
       - name: Instalar dependencias
-        run: yarn install
+        run: npm install
       - name: Build en Windows
         env:
           ELECTRON: true
           APP_VERSION_NUMBER: 0.5.9
-        run: yarn build
+        run: npm run build
       - name: Build Electron (sin firma)
         env:
           ELECTRON: true
           APP_VERSION_NUMBER: 0.5.9
-        run: yarn electron:buildWin
+        run: npm run electron:buildWin
       - name: Ver contenido de electron_dist/squirrel-windows
         run: ls ./electron_dist/squirrel-windows
       - uses: lucyio/upload-to-release@master

@@ -26,7 +26,7 @@ jobs:
         env:
           ELECTRON: true
           APP_VERSION_NUMBER: 0.5.9
-        run: npm run electron:buildUnix
+        run: npm run electron:build
       - name: Ver contenido raíz
         run: ls
       - name: Ver contenido de electron_dist
@@ -69,7 +69,7 @@ jobs:
         env:
           ELECTRON: true
           APP_VERSION_NUMBER: 0.5.9
-        run: npm run electron:buildWin
+        run: npm run electron:build
       - name: Ver contenido de electron_dist/squirrel-windows
         run: ls ./electron_dist/squirrel-windows
       - uses: lucyio/upload-to-release@master

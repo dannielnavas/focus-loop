@@ -11,7 +11,7 @@ export class Task {
 
   getTasks(userId: string | number) {
     return this.http.get<TaskResponse[]>(
-      `http://localhost:3000/tasks?user_id=${userId}`,
+      `https://my-tracker-backend-pied.vercel.app/tasks?user_id=${userId}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -21,16 +21,20 @@ export class Task {
   }
 
   createTask(task: TaskModel) {
-    return this.http.post<TaskModel>('http://localhost:3000/tasks', task, {
-      headers: {
-        Authorization: `Bearer ${this.session()}`,
-      },
-    });
+    return this.http.post<TaskModel>(
+      'https://my-tracker-backend-pied.vercel.app/tasks',
+      task,
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
   }
 
   updateTask(id: number, task: Partial<TaskModel>) {
     return this.http.patch<TaskModel>(
-      `http://localhost:3000/tasks/${id}`,
+      `https://my-tracker-backend-pied.vercel.app/tasks/${id}`,
       task,
       {
         headers: {

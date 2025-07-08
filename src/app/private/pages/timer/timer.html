@@ -1,4 +1,4 @@
-<section class="flex items-start justify-start p-0">
+<section class="flex items-start justify-start p-0 w-full">
   <div
     class="group flex items-center gap-4 bg-gray-800 rounded-lg p-4 shadow-lg border border-gray-700 hover:bg-gray-750 transition-all duration-300"
   >
@@ -24,11 +24,10 @@
       </div>
     </div>
 
-    <!-- Separador vertical -->
-    <div class="w-px h-12 bg-gray-600"></div>
-
     <!-- Controles - Aparecen solo en hover -->
-    <div class="flex items-center gap-2">
+    <div
+      class="items-center gap-2 absolute top-0 hidden group-hover:flex justify-center min-w-[260px] max-w-[300px] w-[260px] bg-gray-800 h-[88px] rounded-lg"
+    >
       <!-- Botón Agregar -->
       <button
         class="flex items-center justify-center w-8 h-8 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200"

@@ -6,14 +6,7 @@ import {
   CdkDropList,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
@@ -45,7 +38,6 @@ declare global {
 export default class Work implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
-  // today: string[] = ['Tarea 1', 'Tarea 2', 'Tarea 3'];
   user_id = computed(() => localStorage.getItem('user_id'));
 
   resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({
@@ -59,18 +51,10 @@ export default class Work implements OnInit, OnDestroy {
   today = computed(() => {
     const tasks = this.resourcesTasks.value();
     if (!tasks) return [];
-    return tasks.filter((task) => task.statusTask.status_task_id === 2);
+    return tasks
+      .filter((task) => task.statusTask.status_task_id === 2)
+      .sort((a, b) => a.position - b.position);
   });
-
-  constructor() {
-    effect(() => {
-      const data = this.today();
-
-      // if (filter.length === 0) {
-      //   this.router.navigate(['/private']);
-      // }
-    });
-  }
 
   ngOnInit() {
     // Redimensionar la ventana cuando se carga el componente work

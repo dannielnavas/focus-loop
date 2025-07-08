@@ -32,7 +32,7 @@
           cdkDropList
           #todoList="cdkDropList"
           [cdkDropListData]="todo()"
-          [cdkDropListConnectedTo]="[todayList]"
+          [cdkDropListConnectedTo]="[todayList, doneList]"
           class="p-4 min-h-[400px] bg-gray-900"
           (cdkDropListDropped)="drop($event)"
         >
@@ -146,7 +146,7 @@
           cdkDropList
           #todayList="cdkDropList"
           [cdkDropListData]="today()"
-          [cdkDropListConnectedTo]="[doneList]"
+          [cdkDropListConnectedTo]="[todoList, doneList]"
           class="p-4 min-h-[400px] bg-gray-900 flex flex-col"
           (cdkDropListDropped)="drop($event)"
         >
@@ -191,7 +191,7 @@
           >
             <!-- Degradado en el borde con animación -->
             <div
-              class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-cyan-500 opacity-100 group-hover:animate-pulse group-hover:scale-105 transition-all duration-500"
+              class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 opacity-100 group-hover:animate-pulse group-hover:scale-105 transition-all duration-500"
             ></div>
             <div
               class="absolute inset-[2px] bg-gray-800 rounded-lg group-hover:bg-gray-750 transition-colors duration-300"
@@ -249,7 +249,7 @@
           cdkDropList
           #doneList="cdkDropList"
           [cdkDropListData]="done()"
-          [cdkDropListConnectedTo]="[todoList]"
+          [cdkDropListConnectedTo]="[todoList, todayList]"
           class="p-4 min-h-[400px] bg-gray-900"
           (cdkDropListDropped)="drop($event)"
         >

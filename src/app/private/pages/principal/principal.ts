@@ -19,13 +19,6 @@ import { Router } from '@angular/router';
   styleUrl: './principal.css',
 })
 export default class Principal {
-  // todo: string[] = [];
-
-  // today: string[] = [];
-
-  // done: string[] = [];
-
-  // Variables para manejar la entrada de nuevas tareas (solo para Pendiente)
   newTodoTask = '';
   showTodoInput = false;
   user_id = computed(() => localStorage.getItem('user_id'));
@@ -44,19 +37,25 @@ export default class Principal {
   todo = computed(() => {
     const tasks = this.resourcesTasks.value();
     if (!tasks) return [];
-    return tasks.filter((task) => task.statusTask.status_task_id === 1);
+    return tasks
+      .filter((task) => task.statusTask.status_task_id === 1)
+      .sort((a, b) => a.position - b.position);
   });
 
   today = computed(() => {
     const tasks = this.resourcesTasks.value();
     if (!tasks) return [];
-    return tasks.filter((task) => task.statusTask.status_task_id === 2);
+    return tasks
+      .filter((task) => task.statusTask.status_task_id === 2)
+      .sort((a, b) => a.position - b.position);
   });
 
   done = computed(() => {
     const tasks = this.resourcesTasks.value();
     if (!tasks) return [];
-    return tasks.filter((task) => task.statusTask.status_task_id === 3);
+    return tasks
+      .filter((task) => task.statusTask.status_task_id === 3)
+      .sort((a, b) => a.position - b.position);
   });
 
   drop(event: CdkDragDrop<any[]>) {
@@ -65,6 +64,11 @@ export default class Principal {
         event.container.data,
         event.previousIndex,
         event.currentIndex
+      );
+      // Actualizar el orden en la columna actual
+      this.updatePositions(
+        event.container.data,
+        this.getStatusFromContainerId(event.container.id)
       );
     } else {
       transferArrayItem(
@@ -78,20 +82,9 @@ export default class Principal {
       const movedTask = event.container.data[event.currentIndex];
 
       // Determinar el nuevo estado según la lista destino
-      let newStatus = 1; // Por defecto "todo"
-      if (
-        event.container.id &&
-        event.container.id.includes('cdk-drop-list-1')
-      ) {
-        newStatus = 2;
-      } else if (
-        event.container.id &&
-        event.container.id.includes('cdk-drop-list-2')
-      ) {
-        newStatus = 3;
-      }
+      const newStatus = this.getStatusFromContainerId(event.container.id);
 
-      // Llamar al servicio para actualizar el estado de la tarea
+      // Llamar al servicio para actualizar el estado de la tarea movida
       this.taskService
         .updateTask(movedTask.task_id, {
           title: movedTask.title,
@@ -102,7 +95,39 @@ export default class Principal {
           next: () => this.resourcesTasks.reload(),
           error: (err) => console.error(err),
         });
+
+      // Actualizar el orden en ambas columnas
+      this.updatePositions(event.container.data, newStatus);
+      this.updatePositions(
+        event.previousContainer.data,
+        this.getStatusFromContainerId(event.previousContainer.id)
+      );
     }
+  }
+
+  // Nuevo método para actualizar el campo position de todas las tareas de una columna
+  updatePositions(tasks: any[], status_task_id: number) {
+    tasks.forEach((task, index) => {
+      this.taskService
+        .updateTask(task.task_id, {
+          position: index + 1,
+          status_task_id,
+          user_id: Number(this.user_id()),
+        })
+        .subscribe({
+          error: (err) => console.error(err),
+        });
+    });
+  }
+
+  // Nuevo método para obtener el status_task_id según el id del contenedor
+  getStatusFromContainerId(containerId: string): number {
+    if (containerId && containerId.includes('cdk-drop-list-1')) {
+      return 2; // Hoy
+    } else if (containerId && containerId.includes('cdk-drop-list-2')) {
+      return 3; // Completado
+    }
+    return 1; // Pendiente
   }
 
   addTodoTask() {
@@ -141,13 +166,9 @@ export default class Principal {
     }
   }
 
-  // Método para navegar a la pantalla de iniciar tareas
   iniciarTareas() {
     if (this.today().length > 0) {
-      // Aquí puedes cambiar la ruta según tu estructura de navegación
       this.router.navigate(['/private/work']);
-      // O si prefieres usar una ruta específica:
-      // this.router.navigate(['/tareas/nueva']);
     }
   }
 }

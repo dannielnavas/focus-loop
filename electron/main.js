@@ -18,15 +18,15 @@ function createWindow() {
     icon: path.join(__dirname, "../src/assets/icon.png"),
     show: false,
     // Configurar para mostrar solo controles nativos del sistema operativo
-    titleBarStyle: "default", // Usar controles nativos
+    titleBarStyle: "customButtonsOnHover", // Usar controles nativos
     frame: true, // Mantener el marco nativo con controles del sistema
     // Hacer la ventana redimensionable
-    resizable: false,
+    resizable: true,
     // Permitir minimizar y maximizar
     minimizable: false,
     maximizable: false,
     // Configuraciones adicionales para una mejor experiencia
-    transparent: false,
+    transparent: true,
     hasShadow: true,
   });
 

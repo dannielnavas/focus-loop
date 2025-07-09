@@ -97,7 +97,17 @@ export default class Timer implements OnInit, OnDestroy {
     if (window.electronAPI) {
       try {
         // Hacer la ventana flotante con dimensiones 373x90
-        await window.electronAPI.makeWindowFloating(280, 120);
+        if (navigator.userAgent.includes('Windows')) {
+          await window.electronAPI.makeWindowFloating(432, 160);
+        }
+        if (navigator.userAgent.includes('Linux')) {
+          await window.electronAPI.makeWindowFloating(432, 160);
+        }
+        // validar si es macos
+        if (navigator.userAgent.includes('Macintosh')) {
+          await window.electronAPI.makeWindowFloating(280, 90);
+          await window.electronAPI.moveWindow(10, 10);
+        }
       } catch (error) {
         console.error('Error al hacer la ventana flotante:', error);
       }

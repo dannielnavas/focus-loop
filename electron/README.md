@@ -1,4 +1,4 @@
-# Electron Integration para My Tracker
+# Electron Integration para Focus Loop
 
 Este directorio contiene los archivos necesarios para ejecutar la aplicación Angular como una aplicación de escritorio usando Electron.
 
@@ -47,7 +47,7 @@ La aplicación Angular puede acceder a las siguientes APIs a través de `window.
 const appInfo = window.electronAPI.getAppInfo();
 
 // Mostrar notificación del sistema
-window.electronAPI.showNotification('Título', 'Mensaje');
+window.electronAPI.showNotification("Título", "Mensaje");
 
 // Manejo de archivos (ejemplo)
 const filePath = await window.electronAPI.openFile();

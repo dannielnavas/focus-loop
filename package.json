@@ -1,10 +1,10 @@
 {
-  "name": "my-tracker",
+  "name": "focus-loop",
   "version": "0.0.0",
   "description": "Aplicación de seguimiento y gestión de tareas",
   "author": {
-    "name": "My Tracker Team",
-    "email": "contact@mytracker.com"
+    "name": "Danniel Navas",
+    "email": "me@danniel.dev"
   },
   "main": "electron/main.js",
   "scripts": {
@@ -53,8 +53,8 @@
     "wait-on": "^8.0.1"
   },
   "build": {
-    "appId": "dev.danniel.mytracker",
-    "productName": "My Tracker",
+    "appId": "dev.danniel.focusloop",
+    "productName": "Focus Loop",
     "directories": {
       "output": "release"
     },
@@ -65,18 +65,18 @@
       "package.json"
     ],
     "mac": {
-      "appId": "dev.danniel.mytracker",
+      "appId": "dev.danniel.focusloop",
       "category": "public.app-category.productivity",
       "icon": "src/assets/icon.icns",
       "target": "dmg"
     },
     "win": {
-      "appId": "dev.danniel.mytracker",
+      "appId": "dev.danniel.focusloop",
       "icon": "src/assets/icon.png",
       "target": "nsis"
     },
     "linux": {
-      "appId": "dev.danniel.mytracker",
+      "appId": "dev.danniel.focusloop",
       "icon": "src/assets/icon.png",
       "target": "AppImage"
     }

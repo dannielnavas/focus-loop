@@ -22,8 +22,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Obtener información de la aplicación
   getAppInfo: () => {
     return {
-      version: process.env.npm_package_version || "1.0.0",
-      name: process.env.npm_package_name || "My Tracker",
+      version: process.env.npm_package_version || "1.0.10",
+      name: process.env.npm_package_name || "Focus Loop",
       platform: process.platform,
       arch: process.arch,
     };

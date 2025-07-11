@@ -137,6 +137,7 @@ export default class Principal {
           title: this.newTodoTask.trim(),
           status_task_id: 1,
           user_id: Number(this.user_id()),
+          position: this.todo().length + 1,
         })
         .subscribe({
           next: (res) => {

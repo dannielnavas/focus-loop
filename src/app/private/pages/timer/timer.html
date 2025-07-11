@@ -4,9 +4,6 @@
   >
     <!-- Tarea actual -->
     <div class="flex flex-col items-center min-w-0">
-      <span class="text-gray-400 text-xs font-medium mb-1">
-        Actually working on
-      </span>
       <p class="text-white text-lg font-bold text-center truncate max-w-32">
         {{ task()?.title }}
       </p>
@@ -17,7 +14,6 @@
 
     <!-- Timer -->
     <div class="flex flex-col items-center min-w-0">
-      <span class="text-gray-400 text-xs font-medium mb-1">Time</span>
       <div class="text-white text-3xl font-mono font-bold">
         {{ formatTime((timerState()?.minutes || 0) * 60 + (timerState()?.seconds
         || 0)) }}

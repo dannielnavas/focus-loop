@@ -56,7 +56,15 @@ export default class Login implements OnInit {
 
   private initForm() {
     this.formLogin = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email,
+          Validators.minLength(3),
+          Validators.maxLength(255),
+        ],
+      ],
       password: ['', [Validators.required]],
     });
   }

@@ -5,7 +5,6 @@
 - **Última actualización:** Junio 2024
 - **Versión Angular:** 20.0.3
 - **Estado del build:** ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-- **Cobertura de tests:** ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 - **Dependencias actualizadas:** ![Dependabot](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen)
 
 <!-- Puedes agregar más indicadores relevantes aquí -->

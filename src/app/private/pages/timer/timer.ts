@@ -105,8 +105,8 @@ export default class Timer implements OnInit, OnDestroy {
         }
         // validar si es macos
         if (navigator.userAgent.includes('Macintosh')) {
-          await window.electronAPI.makeWindowFloating(280, 90);
-          await window.electronAPI.moveWindow(10, 10);
+          await window.electronAPI.makeWindowFloating(310, 68);
+          await window.electronAPI.moveWindow(0, 50);
         }
       } catch (error) {
         console.error('Error al hacer la ventana flotante:', error);
@@ -145,9 +145,16 @@ export default class Timer implements OnInit, OnDestroy {
       console.log(this.timerState()?.status);
       if (this.statusTimer() !== this.timerState()?.status) {
         this.statusTimer.set(this.timerState()?.status || 'init');
-        this.audio = new Audio('assets/notification.mp3');
-        this.audio.volume = 0.5;
-        this.audio.play();
+        if (this.timerState()?.status === 'work') {
+          this.audio = new Audio('assets/start.mp3');
+          this.audio.volume = 0.5;
+          this.audio.play();
+        }
+        if (this.timerState()?.status === 'break') {
+          this.audio = new Audio('assets/break.mp3');
+          this.audio.volume = 0.5;
+          this.audio.play();
+        }
       }
 
       // Actualizar tiempo total

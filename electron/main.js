@@ -21,7 +21,7 @@ function createWindow() {
     titleBarStyle: "customButtonsOnHover", // Usar controles nativos
     frame: true, // Mantener el marco nativo con controles del sistema
     // Hacer la ventana redimensionable
-    resizable: true,
+    resizable: false, // Cambiado a false para que no se pueda redimensionar
     // Permitir minimizar y maximizar
     minimizable: false,
     maximizable: false,
@@ -74,27 +74,7 @@ app.on("window-all-closed", () => {
 });
 
 // Configurar el menú de la aplicación
-const template = [
-  {
-    label: "Config",
-    submenu: [
-      {
-        label: "Config (without action)",
-        enabled: false,
-      },
-      {
-        type: "separator",
-      },
-      { role: "toggleDevTools", label: "DevTools" },
-      {
-        label: "Exit App",
-        click: () => {
-          app.quit();
-        },
-      },
-    ],
-  },
-];
+const template = [];
 
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);

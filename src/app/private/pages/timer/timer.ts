@@ -1,5 +1,6 @@
 import { TaskResponse } from '@/core/models/task.model';
 import { Task as TaskService } from '@/core/services/task';
+import { Header } from '@/shared/components/header/header';
 import {
   Component,
   computed,
@@ -12,28 +13,9 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import TimerPomodoro, { TimerState } from 'timer-for-pomodoro';
 
-// Declarar la interfaz para el API de Electron
-declare global {
-  interface Window {
-    electronAPI?: {
-      resizeWindow: (width: number, height: number) => Promise<boolean>;
-      resetWindowSize: () => Promise<boolean>;
-      makeWindowFloating: (width: number, height: number) => Promise<boolean>;
-      resetWindowFloating: () => Promise<boolean>;
-      moveWindow: (x: number, y: number) => Promise<boolean>;
-      hideTitlebar: () => Promise<boolean>;
-      showTitlebar: () => Promise<boolean>;
-      showNotification: (title: string, body: string) => Promise<boolean>;
-      hideNotification: () => Promise<boolean>;
-      hideMenu: () => Promise<boolean>;
-      showMenu: () => Promise<boolean>;
-    };
-  }
-}
-
 @Component({
   selector: 'app-timer',
-  imports: [],
+  imports: [Header],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
 })
@@ -55,72 +37,60 @@ export default class Timer implements OnInit, OnDestroy {
   task = computed(() => {
     const tasks = this.resourcesTasks.value();
     if (!tasks) return undefined;
-    return tasks.filter((task) => task.statusTask.status_task_id === 2)[0];
+    return tasks.find((task) => task.statusTask.status_task_id === 2);
   });
   timer = new TimerPomodoro(60, 15, 999);
   timerState = signal<TimerState | undefined>(undefined);
-  // task = signal<string>('Tarea 1');
   totalTime = signal<number>(0);
   status = signal<boolean>(false);
 
   ngOnInit() {
-    // Hacer la ventana flotante cuando se carga el componente timer
-    this.makeWindowFloating();
-    // Ocultar barra de botones (solo macOS)
-    if (window.electronAPI?.hideTitlebar) {
-      window.electronAPI.hideTitlebar();
-    }
-    // Ocultar menú de Electron
-    if (window.electronAPI?.hideMenu) {
-      window.electronAPI.hideMenu();
-    } else if ((window as any).electron?.ipcRenderer) {
-      (window as any).electron.ipcRenderer.invoke('hide-menu');
-    }
+    this.setFloatingWindow();
+    this.toggleTitlebarAndMenu(false);
   }
 
   ngOnDestroy() {
-    // Restaurar el estado normal de la ventana cuando se sale del componente
-    this.resetWindowFloating();
-    // Restaurar barra de botones (solo macOS)
-    if (window.electronAPI?.showTitlebar) {
-      window.electronAPI.showTitlebar();
+    this.resetFloatingWindow();
+    this.toggleTitlebarAndMenu(true);
+  }
+
+  private async setFloatingWindow() {
+    if (!window.electronAPI) return;
+    try {
+      const { userAgent } = navigator;
+      if (userAgent.includes('Windows') || userAgent.includes('Linux')) {
+        await window.electronAPI.makeWindowFloating(432, 160);
+      } else if (userAgent.includes('Macintosh')) {
+        await window.electronAPI.makeWindowFloating(306, 80);
+      }
+      await window.electronAPI.moveWindow(0, 50);
+    } catch (error) {
+      console.error('Error al hacer la ventana flotante:', error);
     }
-    // Restaurar menú de Electron
-    if (window.electronAPI?.showMenu) {
-      window.electronAPI.showMenu();
+  }
+
+  private async resetFloatingWindow() {
+    if (!window.electronAPI) return;
+    try {
+      await window.electronAPI.resetWindowFloating();
+    } catch (error) {
+      console.error('Error al restaurar el estado de la ventana:', error);
+    }
+  }
+
+  private toggleTitlebarAndMenu(show: boolean) {
+    if (window.electronAPI) {
+      if (show) {
+        window.electronAPI.showTitlebar?.();
+        window.electronAPI.showMenu?.();
+      } else {
+        window.electronAPI.hideTitlebar?.();
+        window.electronAPI.hideMenu?.();
+      }
     } else if ((window as any).electron?.ipcRenderer) {
-      (window as any).electron.ipcRenderer.invoke('show-menu');
-    }
-  }
-
-  private async makeWindowFloating() {
-    if (window.electronAPI) {
-      try {
-        // Hacer la ventana flotante con dimensiones 373x90
-        if (navigator.userAgent.includes('Windows')) {
-          await window.electronAPI.makeWindowFloating(432, 160);
-        }
-        if (navigator.userAgent.includes('Linux')) {
-          await window.electronAPI.makeWindowFloating(432, 160);
-        }
-        // validar si es macos
-        if (navigator.userAgent.includes('Macintosh')) {
-          await window.electronAPI.makeWindowFloating(310, 68);
-          await window.electronAPI.moveWindow(0, 50);
-        }
-      } catch (error) {
-        console.error('Error al hacer la ventana flotante:', error);
-      }
-    }
-  }
-
-  private async resetWindowFloating() {
-    if (window.electronAPI) {
-      try {
-        await window.electronAPI.resetWindowFloating();
-      } catch (error) {
-        console.error('Error al restaurar el estado de la ventana:', error);
-      }
+      (window as any).electron.ipcRenderer.invoke(
+        show ? 'show-menu' : 'hide-menu'
+      );
     }
   }
 
@@ -134,6 +104,7 @@ export default class Timer implements OnInit, OnDestroy {
     this.timer.pause();
     this.status.set(false);
   }
+
   play() {
     this.timer.start();
     this.status.set(true);
@@ -142,29 +113,28 @@ export default class Timer implements OnInit, OnDestroy {
   listenTimer() {
     this.timer.subscribe((timerState) => {
       this.timerState.set(timerState);
-      console.log(this.timerState()?.status);
-      if (this.statusTimer() !== this.timerState()?.status) {
-        this.statusTimer.set(this.timerState()?.status || 'init');
-        if (this.timerState()?.status === 'work') {
-          this.audio = new Audio('assets/start.mp3');
-          this.audio.volume = 0.5;
-          this.audio.play();
-        }
-        if (this.timerState()?.status === 'break') {
-          this.audio = new Audio('assets/break.mp3');
-          this.audio.volume = 0.5;
-          this.audio.play();
-        }
+      if (this.statusTimer() !== timerState.status) {
+        this.statusTimer.set(timerState.status || 'init');
+        this.playAudioForStatus(timerState.status);
       }
-
-      // Actualizar tiempo total
       if (timerState.status === 'work') {
         this.totalTime.update((current) => current + 1);
       }
     });
   }
 
-  // Formatear tiempo en formato MM:SS
+  private playAudioForStatus(status: string | undefined) {
+    if (!status) return;
+    let audioFile = '';
+    if (status === 'work') audioFile = 'assets/start.mp3';
+    if (status === 'break') audioFile = 'assets/break.mp3';
+    if (audioFile) {
+      this.audio = new Audio(audioFile);
+      this.audio.volume = 0.5;
+      this.audio.play();
+    }
+  }
+
   formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -173,25 +143,19 @@ export default class Timer implements OnInit, OnDestroy {
       .padStart(2, '0')}`;
   }
 
-  // Calcular ángulo de progreso para el círculo
   getProgressAngle(): number {
     const state = this.timerState();
-    if (!state) {
-      return 0;
-    }
-    // Usar timeRaw para calcular el progreso
+    if (!state) return 0;
     const totalSeconds = state.minutes * 60 + state.seconds;
     const workTimeSeconds = state.settings.workTime * 60;
     const progress = (workTimeSeconds - totalSeconds) / workTimeSeconds;
     return Math.max(0, Math.min(360, progress * 360));
   }
 
-  // Formatear tiempo total trabajado
   formatTotalTime(): string {
     const totalMinutes = Math.floor(this.totalTime() / 60);
     const totalHours = Math.floor(totalMinutes / 60);
     const remainingMinutes = totalMinutes % 60;
-
     if (totalHours > 0) {
       return `${totalHours}h ${remainingMinutes}m`;
     }

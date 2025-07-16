@@ -1,102 +1,12 @@
 <header
   id="landing-header"
-  class="mix-blend-difference fixed flex flex-row top-0 left-0 right-0 z-50 justify-between items-center h-16 px-6 w-screen max-w-[1920px] mx-auto transition-all bg-black/20 backdrop-blur-xl"
+  class="fixed flex flex-row top-0 left-0 right-0 z-50 justify-between items-center h-2 px-6 w-screen max-w-[1920px] mx-auto transition-all bg-transparent drag-region"
+  style="-webkit-app-region: drag"
   data-astro-cid-3ef6ksr2=""
 >
-  <a href="/" data-astro-cid-3ef6ksr2="">Focus Loop</a>
   <div class="flex gap-x-8" data-astro-cid-3ef6ksr2="">
-    <!-- <h1
-      class="hidden lg:block uppercase font-medium text-sm"
-      data-astro-cid-3ef6ksr2=""
-    >
-      Agencia de talento multiplataforma
-    </h1> -->
     <div class="flex gap-x-16" data-astro-cid-3ef6ksr2="">
-      <!-- <button
-        class="relative hover:scale-125 hover:text-ubiq-green transition-transform"
-      >
-        <svg
-          id="volume-enable"
-          class="absolute inset-0 m-auto block transition-opacity w-8 h-8"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          stroke="currentColor"
-          stroke-width="1"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path
-            d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5"
-          ></path>
-          <path d="M16 10l4 4m0 -4l-4 4"></path>
-        </svg>
-        <svg
-          id="volume-disable"
-          class="absolute inset-0 m-auto block transition-opacity w-8 h-8 opacity-0"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="transparent"
-          stroke="currentColor"
-          stroke-width="1"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M15 8a5 5 0 0 1 0 8"></path>
-          <path d="M17.7 5a9 9 0 0 1 0 14"></path>
-          <path
-            d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5"
-            fill="currentColor"
-          ></path>
-        </svg>
-      </button> -->
-      <div class="flex flex-row gap-x-4 text-white relative">
-        <!-- <label
-          class="cursor-pointer uppercase text-current font-bold flex items-center gap-x-2"
-          for="language-picker-checkbox"
-        >
-          <svg
-            class="w-5 h-5"
-            xmlns="http://www.w3.org/2000/svg"
-            width="19"
-            height="19"
-            fill="none"
-            viewBox="0 0 19 19"
-          >
-            <path
-              fill="#fff"
-              d="M18.9921 9.18333C18.8274 4.19667 14.8033.172484 9.81667.00791664V0h-.63334v.00791664C4.19667.172585.172484 4.19667.00791664 9.18333H0v.63334h.00791664C.172585 14.8033 4.19667 18.8275 9.18333 18.9921V19h.63334v-.0079c4.98663-.1647 9.01083-4.1888 9.17543-9.17543H19v-.63334h-.0079Zm-4.1136 0c-.0301-1.6174-.2905-3.13346-.7251-4.44918.8312-.25966 1.5453-.5906 2.0915-.9793 1.2572 1.4733 2.0409 3.36146 2.1138 5.42848h-3.4802Zm-1.5342-4.88147c-1.053.26442-2.2675.42037-3.52769.44333V.655341C11.2662.834259 12.5393 2.23087 13.3443 4.30186ZM9.18327.655443V4.74529c-1.26273-.02295-2.4756-.17891-3.52846-.44333C6.46074 2.23089 7.73378.834399 9.18327.655443Zm0 4.723187v3.8047H4.75395c.02929-1.56197.27551-3.0226.6848-4.27894 1.11388.2858 2.39617.4513 3.74452.47424Zm0 4.43804v3.80473c-1.3506.0229-2.63145.1884-3.74471.4742-.40929-1.2564-.65472-2.717-.68479-4.27897l4.4295.00004Zm0 4.43803v4.0899c-1.44955-.179-2.72265-1.5763-3.52846-3.6473 1.05134-.2636 2.2634-.4204 3.52846-.4426Zm.63334 4.0899v-4.0899c1.26269.023 2.47559.1789 3.52849.4433-.806 2.0711-2.079 3.4676-3.52849 3.6466Zm0-4.7232V9.81667h4.42929c-.0293 1.56193-.2755 3.02263-.6848 4.27893-1.1139-.2858-2.3953-.4513-3.74449-.4742Zm0-4.43807v-3.8047c1.34659-.02295 2.62999-.18842 3.74389-.47501.4101 1.25717.6555 2.71778.6856 4.27975l-4.42949-.00004Zm5.99859-5.89867c-.4877.33329-1.1305.61988-1.8763.85026-.528-1.35535-1.2492-2.45898-2.0939-3.183318 1.5271.418008 2.8904 1.234958 3.9702 2.333058ZM7.15435.950731C6.30963 1.67511 5.58842 2.7787 5.06038 4.13486c-.74576-.23038-1.38702-.51776-1.87547-.85105C4.26554 2.18654 5.62806 1.36959 7.15435.950731ZM2.75422 3.75485c.54625.38951 1.26114.71964 2.09154.9793-.43463 1.31655-.69431 2.83189-.72438 4.44918H.641155C.71399 7.11712 1.497 5.22886 2.75422 3.75485Zm1.36722 6.06182c.03008 1.61663.28975 3.13103.72438 4.44673-.83048.2597-1.54456.5906-2.09154.9809C1.4971 13.771.714217 11.8828.641256 9.81663l3.480184.00004ZM3.18568 15.717c.48847-.3341 1.12813-.6231 1.87389-.8535.52806 1.357 1.24927 2.4606 2.09478 3.1858-1.52554-.4188-2.88804-1.2351-3.96867-2.3323Zm8.66002 2.3323c.8447-.7244 1.5659-1.828 2.094-3.1842.7457.2304 1.387.5178 1.8747.8519-1.0799 1.0965-2.4424 1.9134-3.9687 2.3323Zm4.4001-2.805c-.5462-.3895-1.2611-.7196-2.0915-.9793.4346-1.3157.6943-2.831.7244-4.44833h3.4802c-.0728 2.06623-.8558 3.95443-2.1131 5.42763Z"
-            ></path>
-          </svg>
-          <span class="text-current">es</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="8"
-            height="6"
-            fill="none"
-            viewBox="0 0 8 6"
-          >
-            <path stroke="currentColor" d="M7 .5H1L4 5 7 .5Z"></path>
-          </svg>
-        </label> -->
-        <!-- <input
-          class="peer absolute left-[100vw]"
-          type="checkbox"
-          id="language-picker-checkbox"
-        /> -->
-        <!-- <ul
-          class="peer-checked:block hidden absolute top-full mt-5 border border-black bg-white text-black rounded-lg p-4 right-0 mix-blend-normal"
-        >
-          <li><a class="hover:text-ubiq-green" href="/en/"> English </a></li>
-          <li><a class="hover:text-ubiq-green" href="/"> Español </a></li>
-        </ul> -->
-      </div>
+      <div class="flex flex-row gap-x-4 text-white relative"></div>
     </div>
   </div>
 </header>

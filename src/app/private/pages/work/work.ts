@@ -1,5 +1,6 @@
 import { TaskResponse } from '@/core/models/task.model';
 import { Task as TaskService } from '@/core/services/task';
+import { Header } from '@/shared/components/header/header';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -10,28 +11,9 @@ import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
-// Declarar la interfaz para el API de Electron
-declare global {
-  interface Window {
-    electronAPI?: {
-      resizeWindow: (width: number, height: number) => Promise<boolean>;
-      resetWindowSize: () => Promise<boolean>;
-      makeWindowFloating: (width: number, height: number) => Promise<boolean>;
-      resetWindowFloating: () => Promise<boolean>;
-      moveWindow: (x: number, y: number) => Promise<boolean>;
-      hideTitlebar: () => Promise<boolean>;
-      showTitlebar: () => Promise<boolean>;
-      showNotification: (title: string, body: string) => Promise<boolean>;
-      hideNotification: () => Promise<boolean>;
-      hideMenu: () => Promise<boolean>;
-      showMenu: () => Promise<boolean>;
-    };
-  }
-}
-
 @Component({
   selector: 'app-work',
-  imports: [CdkDropList, CdkDrag, RouterLink],
+  imports: [CdkDropList, CdkDrag, RouterLink, Header],
   templateUrl: './work.html',
   styleUrl: './work.css',
 })
@@ -57,46 +39,31 @@ export default class Work implements OnInit, OnDestroy {
   });
 
   ngOnInit() {
-    // Redimensionar la ventana cuando se carga el componente work
-    this.resizeWindowForWork();
-    // Mover la ventana a la esquina superior izquierda
-    this.moveWindowToLeft();
+    this.setWorkWindowLayout();
   }
 
   ngOnDestroy() {
-    // Restaurar el tamaño original de la ventana cuando se sale del componente
-    this.resetWindowSize();
+    this.resetWindowLayout();
   }
 
-  private async resizeWindowForWork() {
+  private async setWorkWindowLayout() {
     if (window.electronAPI) {
       try {
-        // Obtener la altura de la pantalla
         const screenHeight = window.screen.height;
-        // Redimensionar a 440px de ancho y altura completa
         await window.electronAPI.resizeWindow(440, screenHeight);
+        await window.electronAPI.moveWindow(0, 0);
       } catch (error) {
-        console.error('Error al redimensionar la ventana:', error);
+        console.error('Error al configurar la ventana de trabajo:', error);
       }
     }
   }
 
-  private async resetWindowSize() {
+  private async resetWindowLayout() {
     if (window.electronAPI) {
       try {
         await window.electronAPI.resetWindowSize();
       } catch (error) {
         console.error('Error al restaurar el tamaño de la ventana:', error);
-      }
-    }
-  }
-
-  private async moveWindowToLeft() {
-    if (window.electronAPI) {
-      try {
-        await window.electronAPI.moveWindow(0, 0);
-      } catch (error) {
-        console.error('Error al mover la ventana:', error);
       }
     }
   }
@@ -109,13 +76,13 @@ export default class Work implements OnInit, OnDestroy {
 
   eliminarTarea(index: number) {
     if (index >= 0 && index < this.today().length) {
-      const tareaEliminada = this.today().splice(index, 1)[0];
+      this.today().splice(index, 1);
     }
   }
 
-  marcarComoCompletada(index: number) {
+  marcarComoCompletada(taskId: number) {
     this.taskService
-      .updateTask(index, {
+      .updateTask(taskId, {
         status_task_id: 3,
       })
       .subscribe({

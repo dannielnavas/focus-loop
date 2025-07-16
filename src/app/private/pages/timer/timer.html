@@ -1,22 +1,25 @@
-<section class="flex items-start justify-start p-0 w-full">
+<app-header />
+<section
+  class="flex flex-col sm:flex-row items-center justify-center w-full max-w-2xl mx-auto gap-4"
+>
   <div
-    class="group flex items-center gap-4 bg-gray-800 rounded-lg p-2 shadow-lg border border-gray-700 hover:bg-gray-750 transition-all duration-300"
+    class="group flex items-center gap-4 bg-gray-800/90 rounded-xl p-4 shadow-xl border border-gray-700 hover:bg-gray-750 transition-all duration-300 w-full relative min-h-[80px]"
   >
     <!-- Tarea actual -->
-    <div class="flex flex-col items-center min-w-0">
+    <div class="flex flex-col items-center min-w-0 flex-1">
       <p
-        class="text-white text-lg font-bold text-center truncate max-w-[350px]"
+        class="text-white text-lg font-semibold text-center truncate max-w-[350px]"
       >
         {{ task()?.title }}
       </p>
     </div>
 
     <!-- Separador vertical -->
-    <div class="w-px h-12 bg-gray-600"></div>
+    <div class="hidden sm:block w-px h-12 bg-gray-600"></div>
 
     <!-- Timer -->
     <div class="flex flex-col items-center min-w-0">
-      <div class="text-white text-3xl font-mono font-bold">
+      <div class="text-white text-3xl font-mono font-bold drop-shadow">
         {{ formatTime((timerState()?.minutes || 0) * 60 + (timerState()?.seconds
         || 0)) }}
       </div>
@@ -24,11 +27,11 @@
 
     <!-- Controles - Aparecen solo en hover -->
     <div
-      class="items-center gap-2 absolute top-0 hidden group-hover:flex justify-center min-w-[260px] max-w-[300px] w-full bg-gray-800 h-full rounded-lg"
+      class="items-center gap-2 absolute top-0 left-0 right-0 h-full hidden group-hover:flex justify-center bg-gray-900/90 rounded-xl z-10 transition-all duration-200 min-w-[260px] max-w-[300px] w-full"
     >
-      <!-- Botón Agregar -->
+      <!-- Botón Volver -->
       <button
-        class="flex items-center justify-center w-8 h-8 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200"
+        class="flex items-center justify-center w-9 h-9 bg-purple-600 hover:bg-purple-700 focus:ring-2 focus:ring-purple-400 text-white rounded-lg transition-colors duration-200 outline-none"
         title="Agregar tarea"
         (click)="backToWork()"
       >
@@ -43,14 +46,14 @@
             stroke-linejoin="round"
             stroke-width="2"
             d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          ></path>
+          />
         </svg>
       </button>
 
       @if(!timerState()?.status) {
       <button
         (click)="start()"
-        class="flex items-center justify-center w-8 h-8 bg-blue-500 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+        class="flex items-center justify-center w-9 h-9 bg-blue-500 hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 text-white rounded-lg transition-colors duration-200 outline-none"
         title="Iniciar"
       >
         <svg
@@ -64,13 +67,13 @@
             stroke-linejoin="round"
             stroke-width="2"
             d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z"
-          ></path>
+          />
         </svg>
       </button>
       } @else {
       <button
         (click)="status() ? pause() : play()"
-        class="flex items-center justify-center w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+        class="flex items-center justify-center w-9 h-9 bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 text-white rounded-lg transition-colors duration-200 outline-none"
         title="Pausar/Continuar"
       >
         @if (status()) {
@@ -85,7 +88,7 @@
             stroke-linejoin="round"
             stroke-width="2"
             d="M10 9v6m4-6v6"
-          ></path>
+          />
         </svg>
         } @else {
         <svg
@@ -99,7 +102,7 @@
             stroke-linejoin="round"
             stroke-width="2"
             d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z"
-          ></path>
+          />
         </svg>
         }
       </button>
@@ -107,7 +110,7 @@
 
       <button
         (click)="goToNextTask()"
-        class="flex items-center justify-center w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+        class="flex items-center justify-center w-9 h-9 bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-400 text-white rounded-lg transition-colors duration-200 outline-none"
         title="Terminar tarea"
       >
         <svg
@@ -121,7 +124,7 @@
             stroke-linejoin="round"
             stroke-width="2"
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
+          />
         </svg>
       </button>
     </div>

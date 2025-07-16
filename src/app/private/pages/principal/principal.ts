@@ -1,5 +1,6 @@
 import { TaskResponse } from '@/core/models/task.model';
 import { Task as TaskService } from '@/core/services/task';
+import { Header } from '@/shared/components/header/header';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -14,7 +15,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-principal',
-  imports: [CdkDropList, CdkDrag, FormsModule],
+  imports: [CdkDropList, CdkDrag, FormsModule, Header],
   templateUrl: './principal.html',
   styleUrl: './principal.css',
 })
@@ -34,29 +35,9 @@ export default class Principal {
     defaultValue: [],
   });
 
-  todo = computed(() => {
-    const tasks = this.resourcesTasks.value();
-    if (!tasks) return [];
-    return tasks
-      .filter((task) => task.statusTask.status_task_id === 1)
-      .sort((a, b) => a.position - b.position);
-  });
-
-  today = computed(() => {
-    const tasks = this.resourcesTasks.value();
-    if (!tasks) return [];
-    return tasks
-      .filter((task) => task.statusTask.status_task_id === 2)
-      .sort((a, b) => a.position - b.position);
-  });
-
-  done = computed(() => {
-    const tasks = this.resourcesTasks.value();
-    if (!tasks) return [];
-    return tasks
-      .filter((task) => task.statusTask.status_task_id === 3)
-      .sort((a, b) => a.position - b.position);
-  });
+  todo = computed(() => this.filterAndSortTasks(1));
+  today = computed(() => this.filterAndSortTasks(2));
+  done = computed(() => this.filterAndSortTasks(3, true));
 
   drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {
@@ -65,7 +46,6 @@ export default class Principal {
         event.previousIndex,
         event.currentIndex
       );
-      // Actualizar el orden en la columna actual
       this.updatePositions(
         event.container.data,
         this.getStatusFromContainerId(event.container.id)
@@ -77,26 +57,9 @@ export default class Principal {
         event.previousIndex,
         event.currentIndex
       );
-
-      // Obtener la tarea movida
       const movedTask = event.container.data[event.currentIndex];
-
-      // Determinar el nuevo estado según la lista destino
       const newStatus = this.getStatusFromContainerId(event.container.id);
-
-      // Llamar al servicio para actualizar el estado de la tarea movida
-      this.taskService
-        .updateTask(movedTask.task_id, {
-          title: movedTask.title,
-          status_task_id: newStatus,
-          user_id: Number(this.user_id()),
-        })
-        .subscribe({
-          next: () => this.resourcesTasks.reload(),
-          error: (err) => console.error(err),
-        });
-
-      // Actualizar el orden en ambas columnas
+      this.updateTaskStatus(movedTask, newStatus);
       this.updatePositions(event.container.data, newStatus);
       this.updatePositions(
         event.previousContainer.data,
@@ -105,7 +68,38 @@ export default class Principal {
     }
   }
 
-  // Nuevo método para actualizar el campo position de todas las tareas de una columna
+  private filterAndSortTasks(status: number, isDone: boolean = false) {
+    const tasks = this.resourcesTasks.value();
+    if (!tasks) return [];
+    let filtered = tasks.filter(
+      (task) => task.statusTask.status_task_id === status
+    );
+    if (isDone) {
+      filtered = filtered.sort((a, b) => {
+        const updatedDiff =
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        if (updatedDiff !== 0) return updatedDiff;
+        return a.position - b.position;
+      });
+    } else {
+      filtered = filtered.sort((a, b) => a.position - b.position);
+    }
+    return filtered;
+  }
+
+  private updateTaskStatus(task: any, newStatus: number) {
+    this.taskService
+      .updateTask(task.task_id, {
+        title: task.title,
+        status_task_id: newStatus,
+        user_id: Number(this.user_id()),
+      })
+      .subscribe({
+        next: () => this.resourcesTasks.reload(),
+        error: (err) => console.error(err),
+      });
+  }
+
   updatePositions(tasks: any[], status_task_id: number) {
     tasks.forEach((task, index) => {
       this.taskService
@@ -120,7 +114,6 @@ export default class Principal {
     });
   }
 
-  // Nuevo método para obtener el status_task_id según el id del contenedor
   getStatusFromContainerId(containerId: string): number {
     if (containerId && containerId.includes('cdk-drop-list-1')) {
       return 2; // Hoy
@@ -140,25 +133,19 @@ export default class Principal {
           position: this.todo().length + 1,
         })
         .subscribe({
-          next: (res) => {
-            this.resourcesTasks.reload();
-          },
-          error: (err) => {
-            console.error(err);
-          },
+          next: () => this.resourcesTasks.reload(),
+          error: (err) => console.error(err),
         });
       this.newTodoTask = '';
       this.showTodoInput = false;
     }
   }
 
-  // Método para cancelar la entrada
   cancelInput() {
     this.newTodoTask = '';
     this.showTodoInput = false;
   }
 
-  // Método para manejar la tecla Enter
   onKeyPress(event: KeyboardEvent) {
     if (event.key === 'Enter') {
       this.addTodoTask();

@@ -3,23 +3,13 @@
   class="flex flex-col sm:flex-row items-center justify-center w-full max-w-2xl mx-auto gap-4"
 >
   <div
-    class="group flex items-center gap-4 bg-gray-800/90 rounded-xl p-4 shadow-xl border border-gray-700 hover:bg-gray-750 transition-all duration-300 w-full relative min-h-[80px]"
+    class="group flex items-center gap-4 bg-gray-800/90 rounded-xl p-2 shadow-xl border border-gray-700 hover:bg-gray-750 transition-all duration-300 w-full relative min-h-[80px]"
   >
-    <!-- Tarea actual -->
-    <div class="flex flex-col items-center min-w-0 flex-1">
-      <p
-        class="text-white text-lg font-semibold text-center truncate max-w-[350px]"
-      >
-        {{ task()?.title }}
-      </p>
-    </div>
-
-    <!-- Separador vertical -->
-    <div class="hidden sm:block w-px h-12 bg-gray-600"></div>
-
-    <!-- Timer -->
-    <div class="flex flex-col items-center min-w-0">
-      <div class="text-white text-3xl font-mono font-bold drop-shadow">
+    <div class="flex items-center justify-between w-full gap-4">
+      <div class="flex items-center flex-1">
+        <p class="text-gray-100 font-medium text-sm">{{task()?.title}}</p>
+      </div>
+      <div class="flex items-center space-x-2 text-lg">
         {{ formatTime((timerState()?.minutes || 0) * 60 + (timerState()?.seconds
         || 0)) }}
       </div>

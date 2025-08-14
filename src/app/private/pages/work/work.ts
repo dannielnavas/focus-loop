@@ -33,9 +33,7 @@ export default class Work implements OnInit, OnDestroy {
   today = computed(() => {
     const tasks = this.resourcesTasks.value();
     if (!tasks) return [];
-    return tasks
-      .filter((task) => task.statusTask.status_task_id === 2)
-      .sort((a, b) => a.position - b.position);
+    return tasks.filter((task) => task.statusTask.status_task_id === 2);
   });
 
   ngOnInit() {

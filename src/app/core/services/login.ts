@@ -11,15 +11,12 @@ export class Login {
 
   login(auth: Auth) {
     return this.http.post<LoginResponse>(
-      'https://my-tracker-backend-pied.vercel.app//auth/login',
+      'http://localhost:3000/auth/login',
       auth
     );
   }
 
   register(user: CreateUser) {
-    return this.http.post<CreateUser>(
-      'https://my-tracker-backend-pied.vercel.app//users',
-      user
-    );
+    return this.http.post<CreateUser>('http://localhost:3000/users', user);
   }
 }

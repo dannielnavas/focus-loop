@@ -24,9 +24,9 @@ export default class Login implements OnInit {
 
   constructor() {
     effect(() => {
-      if (this.session() && this.session() !== 'undefined') {
-        this.router.navigate(['/private']);
-      }
+      // if (this.session() && this.session() !== 'undefined') {
+      //   this.router.navigate(['/private']);
+      // }
     });
   }
   ngOnInit(): void {

@@ -1,5 +1,5 @@
-import { TaskResponse } from '@/core/models/task.model';
 import { Task as TaskService } from '@/core/services/task';
+import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
 import {
   CdkDrag,
@@ -8,7 +8,6 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
@@ -20,18 +19,10 @@ import { Router, RouterLink } from '@angular/router';
 export default class Work implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
-  user_id = computed(() => localStorage.getItem('user_id'));
-
-  resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({
-    stream: ({ params }) => this.taskService.getTasks(params.user_id),
-    params: () => ({
-      user_id: Number(this.user_id()) || 0,
-    }),
-    defaultValue: [],
-  });
+  private readonly store = inject(Store);
 
   today = computed(() => {
-    const tasks = this.resourcesTasks.value();
+    const tasks = this.store.getTaskForWork();
     if (!tasks) return [];
     return tasks.filter((task) => task.statusTask.status_task_id === 2);
   });
@@ -85,7 +76,11 @@ export default class Work implements OnInit, OnDestroy {
       })
       .subscribe({
         next: () => {
-          this.resourcesTasks.reload();
+          this.store.setTaskForWork(
+            this.store
+              .getTaskForWork()
+              .filter((task) => task.task_id !== taskId)
+          );
         },
         error: (error) => {
           console.error('Error al marcar como completada:', error);
@@ -94,6 +89,7 @@ export default class Work implements OnInit, OnDestroy {
   }
 
   iniciarTareas() {
+    this.store.setOneTaskForWork(this.today()[0]);
     this.router.navigate(['/private/timer']);
   }
 }

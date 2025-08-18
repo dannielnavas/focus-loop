@@ -20,6 +20,10 @@ export const routes: Routes = [
         loadComponent: () => import('./private/pages/principal/principal'),
       },
       {
+        path: 'board/:sprint_id',
+        loadComponent: () => import('./private/pages/board/board'),
+      },
+      {
         path: 'work',
         loadComponent: () => import('./private/pages/work/work'),
       },

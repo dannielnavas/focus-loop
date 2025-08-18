@@ -1,0 +1,317 @@
+<app-header />
+<div
+  class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4 sm:p-6"
+>
+  <div class="max-w-7xl mx-auto">
+    <!-- Columns Container -->
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-[calc(100vh-48px)] min-h-0"
+    >
+      <!-- To Do Column -->
+      <div
+        class="p-[2px] bg-gradient-to-r from-orange-600 to-red-600 rounded-2xl shadow-2xl border border-gray-700 overflow-visible flex flex-col h-full min-h-0"
+      >
+        <div
+          class="bg-gray-900 rounded-2xl overflow-visible flex flex-col h-full min-h-0"
+        >
+          <div class="px-4 py-3 sm:px-6 sm:py-4">
+            <h2
+              class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              Pending
+            </h2>
+            <p class="text-orange-200 text-xs sm:text-sm mt-1">
+              {{todo().length}} tasks
+            </p>
+          </div>
+
+          <div
+            cdkDropList
+            #todoList="cdkDropList"
+            [cdkDropListData]="todo()"
+            [cdkDropListConnectedTo]="[todayList, doneList]"
+            class="p-3 sm:p-4 min-h-0 overflow-auto bg-gray-900 flex-1 rounded-b-2xl"
+            (cdkDropListDropped)="drop($event)"
+          >
+            <div class="flex-1 flex flex-col min-h-0">
+              @if (showTodoInput) {
+              <div
+                class="bg-gray-800 rounded-lg border border-gray-600 p-3 sm:p-4 mb-3"
+              >
+                <input
+                  type="text"
+                  [(ngModel)]="newTodoTask"
+                  (keydown)="onKeyPress($event)"
+                  placeholder="Write your task..."
+                  class="w-full bg-gray-700 text-gray-100 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-gray-400"
+                  autofocus
+                />
+                <div class="flex justify-end space-x-2 mt-3">
+                  <button
+                    (click)="cancelInput()"
+                    class="px-3 py-1 text-sm text-gray-400 hover:text-white focus:text-orange-400 focus:outline-none transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    (click)="addTodoTask()"
+                    class="px-3 py-1 text-sm bg-orange-600 hover:bg-orange-700 focus:ring-2 focus:ring-orange-400 text-white rounded transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+              } @for (item of todo(); track item) {
+              <div
+                class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-3 sm:p-4 mb-3 cursor-move hover:bg-gray-750 hover:border-gray-600 transition-all duration-200"
+                cdkDrag
+              >
+                <div class="flex items-start justify-between">
+                  <p class="text-gray-100 font-medium">{{item.title}}</p>
+                  <div
+                    class="w-2 h-2 bg-orange-400 rounded-full flex-shrink-0 ml-3 mt-1"
+                  ></div>
+                </div>
+              </div>
+              } @if (todo().length === 0 && !showTodoInput) {
+              <div class="text-center text-gray-500 py-8">
+                <svg
+                  class="w-12 h-12 mx-auto mb-3 opacity-50"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  ></path>
+                </svg>
+                <p class="text-xs sm:text-sm">No pending tasks</p>
+              </div>
+              }
+            </div>
+            @if (!showTodoInput) {
+            <button
+              (click)="showTodoInput = true"
+              class="w-full bg-gray-800 hover:bg-gray-750 border-2 border-dashed border-gray-600 hover:border-orange-500 focus:border-orange-400 rounded-lg p-4 text-gray-400 hover:text-orange-400 focus:text-orange-400 transition-all duration-200 flex items-center justify-center cursor-pointer mt-auto focus:outline-none"
+            >
+              <svg
+                class="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                ></path>
+              </svg>
+              Add task
+            </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Today Column -->
+      <div
+        class="p-[2px] bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden flex flex-col h-full min-h-0"
+      >
+        <div
+          class="bg-gray-900 rounded-2xl overflow-hidden flex flex-col h-full min-h-0"
+        >
+          <div class="px-4 py-3 sm:px-6 sm:py-4">
+            <h2
+              class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                ></path>
+              </svg>
+              Today
+            </h2>
+            <p class="text-blue-200 text-xs sm:text-sm mt-1">
+              {{today().length}} tasks
+            </p>
+          </div>
+
+          <div
+            cdkDropList
+            #todayList="cdkDropList"
+            [cdkDropListData]="today()"
+            [cdkDropListConnectedTo]="[todoList, doneList]"
+            class="p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] bg-gray-900 overflow-auto flex-1 rounded-b-2xl"
+            (cdkDropListDropped)="drop($event)"
+          >
+            <div class="flex-1 flex flex-col min-h-0">
+              @for (item of today(); track item) {
+              <div
+                class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-3 sm:p-4 mb-3 cursor-move hover:bg-gray-750 hover:border-gray-600 transition-all duration-200"
+                cdkDrag
+              >
+                <div class="flex items-start justify-between">
+                  <p class="text-gray-100 font-medium">{{item.title}}</p>
+                  <div
+                    class="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0 ml-3 mt-1"
+                  ></div>
+                </div>
+              </div>
+              } @if (today().length === 0) {
+              <div class="text-center text-gray-500 py-8">
+                <svg
+                  class="w-12 h-12 mx-auto mb-3 opacity-50"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                <p class="text-xs sm:text-sm">No tasks for today</p>
+              </div>
+              }
+            </div>
+            <button
+              (click)="iniciarTareas()"
+              class="relative w-full bg-gray-800 hover:bg-gray-750 rounded-lg p-4 mt-auto text-white font-medium transition-all duration-300 overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <!-- Degradado en el borde con animación -->
+              <div
+                class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 opacity-100 group-hover:animate-pulse group-hover:scale-105 transition-all duration-500"
+              ></div>
+              <div
+                class="absolute inset-[2px] bg-gray-800 rounded-lg group-hover:bg-gray-750 transition-colors duration-300"
+              ></div>
+
+              <!-- Contenido del botón -->
+              <div class="relative flex items-center justify-center">
+                <svg
+                  class="w-5 h-5 mr-2 text-blue-400 group-hover:text-blue-300 transition-colors"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  ></path>
+                </svg>
+                <span
+                  class="text-gray-100 group-hover:text-white transition-colors"
+                  >Start Work</span
+                >
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Done Column -->
+      <div
+        class="p-[2px] bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden flex flex-col h-full min-h-0"
+      >
+        <div
+          class="bg-gray-900 rounded-2xl overflow-hidden flex flex-col h-full min-h-0"
+        >
+          <div class="px-4 py-3 sm:px-6 sm:py-4">
+            <h2
+              class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              Done
+            </h2>
+            <p class="text-green-200 text-xs sm:text-sm mt-1">
+              {{done().length}} tasks
+            </p>
+          </div>
+
+          <div
+            cdkDropList
+            #doneList="cdkDropList"
+            [cdkDropListData]="done()"
+            [cdkDropListConnectedTo]="[todoList, todayList]"
+            class="p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] bg-gray-900 overflow-auto flex-1 rounded-b-2xl"
+            (cdkDropListDropped)="drop($event)"
+          >
+            @for (item of done(); track item) {
+            <div
+              class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-3 sm:p-4 mb-3 cursor-move hover:bg-gray-750 hover:border-gray-600 transition-all duration-200 opacity-75"
+              cdkDrag
+            >
+              <div class="flex items-start justify-between">
+                <p class="text-gray-400 font-medium line-through">
+                  {{item.title}}
+                </p>
+                <div
+                  class="w-2 h-2 bg-green-400 rounded-full flex-shrink-0 ml-3 mt-1"
+                ></div>
+              </div>
+            </div>
+            } @if (done().length === 0) {
+            <div class="text-center text-gray-500 py-8">
+              <svg
+                class="w-12 h-12 mx-auto mb-3 opacity-50"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <p class="text-xs sm:text-sm">No completed tasks</p>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,126 +1,83 @@
-.example-container {
-  width: 400px;
-  max-width: 100%;
-  margin: 0 25px 25px 0;
-  display: inline-block;
-  vertical-align: top;
+/* Estilos para la pantalla de sprints */
+.sprint-card {
+  transition: all 0.3s ease;
 }
 
-.example-list {
-  border: solid 1px #ccc;
-  min-height: 60px;
-  background: white;
-  border-radius: 4px;
-  overflow: hidden;
-  display: block;
+.sprint-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-.example-box {
-  padding: 20px 10px;
-  border-bottom: solid 1px #ccc;
-  color: rgba(0, 0, 0, 0.87);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  cursor: move;
-  background: white;
-  font-size: 14px;
+.status-badge {
+  transition: all 0.2s ease;
 }
 
-.cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 0.5rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  background: #1f2937;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  border: 1px solid #374151;
+.status-badge:hover {
+  transform: scale(1.05);
 }
 
-.cdk-drag-placeholder {
-  opacity: 0;
-  background: #111827;
-  border: 2px dashed #4b5563;
-  border-radius: 0.5rem;
-  margin-bottom: 0.75rem;
-  min-height: 4rem;
+.action-button {
+  transition: all 0.2s ease;
 }
 
-.cdk-drag-animating {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+.action-button:hover {
+  transform: scale(1.05);
 }
 
-.example-box:last-child {
-  border: none;
+/* Scrollbar personalizado para las listas de sprints */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
 }
 
-.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 3px;
 }
 
-/* Mejoras visuales para el drag and drop en modo oscuro */
-.cdk-drag-preview .bg-gray-800 {
-  background: #1f2937 !important;
-  border: 1px solid #374151 !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #6b7280;
+  border-radius: 3px;
 }
 
-/* Clase personalizada para hover en modo oscuro */
-.hover\:bg-gray-750:hover {
-  background-color: #374151;
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
-/* Animaciones personalizadas para el botón de iniciar tareas */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
+/* Animaciones para el formulario */
+.form-enter {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
 
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@keyframes gradient-rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+/* Efectos de hover para los botones de acción */
+.btn-activate:hover {
+  background: linear-gradient(135deg, #10b981, #059669);
 }
 
-/* Aplicar animación al degradado en hover */
-.group:hover .absolute.inset-0 {
-  background-size: 200% 200% !important;
-  animation: gradient-shift 2s ease infinite;
+.btn-complete:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
 
-/* Efecto de brillo adicional */
-.group:hover .absolute.inset-0::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: shine 1.5s ease-in-out infinite;
+.btn-delete:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
-@keyframes shine {
-  0% {
-    left: -100%;
-  }
+/* Estilos para los estados vacíos */
+.empty-state {
+  transition: all 0.3s ease;
+}
 
-  100% {
-    left: 100%;
-  }
+.empty-state:hover {
+  opacity: 0.8;
 }

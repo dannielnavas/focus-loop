@@ -9,9 +9,9 @@ export class Task {
   private readonly http = inject(HttpClient);
   private readonly session = computed(() => localStorage.getItem('token'));
 
-  getTasks(userId: string | number) {
+  getTasks(sprint_id: string | number) {
     return this.http.get<TaskResponse[]>(
-      `http://localhost:3000/tasks?user_id=${userId}`,
+      `http://localhost:3000/tasks?sprint_id=${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -30,8 +30,41 @@ export class Task {
 
   updateTask(id: number, task: Partial<TaskModel>) {
     return this.http.patch<TaskModel>(
-      `http://localhost:3000tasks/${id}`,
+      `http://localhost:3000/tasks/${id}`,
       task,
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
+  }
+
+  getCountPendingTasks(sprint_id: string | number) {
+    return this.http.get<number>(
+      `http://localhost:3000/tasks/count-task-pending/${sprint_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
+  }
+
+  getCountInProgressTasks(sprint_id: string | number) {
+    return this.http.get<number>(
+      `http://localhost:3000/tasks/count-task-in-progress/${sprint_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
+  }
+
+  getCountCompletedTasks(sprint_id: string | number) {
+    return this.http.get<number>(
+      `http://localhost:3000/tasks/count-task-completed/${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,

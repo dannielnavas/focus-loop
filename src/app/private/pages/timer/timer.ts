@@ -1,5 +1,5 @@
-import { TaskResponse } from '@/core/models/task.model';
 import { Task as TaskService } from '@/core/services/task';
+import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
 import {
   Component,
@@ -9,7 +9,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import TimerPomodoro, { TimerState } from 'timer-for-pomodoro';
 
@@ -22,22 +21,15 @@ import TimerPomodoro, { TimerState } from 'timer-for-pomodoro';
 export default class Timer implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
+  private readonly store = inject(Store);
+
   private audio: HTMLAudioElement | null = null;
   statusTimer = signal<string>('init');
-  user_id = computed(() => localStorage.getItem('user_id'));
-
-  resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({
-    stream: ({ params }) => this.taskService.getTasks(params.user_id),
-    params: () => ({
-      user_id: Number(this.user_id()) || 0,
-    }),
-    defaultValue: [],
-  });
 
   task = computed(() => {
-    const tasks = this.resourcesTasks.value();
-    if (!tasks) return undefined;
-    return tasks.find((task) => task.statusTask.status_task_id === 2);
+    const task = this.store.getOneTaskForWork();
+    if (!task) return undefined;
+    return task;
   });
   timer = new TimerPomodoro(60, 15, 999);
   timerState = signal<TimerState | undefined>(undefined);

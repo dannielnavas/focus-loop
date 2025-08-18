@@ -2,8 +2,8 @@ export interface Task {
   task_id?: number;
   title: string;
   status_task_id: number;
-  user_id: number;
   position?: number;
+  sprint_id: number;
 }
 
 export interface TaskResponse {

@@ -3,315 +3,277 @@
   class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4 sm:p-6"
 >
   <div class="max-w-7xl mx-auto">
-    <!-- Columns Container -->
+    <!-- Create Sprint Form -->
+    @if (showCreateForm()) {
     <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-[calc(100vh-48px)] min-h-0"
+      class="bg-gray-800 rounded-xl border border-gray-700 p-6 mb-8 shadow-xl"
     >
-      <!-- To Do Column -->
-      <div
-        class="p-[2px] bg-gradient-to-r from-orange-600 to-red-600 rounded-2xl shadow-2xl border border-gray-700 overflow-visible flex flex-col h-full min-h-0"
-      >
-        <div
-          class="bg-gray-900 rounded-2xl overflow-visible flex flex-col h-full min-h-0"
-        >
-          <div class="px-4 py-3 sm:px-6 sm:py-4">
-            <h2
-              class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2"
+      <h2 class="text-xl font-semibold text-white mb-4">Create New Sprint</h2>
+      <form (ngSubmit)="createSprint()" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2"
+              >Title</label
             >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-              Pending
-            </h2>
-            <p class="text-orange-200 text-xs sm:text-sm mt-1">
-              {{todo().length}} tasks
-            </p>
+            <input
+              type="text"
+              [(ngModel)]="newSprint().name"
+              name="name"
+              placeholder="Sprint name"
+              class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
+              required
+            />
           </div>
-
-          <div
-            cdkDropList
-            #todoList="cdkDropList"
-            [cdkDropListData]="todo()"
-            [cdkDropListConnectedTo]="[todayList, doneList]"
-            class="p-3 sm:p-4 min-h-0 overflow-auto bg-gray-900 flex-1 rounded-b-2xl"
-            (cdkDropListDropped)="drop($event)"
-          >
-            <div class="flex-1 flex flex-col min-h-0">
-              @if (showTodoInput) {
-              <div
-                class="bg-gray-800 rounded-lg border border-gray-600 p-3 sm:p-4 mb-3"
-              >
-                <input
-                  type="text"
-                  [(ngModel)]="newTodoTask"
-                  (keydown)="onKeyPress($event)"
-                  placeholder="Write your task..."
-                  class="w-full bg-gray-700 text-gray-100 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-gray-400"
-                  autofocus
-                />
-                <div class="flex justify-end space-x-2 mt-3">
-                  <button
-                    (click)="cancelInput()"
-                    class="px-3 py-1 text-sm text-gray-400 hover:text-white focus:text-orange-400 focus:outline-none transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    (click)="addTodoTask()"
-                    class="px-3 py-1 text-sm bg-orange-600 hover:bg-orange-700 focus:ring-2 focus:ring-orange-400 text-white rounded transition-colors"
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-              } @for (item of todo(); track item) {
-              <div
-                class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-3 sm:p-4 mb-3 cursor-move hover:bg-gray-750 hover:border-gray-600 transition-all duration-200"
-                cdkDrag
-              >
-                <div class="flex items-start justify-between">
-                  <p class="text-gray-100 font-medium">{{item.title}}</p>
-                  <div
-                    class="w-2 h-2 bg-orange-400 rounded-full flex-shrink-0 ml-3 mt-1"
-                  ></div>
-                </div>
-              </div>
-              } @if (todo().length === 0 && !showTodoInput) {
-              <div class="text-center text-gray-500 py-8">
-                <svg
-                  class="w-12 h-12 mx-auto mb-3 opacity-50"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  ></path>
-                </svg>
-                <p class="text-xs sm:text-sm">No pending tasks</p>
-              </div>
-              }
-            </div>
-            @if (!showTodoInput) {
-            <button
-              (click)="showTodoInput = true"
-              class="w-full bg-gray-800 hover:bg-gray-750 border-2 border-dashed border-gray-600 hover:border-orange-500 focus:border-orange-400 rounded-lg p-4 text-gray-400 hover:text-orange-400 focus:text-orange-400 transition-all duration-200 flex items-center justify-center cursor-pointer mt-auto focus:outline-none"
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2"
+              >Status</label
             >
-              <svg
-                class="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                ></path>
-              </svg>
-              Add task
-            </button>
-            }
+            <select
+              [(ngModel)]="newSprint().status"
+              name="status"
+              class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="planned">Planned</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+            </select>
           </div>
         </div>
-      </div>
 
-      <!-- Today Column -->
-      <div
-        class="p-[2px] bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden flex flex-col h-full min-h-0"
-      >
-        <div
-          class="bg-gray-900 rounded-2xl overflow-hidden flex flex-col h-full min-h-0"
-        >
-          <div class="px-4 py-3 sm:px-6 sm:py-4">
-            <h2
-              class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2"
-            >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                ></path>
-              </svg>
-              Today
-            </h2>
-            <p class="text-blue-200 text-xs sm:text-sm mt-1">
-              {{today().length}} tasks
-            </p>
-          </div>
-
-          <div
-            cdkDropList
-            #todayList="cdkDropList"
-            [cdkDropListData]="today()"
-            [cdkDropListConnectedTo]="[todoList, doneList]"
-            class="p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] bg-gray-900 overflow-auto flex-1 rounded-b-2xl"
-            (cdkDropListDropped)="drop($event)"
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2"
+            >Description</label
           >
-            <div class="flex-1 flex flex-col min-h-0">
-              @for (item of today(); track item) {
-              <div
-                class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-3 sm:p-4 mb-3 cursor-move hover:bg-gray-750 hover:border-gray-600 transition-all duration-200"
-                cdkDrag
-              >
-                <div class="flex items-start justify-between">
-                  <p class="text-gray-100 font-medium">{{item.title}}</p>
-                  <div
-                    class="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0 ml-3 mt-1"
-                  ></div>
-                </div>
-              </div>
-              } @if (today().length === 0) {
-              <div class="text-center text-gray-500 py-8">
-                <svg
-                  class="w-12 h-12 mx-auto mb-3 opacity-50"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
-                <p class="text-xs sm:text-sm">No tasks for today</p>
-              </div>
-              }
-            </div>
-            <button
-              (click)="iniciarTareas()"
-              class="relative w-full bg-gray-800 hover:bg-gray-750 rounded-lg p-4 mt-auto text-white font-medium transition-all duration-300 overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <!-- Degradado en el borde con animación -->
-              <div
-                class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 opacity-100 group-hover:animate-pulse group-hover:scale-105 transition-all duration-500"
-              ></div>
-              <div
-                class="absolute inset-[2px] bg-gray-800 rounded-lg group-hover:bg-gray-750 transition-colors duration-300"
-              ></div>
+          <textarea
+            [(ngModel)]="newSprint().description"
+            name="description"
+            placeholder="Sprint description"
+            rows="3"
+            class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
+          ></textarea>
+        </div>
 
-              <!-- Contenido del botón -->
-              <div class="relative flex items-center justify-center">
-                <svg
-                  class="w-5 h-5 mr-2 text-blue-400 group-hover:text-blue-300 transition-colors"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  ></path>
-                </svg>
-                <span
-                  class="text-gray-100 group-hover:text-white transition-colors"
-                  >Start Work</span
-                >
-              </div>
-            </button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2"
+              >Start Date</label
+            >
+            <input
+              type="date"
+              [(ngModel)]="newSprint().start_date"
+              name="start_date"
+              class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2"
+              >End Date</label
+            >
+            <input
+              type="date"
+              [(ngModel)]="newSprint().end_date"
+              name="end_date"
+              class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
           </div>
         </div>
-      </div>
 
-      <!-- Done Column -->
-      <div
-        class="p-[2px] bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden flex flex-col h-full min-h-0"
-      >
-        <div
-          class="bg-gray-900 rounded-2xl overflow-hidden flex flex-col h-full min-h-0"
-        >
-          <div class="px-4 py-3 sm:px-6 sm:py-4">
-            <h2
-              class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2"
-            >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-              Done
-            </h2>
-            <p class="text-green-200 text-xs sm:text-sm mt-1">
-              {{done().length}} tasks
-            </p>
-          </div>
-
-          <div
-            cdkDropList
-            #doneList="cdkDropList"
-            [cdkDropListData]="done()"
-            [cdkDropListConnectedTo]="[todoList, todayList]"
-            class="p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] bg-gray-900 overflow-auto flex-1 rounded-b-2xl"
-            (cdkDropListDropped)="drop($event)"
+        <div class="flex justify-end space-x-3 pt-4">
+          <button
+            type="button"
+            (click)="resetForm()"
+            class="px-6 py-2 text-gray-400 hover:text-white border border-gray-600 hover:border-gray-500 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
-            @for (item of done(); track item) {
-            <div
-              class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-3 sm:p-4 mb-3 cursor-move hover:bg-gray-750 hover:border-gray-600 transition-all duration-200 opacity-75"
-              cdkDrag
-            >
-              <div class="flex items-start justify-between">
-                <p class="text-gray-400 font-medium line-through">
-                  {{item.title}}
-                </p>
-                <div
-                  class="w-2 h-2 bg-green-400 rounded-full flex-shrink-0 ml-3 mt-1"
-                ></div>
-              </div>
-            </div>
-            } @if (done().length === 0) {
-            <div class="text-center text-gray-500 py-8">
-              <svg
-                class="w-12 h-12 mx-auto mb-3 opacity-50"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-              <p class="text-xs sm:text-sm">No completed tasks</p>
-            </div>
-            }
-          </div>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-400"
+          >
+            Create Sprint
+          </button>
         </div>
-      </div>
+      </form>
     </div>
+    }
+
+    <!-- Sprints Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (sprint of resourcesSprints.value(); track sprint.sprint_id) {
+      <div
+        class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:transform hover:scale-105"
+      >
+        <!-- Sprint Header -->
+        <div class="p-6 border-b border-gray-700">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-lg font-semibold text-white">{{sprint.name}}</h3>
+            <span
+              [class]="'px-3 py-1 text-xs font-medium rounded-full ' + getStatusBadgeClass(sprint.status)"
+            >
+              {{getStatusText(sprint.status)}}
+            </span>
+          </div>
+          <p class="text-gray-300 text-sm mb-4">{{sprint.description}}</p>
+          <div class="flex items-center text-xs text-gray-400">
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              ></path>
+            </svg>
+            {{formatDate(sprint.start_date)}} - {{formatDate(sprint.end_date)}}
+          </div>
+        </div>
+
+        <!-- Sprint Content -->
+        <div class="p-6">
+          <!-- Progress Section -->
+          <div class="mb-4">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm text-gray-300">Progress</span>
+              <span class="text-sm text-gray-400"
+                >{{getProgressPercentage(sprint)}}%</span
+              >
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+              <div
+                class="h-2 rounded-full transition-all duration-300"
+                [class]="getProgressBarClass(sprint.status)"
+                [style.width.%]="getProgressPercentage(sprint)"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Tasks Summary -->
+          <div class="mb-6">
+            <h4 class="text-sm font-medium text-gray-300 mb-3">Sprint Tasks</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs">
+                <span class="text-gray-400">Pending</span>
+                <span class="text-orange-400">{{sprint.countTaskPending}}</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-gray-400">In Progress</span>
+                <span class="text-blue-400"
+                  >{{sprint.countTaskInProgress}}</span
+                >
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-gray-400">Completed</span>
+                <span class="text-green-400"
+                  >{{sprint.countTaskCompleted}}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-between items-center">
+            @if (sprint.status === 'active') {
+            <button
+              (click)="viewSprintDetails(sprint)"
+              class="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer"
+            >
+              View Details
+            </button>
+            }
+            <div class="flex space-x-2">
+              @if (sprint.status === 'planned') {
+              <button
+                (click)="updateSprintStatus(sprint, 'active')"
+                class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 cursor-pointer"
+              >
+                Activate
+              </button>
+              } @if (sprint.status === 'active') {
+              <button
+                (click)="updateSprintStatus(sprint, 'completed')"
+                class="text-xs bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-1 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer"
+              >
+                Complete
+              </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Add New Sprint Card -->
+      @if (resourcesSprints.value() && resourcesSprints.value().length > 0) {
+      <div
+        class="bg-gray-800 rounded-xl border-2 border-dashed border-gray-600 hover:border-blue-500 transition-all duration-300 flex items-center justify-center min-h-[300px] cursor-pointer hover:bg-gray-750 group"
+        (click)="showCreateForm.set(true)"
+      >
+        <div class="text-center">
+          <div
+            class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600 transition-colors duration-300"
+          >
+            <svg
+              class="w-8 h-8 text-gray-400 group-hover:text-white transition-colors duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              ></path>
+            </svg>
+          </div>
+          <h3
+            class="text-lg font-medium text-gray-300 group-hover:text-white transition-colors duration-300"
+          >
+            Add New Sprint
+          </h3>
+          <p class="text-sm text-gray-500 mt-2">
+            Create a new sprint to organize your tasks
+          </p>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Empty State -->
+    @if (resourcesSprints.value().length === 0) {
+    <div class="text-center py-12">
+      <svg
+        class="w-24 h-24 mx-auto mb-6 text-gray-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1"
+          d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+        ></path>
+      </svg>
+      <h3 class="text-xl font-semibold text-gray-300 mb-2">
+        No sprints created
+      </h3>
+      <p class="text-gray-500 mb-6">
+        Start by creating your first sprint to organize your tasks
+      </p>
+      <button
+        (click)="showCreateForm.set(true)"
+        class="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-400"
+      >
+        Create First Sprint
+      </button>
+    </div>
+    }
   </div>
 </div>

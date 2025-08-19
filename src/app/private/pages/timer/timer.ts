@@ -51,7 +51,7 @@ export default class Timer implements OnInit, OnDestroy {
     try {
       const { userAgent } = navigator;
       if (userAgent.includes('Windows') || userAgent.includes('Linux')) {
-        await window.electronAPI.makeWindowFloating(432, 160);
+        await window.electronAPI.makeWindowFloating(380, 120);
       } else if (userAgent.includes('Macintosh')) {
         await window.electronAPI.makeWindowFloating(306, 80);
       }

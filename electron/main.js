@@ -21,7 +21,7 @@ function createWindow() {
     titleBarStyle: "customButtonsOnHover", // Usar controles nativos
     frame: true, // Mantener el marco nativo con controles del sistema
     // Hacer la ventana redimensionable
-    resizable: false, // Cambiado a false para que no se pueda redimensionar
+    resizable: true, // Cambiado a true para permitir redimensionamiento dinámico
     // Permitir minimizar y maximizar
     minimizable: false,
     maximizable: false,
@@ -103,10 +103,12 @@ ipcMain.handle("make-window-floating", (event, { width, height }) => {
   if (mainWindow) {
     // Hacer la ventana siempre visible sobre otras aplicaciones
     mainWindow.setAlwaysOnTop(true);
-    // Redimensionar la ventana
-    mainWindow.setSize(width, height);
+    // Redimensionar la ventana con las dimensiones específicas
+    mainWindow.setSize(width, height, false); // false para no animar el cambio
     // Centrar la ventana
     mainWindow.center();
+    // Forzar el redibujado de la ventana
+    mainWindow.webContents.invalidate();
     return true;
   }
   return false;
@@ -117,8 +119,10 @@ ipcMain.handle("reset-window-floating", () => {
     // Quitar la propiedad de siempre visible
     mainWindow.setAlwaysOnTop(false);
     // Restaurar tamaño original
-    mainWindow.setSize(1200, 800);
+    mainWindow.setSize(1200, 800, false); // false para no animar el cambio
     mainWindow.center();
+    // Forzar el redibujado de la ventana
+    mainWindow.webContents.invalidate();
     return true;
   }
   return false;

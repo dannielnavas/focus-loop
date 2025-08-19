@@ -42,11 +42,9 @@ function createWindow() {
     mainWindow.show();
 
     // Abrir DevTools en desarrollo
-    // if (isDev) {
-    //   mainWindow.webContents.openDevTools();
-    // }
-
-    mainWindow.webContents.openDevTools();
+    if (isDev) {
+      mainWindow.webContents.openDevTools();
+    }
   });
 
   // Manejar cuando se cierra la ventana

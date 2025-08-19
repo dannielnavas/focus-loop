@@ -11,7 +11,7 @@ export class Task {
 
   getTasks(sprint_id: string | number) {
     return this.http.get<TaskResponse[]>(
-      `http://localhost:3000/tasks?sprint_id=${sprint_id}`,
+      `https://my-tracker-backend-pied.vercel.app/tasks?sprint_id=${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -21,16 +21,20 @@ export class Task {
   }
 
   createTask(task: TaskModel) {
-    return this.http.post<TaskModel>('http://localhost:3000/tasks', task, {
-      headers: {
-        Authorization: `Bearer ${this.session()}`,
-      },
-    });
+    return this.http.post<TaskModel>(
+      'https://my-tracker-backend-pied.vercel.app/tasks',
+      task,
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
   }
 
   updateTask(id: number, task: Partial<TaskModel>) {
     return this.http.patch<TaskModel>(
-      `http://localhost:3000/tasks/${id}`,
+      `https://my-tracker-backend-pied.vercel.app/tasks/${id}`,
       task,
       {
         headers: {
@@ -42,7 +46,7 @@ export class Task {
 
   getCountPendingTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `http://localhost:3000/tasks/count-task-pending/${sprint_id}`,
+      `https://my-tracker-backend-pied.vercel.app/tasks/count-task-pending/${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -53,7 +57,7 @@ export class Task {
 
   getCountInProgressTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `http://localhost:3000/tasks/count-task-in-progress/${sprint_id}`,
+      `https://my-tracker-backend-pied.vercel.app/tasks/count-task-in-progress/${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -64,7 +68,7 @@ export class Task {
 
   getCountCompletedTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `http://localhost:3000/tasks/count-task-completed/${sprint_id}`,
+      `https://my-tracker-backend-pied.vercel.app/tasks/count-task-completed/${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,

@@ -12,7 +12,7 @@ export class Sprints {
   getSprints(userId: string | number) {
     console.log(userId);
     return this.http.get<SprintResponse[]>(
-      `http://localhost:3000/sprint/user/${userId}`,
+      `https://my-tracker-backend-pied.vercel.app/sprint/user/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -23,16 +23,20 @@ export class Sprints {
 
   createSprint(sprint: Sprint) {
     console.log(sprint);
-    return this.http.post<Sprint>('http://localhost:3000/sprint', sprint, {
-      headers: {
-        Authorization: `Bearer ${this.session()}`,
-      },
-    });
+    return this.http.post<Sprint>(
+      'https://my-tracker-backend-pied.vercel.app/sprint',
+      sprint,
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
   }
 
   updateSprint(id: number, sprint: Partial<Sprint>) {
     return this.http.patch<Sprint>(
-      `http://localhost:3000/sprint/${id}`,
+      `https://my-tracker-backend-pied.vercel.app/sprint/${id}`,
       sprint,
       {
         headers: {
@@ -43,10 +47,13 @@ export class Sprints {
   }
 
   deleteSprint(id: number) {
-    return this.http.delete(`http://localhost:3000/sprints/${id}`, {
-      headers: {
-        Authorization: `Bearer ${this.session()}`,
-      },
-    });
+    return this.http.delete(
+      `https://my-tracker-backend-pied.vercel.app/sprints/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
   }
 }

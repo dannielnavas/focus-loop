@@ -27,6 +27,8 @@ export default class Work implements OnInit, OnDestroy {
     return tasks.filter((task) => task.statusTask.status_task_id === 2);
   });
 
+  sprint_id = computed(() => this.store.getSprintId());
+
   ngOnInit() {
     this.setWorkWindowLayout();
   }

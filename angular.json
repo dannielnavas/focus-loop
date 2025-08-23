@@ -29,7 +29,8 @@
               }
             ],
             "styles": ["src/styles.css"],
-            "baseHref": "./"
+            "baseHref": "./",
+            "allowedCommonJsDependencies": ["timer-for-pomodoro"]
           },
           "configurations": {
             "production": {

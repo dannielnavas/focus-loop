@@ -2,6 +2,7 @@ import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
 import {
+  ChangeDetectorRef,
   Component,
   computed,
   inject,
@@ -22,8 +23,11 @@ export default class Timer implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
   private readonly store = inject(Store);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   private audio: HTMLAudioElement | null = null;
+  private audioContext: AudioContext | null = null;
+  private audioBuffer: AudioBuffer | null = null;
   statusTimer = signal<string>('init');
 
   task = computed(() => {
@@ -31,6 +35,8 @@ export default class Timer implements OnInit, OnDestroy {
     if (!task) return undefined;
     return task;
   });
+
+  // Optimización: Crear timer solo una vez
   timer = new TimerPomodoro(60, 15, 999);
   timerState = signal<TimerState | undefined>(undefined);
   totalTime = signal<number>(0);
@@ -39,11 +45,13 @@ export default class Timer implements OnInit, OnDestroy {
   ngOnInit() {
     this.setFloatingWindow();
     this.toggleTitlebarAndMenu(false);
+    this.initializeAudio();
   }
 
   ngOnDestroy() {
     this.resetFloatingWindow();
     this.toggleTitlebarAndMenu(true);
+    this.cleanupAudio();
   }
 
   private async setFloatingWindow() {
@@ -86,44 +94,108 @@ export default class Timer implements OnInit, OnDestroy {
     }
   }
 
+  private initializeAudio() {
+    try {
+      // Crear AudioContext para mejor rendimiento
+      this.audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
+    } catch (error) {
+      console.warn('AudioContext no disponible, usando Audio HTML5:', error);
+    }
+  }
+
+  private cleanupAudio() {
+    if (this.audio) {
+      this.audio.pause();
+      this.audio = null;
+    }
+    if (this.audioContext) {
+      this.audioContext.close();
+      this.audioContext = null;
+    }
+  }
+
   start() {
-    this.timer.start();
-    this.status.set(true);
-    this.listenTimer();
+    try {
+      this.timer.start();
+      this.status.set(true);
+      this.listenTimer();
+    } catch (error) {
+      console.error('Error al iniciar el timer:', error);
+    }
   }
 
   pause() {
-    this.timer.pause();
-    this.status.set(false);
+    try {
+      this.timer.pause();
+      this.status.set(false);
+    } catch (error) {
+      console.error('Error al pausar el timer:', error);
+    }
   }
 
   play() {
-    this.timer.start();
-    this.status.set(true);
+    try {
+      this.timer.start();
+      this.status.set(true);
+    } catch (error) {
+      console.error('Error al reanudar el timer:', error);
+    }
   }
 
   listenTimer() {
-    this.timer.subscribe((timerState) => {
-      this.timerState.set(timerState);
-      if (this.statusTimer() !== timerState.status) {
-        this.statusTimer.set(timerState.status || 'init');
-        this.playAudioForStatus(timerState.status);
-      }
-      if (timerState.status === 'work') {
-        this.totalTime.update((current) => current + 1);
-      }
-    });
+    try {
+      this.timer.subscribe((timerState) => {
+        this.timerState.set(timerState);
+        if (this.statusTimer() !== timerState.status) {
+          this.statusTimer.set(timerState.status || 'init');
+          this.playAudioForStatus(timerState.status);
+        }
+        if (timerState.status === 'work') {
+          this.totalTime.update((current) => current + 1);
+        }
+        // Optimización: Detectar cambios solo cuando sea necesario
+        this.cdr.detectChanges();
+      });
+    } catch (error) {
+      console.error('Error al escuchar el timer:', error);
+    }
   }
 
-  private playAudioForStatus(status: string | undefined) {
+  private async playAudioForStatus(status: string | undefined) {
     if (!status) return;
+
     let audioFile = '';
     if (status === 'work') audioFile = 'assets/start.mp3';
     if (status === 'break') audioFile = 'assets/break.mp3';
-    if (audioFile) {
-      this.audio = new Audio(audioFile);
-      this.audio.volume = 0.5;
-      this.audio.play();
+
+    if (!audioFile) return;
+
+    try {
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      if (this.audioContext) {
+        // Usar AudioContext para mejor rendimiento
+        const response = await fetch(audioFile);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await this.audioContext.decodeAudioData(
+          arrayBuffer
+        );
+
+        const source = this.audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(this.audioContext.destination);
+        source.start(0);
+      } else {
+        // Fallback a Audio HTML5
+        this.audio = new Audio(audioFile);
+        this.audio.volume = 0.5;
+        await this.audio.play();
+      }
+    } catch (error) {
+      console.error('Error al reproducir audio:', error);
     }
   }
 
@@ -155,20 +227,31 @@ export default class Timer implements OnInit, OnDestroy {
   }
 
   goToNextTask() {
-    this.timer.stop();
-    this.taskService
-      .updateTask(this.task()?.task_id || 0, {
-        status_task_id: 3,
-      })
-      .subscribe({
-        next: () => {
-          this.router.navigate(['/private/work']);
-        },
-      });
+    try {
+      this.timer.stop();
+      this.taskService
+        .updateTask(this.task()?.task_id || 0, {
+          status_task_id: 3,
+        })
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/private/work']);
+          },
+          error: (error) => {
+            console.error('Error al actualizar tarea:', error);
+          },
+        });
+    } catch (error) {
+      console.error('Error al ir a la siguiente tarea:', error);
+    }
   }
 
   backToWork() {
-    this.timer.stop();
-    this.router.navigate(['/private/work']);
+    try {
+      this.timer.stop();
+      this.router.navigate(['/private/work']);
+    } catch (error) {
+      console.error('Error al volver al trabajo:', error);
+    }
   }
 }

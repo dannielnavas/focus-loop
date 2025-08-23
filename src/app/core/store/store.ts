@@ -7,6 +7,7 @@ import { TaskResponse } from '../models/task.model';
 export class Store {
   private taskForWork = signal<TaskResponse[]>([]);
   private oneTaskForWork = signal<TaskResponse | null>(null);
+  private sprintId = signal<number | null>(null);
 
   getTaskForWork() {
     return this.taskForWork();
@@ -22,5 +23,13 @@ export class Store {
 
   setOneTaskForWork(task: TaskResponse) {
     this.oneTaskForWork.set(task);
+  }
+
+  getSprintId() {
+    return this.sprintId();
+  }
+
+  setSprintId(sprintId: number) {
+    this.sprintId.set(sprintId);
   }
 }

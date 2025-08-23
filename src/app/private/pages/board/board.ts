@@ -9,18 +9,18 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-board',
-  imports: [CdkDropList, CdkDrag, FormsModule, Header],
+  imports: [CdkDropList, CdkDrag, FormsModule, Header, RouterLink],
   templateUrl: './board.html',
   styleUrl: './board.css',
 })
-export default class Board {
+export default class Board implements OnInit {
   newTodoTask = '';
   showTodoInput = false;
   user_id = computed(() => localStorage.getItem('user_id'));
@@ -42,6 +42,10 @@ export default class Board {
   todo = computed(() => this.filterAndSortTasks(1));
   today = computed(() => this.filterAndSortTasks(2));
   done = computed(() => this.filterAndSortTasks(3, true));
+
+  ngOnInit() {
+    this.store.setSprintId(Number(this.sprint_id()));
+  }
 
   drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {

@@ -56,7 +56,7 @@ export default class Board implements OnInit {
       );
       this.updatePositions(
         event.container.data,
-        this.getStatusFromContainerId(event.container.id)
+        this.getStatusFromContainer(event.container)
       );
     } else {
       transferArrayItem(
@@ -66,12 +66,12 @@ export default class Board implements OnInit {
         event.currentIndex
       );
       const movedTask = event.container.data[event.currentIndex];
-      const newStatus = this.getStatusFromContainerId(event.container.id);
+      const newStatus = this.getStatusFromContainer(event.container);
       this.updateTaskStatus(movedTask, newStatus);
       this.updatePositions(event.container.data, newStatus);
       this.updatePositions(
         event.previousContainer.data,
-        this.getStatusFromContainerId(event.previousContainer.id)
+        this.getStatusFromContainer(event.previousContainer)
       );
     }
   }
@@ -120,13 +120,26 @@ export default class Board implements OnInit {
     });
   }
 
-  getStatusFromContainerId(containerId: string): number {
-    if (containerId && containerId.includes('cdk-drop-list-1')) {
+  getStatusFromContainer(container: any): number {
+    // Comparar directamente con los datos de cada columna
+    if (container.data === this.today()) {
       return 2; // Hoy
-    } else if (containerId && containerId.includes('cdk-drop-list-2')) {
+    } else if (container.data === this.done()) {
       return 3; // Completado
+    } else if (container.data === this.todo()) {
+      return 1; // Pendiente
     }
-    return 1; // Pendiente
+
+    // Fallback: intentar determinar por el contenido de los datos
+    if (container.data && container.data.length > 0) {
+      const firstTask = container.data[0];
+      if (firstTask && firstTask.statusTask) {
+        return firstTask.statusTask.status_task_id;
+      }
+    }
+
+    // Si no se puede determinar, retornar pendiente como valor por defecto
+    return 1;
   }
 
   addTodoTask() {

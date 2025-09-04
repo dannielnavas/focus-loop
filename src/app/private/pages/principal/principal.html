@@ -178,7 +178,7 @@
 
           <!-- Actions -->
           <div class="flex justify-between items-center">
-            @if (sprint.status === 'active') {
+            @if (sprint.status === 'active' || sprint.status === 'planned') {
             <button
               (click)="viewSprintDetails(sprint)"
               class="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer"

@@ -56,4 +56,21 @@ export class Sprints {
       }
     );
   }
+
+  generateDaily(sprint_id: number) {
+    return this.http.post<{
+      role: string | null;
+      content: string;
+      refusal: string | null;
+      annotations: string[];
+    }>(
+      `https://my-tracker-backend-pied.vercel.app/ai-functions/generate`,
+      { sprint_id },
+      {
+        headers: {
+          Authorization: `Bearer ${this.session()}`,
+        },
+      }
+    );
+  }
 }

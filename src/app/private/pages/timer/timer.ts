@@ -1,6 +1,5 @@
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
-import { Header } from '@/shared/components/header/header';
 import {
   ChangeDetectorRef,
   Component,
@@ -15,7 +14,7 @@ import TimerPomodoro, { TimerState } from 'timer-for-pomodoro';
 
 @Component({
   selector: 'app-timer',
-  imports: [Header],
+  imports: [],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
 })

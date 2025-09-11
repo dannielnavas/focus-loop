@@ -1,6 +1,5 @@
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
-import { Header } from '@/shared/components/header/header';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -12,7 +11,7 @@ import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-work',
-  imports: [CdkDropList, CdkDrag, RouterLink, Header],
+  imports: [CdkDropList, CdkDrag, RouterLink],
   templateUrl: './work.html',
   styleUrl: './work.css',
 })

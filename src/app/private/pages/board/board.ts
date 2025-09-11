@@ -100,6 +100,7 @@ export default class Board implements OnInit {
       .updateTask(task.task_id, {
         title: task.title,
         status_task_id: newStatus,
+        date_end: newStatus === 3 ? new Date().toISOString() : '',
       })
       .subscribe({
         next: () => this.resourcesTasks.reload(),

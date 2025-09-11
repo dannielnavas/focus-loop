@@ -4,6 +4,7 @@ export interface Task {
   status_task_id: number;
   position?: number;
   sprint_id: number;
+  date_end?: string;
 }
 
 export interface TaskResponse {

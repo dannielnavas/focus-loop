@@ -152,7 +152,7 @@ my-tracker/
 
 ```bash
 # Backend API
-API_URL=https://my-tracker-backend-pied.vercel.app
+API_URL=http://localhost:3000
 
 # Electron configuration
 ELECTRON_IS_DEV=true

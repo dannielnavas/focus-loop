@@ -67,7 +67,7 @@ export class Sprints {
       `https://my-tracker-backend-pied.vercel.app/ai-functions/generate`,
       {
         sprint_id,
-        dateReport: new Date(new Date().setDate(new Date().getDate() - 1)),
+        dateReport: new Date(Date.now() - 24 * 60 * 60 * 1000),
       },
       {
         headers: {

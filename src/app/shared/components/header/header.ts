@@ -1,5 +1,6 @@
 import { SprintResponse } from '@/core/models/sprint.model';
 import { Sprints } from '@/core/services/sprints';
+import { Location } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -17,6 +18,7 @@ export class Header {
 
   user_id = computed(() => localStorage.getItem('user_id'));
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly sprintService = inject(Sprints);
 
   resourcesSprints = rxResource<SprintResponse[], { user_id: number }>({
@@ -75,5 +77,9 @@ export class Header {
         alert('Error al generar el reporte diario. Inténtalo de nuevo.');
       },
     });
+  }
+
+  goToBack() {
+    this.location.back();
   }
 }

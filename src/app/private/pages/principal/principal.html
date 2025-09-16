@@ -100,7 +100,7 @@
     }
 
     <!-- Sprints Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       @for (sprint of resourcesSprints.value(); track sprint.sprint_id) {
       <div
         class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:transform hover:scale-105 cursor-pointer"
@@ -248,7 +248,7 @@
 
     <!-- Empty State -->
     @if (resourcesSprints.value().length === 0) {
-    <div class="text-center py-12">
+    <div class="text-center">
       <svg
         class="w-24 h-24 mx-auto mb-6 text-gray-600"
         fill="none"

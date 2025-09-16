@@ -12,11 +12,11 @@ import {
 import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-board',
-  imports: [CdkDropList, CdkDrag, FormsModule, Header, RouterLink],
+  imports: [CdkDropList, CdkDrag, FormsModule, Header],
   templateUrl: './board.html',
   styleUrl: './board.css',
 })

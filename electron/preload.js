@@ -54,6 +54,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Métodos para ocultar/mostrar la barra de título (solo macOS)
   hideTitlebar: () => ipcRenderer.invoke("hide-titlebar"),
   showTitlebar: () => ipcRenderer.invoke("show-titlebar"),
+  // Eventos de menú de la app (se envuelve para no exponer el event)
+  onMenuGenerateDaily: (cb) => ipcRenderer.on("menu:generateDaily", () => cb()),
+  onMenuProfile: (cb) => ipcRenderer.on("menu:profile", () => cb()),
+  onMenuLogout: (cb) => ipcRenderer.on("menu:logout", () => cb()),
+  onMenuAbout: (cb) => ipcRenderer.on("menu:about", () => cb()),
 });
 
 // Manejar eventos de la aplicación

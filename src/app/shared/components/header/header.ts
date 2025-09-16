@@ -1,7 +1,7 @@
 import { SprintResponse } from '@/core/models/sprint.model';
 import { Sprints } from '@/core/services/sprints';
 import { Location } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, NgZone, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 
@@ -20,6 +20,7 @@ export class Header {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly sprintService = inject(Sprints);
+  private readonly ngZone = inject(NgZone);
 
   resourcesSprints = rxResource<SprintResponse[], { user_id: number }>({
     stream: ({ params }) => this.sprintService.getSprints(params.user_id),
@@ -81,5 +82,23 @@ export class Header {
 
   goToBack() {
     this.location.back();
+  }
+
+  constructor() {
+    // Suscribirse a eventos de menú nativo si está disponible
+    if (window.electronAPI) {
+      window.electronAPI.onMenuGenerateDaily(() => {
+        this.ngZone.run(() => this.generateDailyAi());
+      });
+      window.electronAPI.onMenuProfile(() => {
+        this.ngZone.run(() => this.goToProfile());
+      });
+      window.electronAPI.onMenuLogout(() => {
+        this.ngZone.run(() => this.logout());
+      });
+      window.electronAPI.onMenuAbout(() => {
+        this.ngZone.run(() => alert('FocusLoop - My Tracker'));
+      });
+    }
   }
 }

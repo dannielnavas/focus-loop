@@ -74,10 +74,55 @@ app.on("window-all-closed", () => {
 });
 
 // Configurar el menú de la aplicación
-const template = [];
+function buildAppMenu() {
+  const template = [
+    {
+      label: "FocusLoop",
+      submenu: [
+        {
+          label: "Generate Daily",
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.send("menu:generateDaily");
+            }
+          },
+        },
+        {
+          label: "Perfil",
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.send("menu:profile");
+            }
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Cerrar Sesión",
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.send("menu:logout");
+            }
+          },
+        },
+        { type: "separator" },
+        process.platform === "darwin"
+          ? { role: "close", label: "Cerrar Ventana" }
+          : { role: "quit", label: "Salir" },
+      ],
+    },
+    // Menú de edición estándar
 
-const menu = Menu.buildFromTemplate(template);
-Menu.setApplicationMenu(menu);
+    // Menú de ventana estándar
+
+    // Menú ayuda simple
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+  return menu;
+}
+
+const menu = buildAppMenu();
 
 // Agregar listeners para IPC
 ipcMain.handle("resize-window", (event, { width, height }) => {
@@ -159,6 +204,6 @@ ipcMain.handle("hide-menu", () => {
 });
 
 ipcMain.handle("show-menu", () => {
-  Menu.setApplicationMenu(menu);
+  Menu.setApplicationMenu(menu || buildAppMenu());
   return true;
 });

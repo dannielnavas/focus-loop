@@ -65,7 +65,10 @@ export class Sprints {
       annotations: string[];
     }>(
       `https://my-tracker-backend-pied.vercel.app/ai-functions/generate`,
-      { sprint_id },
+      {
+        sprint_id,
+        dateReport: new Date(new Date().setDate(new Date().getDate() - 1)),
+      },
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,

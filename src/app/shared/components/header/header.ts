@@ -43,12 +43,12 @@ export class Header {
   }
 
   logout() {
-    // Limpiar datos de sesión
+    // Clear session data
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_data');
     localStorage.removeItem('token');
 
-    // Navegar al login
+    // Navigate to login
     this.router.navigate(['/']);
   }
 
@@ -63,19 +63,18 @@ export class Header {
       .filter((sprint) => sprint.status === 'active')[0];
 
     if (!activeSprint) {
-      alert('No hay un sprint activo para generar el reporte diario');
+      alert('There is no active sprint to generate the daily report');
       return;
     }
 
     this.sprintService.generateDaily(activeSprint.sprint_id).subscribe({
       next: (res) => {
-        console.log(res);
         this.dailyContent.set(res.content);
         this.showDaily.set(true);
       },
       error: (err) => {
         console.error('Error generating daily report:', err);
-        alert('Error al generar el reporte diario. Inténtalo de nuevo.');
+        alert('Error generating daily report. Please try again.');
       },
     });
   }
@@ -85,7 +84,7 @@ export class Header {
   }
 
   constructor() {
-    // Suscribirse a eventos de menú nativo si está disponible
+    // Subscribe to native menu events if available
     if (window.electronAPI) {
       window.electronAPI.onMenuGenerateDaily(() => {
         this.ngZone.run(() => this.generateDailyAi());
@@ -97,7 +96,7 @@ export class Header {
         this.ngZone.run(() => this.logout());
       });
       window.electronAPI.onMenuAbout(() => {
-        this.ngZone.run(() => alert('FocusLoop - My Tracker'));
+        this.ngZone.run(() => alert('FocusLoop'));
       });
     }
   }

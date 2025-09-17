@@ -4,7 +4,7 @@
   <div class="max-w-4xl mx-auto">
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-2xl font-bold text-white">Configuración de Perfil</h1>
+      <h1 class="text-2xl font-bold text-white">Profile Settings</h1>
       <button
         (click)="saveProfile()"
         [disabled]="!isFormValid()"
@@ -23,14 +23,14 @@
             d="M5 13l4 4L19 7"
           ></path>
         </svg>
-        <span>Guardar Cambios</span>
+        <span>Save Changes</span>
       </button>
     </div>
 
     <!-- Profile Form -->
     <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow-xl">
       <h2 class="text-xl font-semibold text-white mb-6">
-        Información Personal
+        Personal Information
       </h2>
 
       <form (ngSubmit)="saveProfile()" class="space-y-6">
@@ -90,7 +90,7 @@
           </div>
           <div>
             <h3 class="text-lg font-medium text-white">
-              {{profileForm().full_name || 'Usuario'}}
+              {{profileForm().full_name || 'User'}}
             </h3>
             <p class="text-gray-400">{{profileForm().email}}</p>
             <button
@@ -98,7 +98,7 @@
               (click)="selectImage()"
               class="text-blue-400 hover:text-blue-300 text-sm mt-1 transition-colors"
             >
-              Cambiar foto de perfil
+              Change profile photo
             </button>
           </div>
         </div>
@@ -107,26 +107,26 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-2"
-              >Nombre Completo</label
+              >Full Name</label
             >
             <input
               type="text"
               [(ngModel)]="profileForm().full_name"
               name="full_name"
-              placeholder="Tu nombre completo"
+              placeholder="Your full name"
               class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
               required
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-2"
-              >Correo Electrónico</label
+              >Email</label
             >
             <input
               type="email"
               [(ngModel)]="profileForm().email"
               name="email"
-              placeholder="tu@email.com"
+              placeholder="your@email.com"
               class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
               required
             />
@@ -143,14 +143,14 @@
               name="role"
               class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="user">Usuario</option>
-              <option value="admin">Administrador</option>
-              <option value="manager">Gerente</option>
+              <option value="user">User</option>
+              <option value="admin">Administrator</option>
+              <option value="manager">Manager</option>
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-2"
-              >Plan de Suscripción</label
+              >Subscription Plan</label
             >
             <select
               [(ngModel)]="profileForm().subscription_plan_id"
@@ -166,13 +166,11 @@
 
         <!-- Password Section -->
         <div class="border-t border-gray-700 pt-6">
-          <h3 class="text-lg font-semibold text-white mb-4">
-            Cambiar Contraseña
-          </h3>
+          <h3 class="text-lg font-semibold text-white mb-4">Change Password</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-2"
-                >Contraseña Actual</label
+                >Current Password</label
               >
               <input
                 type="password"
@@ -184,7 +182,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-2"
-                >Nueva Contraseña</label
+                >New Password</label
               >
               <input
                 type="password"
@@ -196,7 +194,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-2"
-                >Confirmar Contraseña</label
+                >Confirm Password</label
               >
               <input
                 type="password"
@@ -214,7 +212,7 @@
               [disabled]="!isPasswordFormValid()"
               class="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
-              Cambiar Contraseña
+              Change Password
             </button>
           </div>
         </div>
@@ -226,10 +224,10 @@
             <div class="flex items-center justify-between">
               <div>
                 <h4 class="text-sm font-medium text-gray-300">
-                  Notificaciones por Email
+                  Email Notifications
                 </h4>
                 <p class="text-xs text-gray-500">
-                  Recibir notificaciones sobre actualizaciones y recordatorios
+                  Receive notifications about updates and reminders
                 </p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
@@ -246,9 +244,9 @@
             </div>
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-sm font-medium text-gray-300">Modo Oscuro</h4>
+                <h4 class="text-sm font-medium text-gray-300">Dark Mode</h4>
                 <p class="text-xs text-gray-500">
-                  Usar tema oscuro en toda la aplicación
+                  Use dark theme throughout the application
                 </p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
@@ -266,10 +264,10 @@
             <div class="flex items-center justify-between">
               <div>
                 <h4 class="text-sm font-medium text-gray-300">
-                  Recordatorios de Tareas
+                  Task Reminders
                 </h4>
                 <p class="text-xs text-gray-500">
-                  Recibir recordatorios sobre tareas pendientes
+                  Receive reminders about pending tasks
                 </p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
@@ -301,7 +299,7 @@
             [disabled]="!isFormValid()"
             class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            Guardar Cambios
+            Save Changes
           </button>
         </div>
       </form>

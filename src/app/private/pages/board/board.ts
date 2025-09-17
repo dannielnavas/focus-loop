@@ -13,6 +13,7 @@ import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { formatISO } from 'date-fns';
 
 @Component({
   selector: 'app-board',
@@ -100,7 +101,7 @@ export default class Board implements OnInit {
       .updateTask(task.task_id, {
         title: task.title,
         status_task_id: newStatus,
-        date_end: newStatus === 3 ? new Date().toISOString() : '',
+        date_end: newStatus === 3 ? formatISO(new Date()) : undefined,
       })
       .subscribe({
         next: () => this.resourcesTasks.reload(),
@@ -124,11 +125,11 @@ export default class Board implements OnInit {
   getStatusFromContainer(container: any): number {
     // Comparar directamente con los datos de cada columna
     if (container.data === this.today()) {
-      return 2; // Hoy
+      return 2; // Today
     } else if (container.data === this.done()) {
-      return 3; // Completado
+      return 3; // Completed
     } else if (container.data === this.todo()) {
-      return 1; // Pendiente
+      return 1; // Pending
     }
 
     // Fallback: intentar determinar por el contenido de los datos
@@ -139,7 +140,7 @@ export default class Board implements OnInit {
       }
     }
 
-    // Si no se puede determinar, retornar pendiente como valor por defecto
+    // If cannot be determined, return pending as default value
     return 1;
   }
 
@@ -174,7 +175,7 @@ export default class Board implements OnInit {
     }
   }
 
-  iniciarTareas() {
+  startTasks() {
     if (this.today().length > 0) {
       this.store.setTaskForWork(this.today());
       this.router.navigate(['/private/work']);

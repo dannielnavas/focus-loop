@@ -64,7 +64,7 @@ export default class Timer implements OnInit, OnDestroy {
       }
       await window.electronAPI.moveWindow(0, 50);
     } catch (error) {
-      console.error('Error al hacer la ventana flotante:', error);
+      console.error('Error making window floating:', error);
     }
   }
 
@@ -73,7 +73,7 @@ export default class Timer implements OnInit, OnDestroy {
     try {
       await window.electronAPI.resetWindowFloating();
     } catch (error) {
-      console.error('Error al restaurar el estado de la ventana:', error);
+      console.error('Error restoring window state:', error);
     }
   }
 
@@ -99,7 +99,7 @@ export default class Timer implements OnInit, OnDestroy {
       this.audioContext = new (window.AudioContext ||
         (window as any).webkitAudioContext)();
     } catch (error) {
-      console.warn('AudioContext no disponible, usando Audio HTML5:', error);
+      console.warn('AudioContext not available, using HTML5 Audio:', error);
     }
   }
 
@@ -120,7 +120,7 @@ export default class Timer implements OnInit, OnDestroy {
       this.status.set(true);
       this.listenTimer();
     } catch (error) {
-      console.error('Error al iniciar el timer:', error);
+      console.error('Error starting timer:', error);
     }
   }
 
@@ -129,7 +129,7 @@ export default class Timer implements OnInit, OnDestroy {
       this.timer.pause();
       this.status.set(false);
     } catch (error) {
-      console.error('Error al pausar el timer:', error);
+      console.error('Error pausing timer:', error);
     }
   }
 
@@ -138,7 +138,7 @@ export default class Timer implements OnInit, OnDestroy {
       this.timer.start();
       this.status.set(true);
     } catch (error) {
-      console.error('Error al reanudar el timer:', error);
+      console.error('Error resuming timer:', error);
     }
   }
 
@@ -157,7 +157,7 @@ export default class Timer implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       });
     } catch (error) {
-      console.error('Error al escuchar el timer:', error);
+      console.error('Error listening to timer:', error);
     }
   }
 
@@ -176,7 +176,7 @@ export default class Timer implements OnInit, OnDestroy {
       }
 
       if (this.audioContext) {
-        // Usar AudioContext para mejor rendimiento
+        // Use AudioContext for better performance
         const response = await fetch(audioFile);
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await this.audioContext.decodeAudioData(
@@ -188,13 +188,13 @@ export default class Timer implements OnInit, OnDestroy {
         source.connect(this.audioContext.destination);
         source.start(0);
       } else {
-        // Fallback a Audio HTML5
+        // Fallback to HTML5 Audio
         this.audio = new Audio(audioFile);
         this.audio.volume = 0.5;
         await this.audio.play();
       }
     } catch (error) {
-      console.error('Error al reproducir audio:', error);
+      console.error('Error playing audio:', error);
     }
   }
 
@@ -237,11 +237,11 @@ export default class Timer implements OnInit, OnDestroy {
             this.router.navigate(['/private/work']);
           },
           error: (error) => {
-            console.error('Error al actualizar tarea:', error);
+            console.error('Error updating task:', error);
           },
         });
     } catch (error) {
-      console.error('Error al ir a la siguiente tarea:', error);
+      console.error('Error going to next task:', error);
     }
   }
 
@@ -250,7 +250,7 @@ export default class Timer implements OnInit, OnDestroy {
       this.timer.stop();
       this.router.navigate(['/private/work']);
     } catch (error) {
-      console.error('Error al volver al trabajo:', error);
+      console.error('Error returning to work:', error);
     }
   }
 }

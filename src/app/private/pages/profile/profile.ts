@@ -93,7 +93,7 @@ export default class Profile {
         });
       } catch (error) {
         console.error('Error loading user profile:', error);
-        this.showMessage('Error al cargar el perfil del usuario', 'error');
+        this.showMessage('Error loading user profile', 'error');
       }
     }
   }
@@ -102,7 +102,7 @@ export default class Profile {
   selectImage() {
     // En una aplicación real, esto abriría un selector de archivos
     // Por ahora, simulamos la selección de una imagen
-    const imageUrl = prompt('Ingresa la URL de tu imagen de perfil:');
+    const imageUrl = prompt('Enter your profile image URL:');
     if (imageUrl) {
       this.profileForm.update((form) => ({
         ...form,
@@ -114,10 +114,7 @@ export default class Profile {
   // Guardar perfil
   saveProfile() {
     if (!this.isFormValid()) {
-      this.showMessage(
-        'Por favor completa todos los campos obligatorios',
-        'error'
-      );
+      this.showMessage('Please complete all required fields', 'error');
       return;
     }
 
@@ -133,11 +130,11 @@ export default class Profile {
         };
         localStorage.setItem('user_data', JSON.stringify(userData));
 
-        this.showMessage('Perfil actualizado correctamente', 'success');
+        this.showMessage('Profile updated successfully', 'success');
         this.isLoading.set(false);
       } catch (error) {
         console.error('Error saving profile:', error);
-        this.showMessage('Error al guardar el perfil', 'error');
+        this.showMessage('Error saving profile', 'error');
         this.isLoading.set(false);
       }
     }, 1000);
@@ -147,7 +144,7 @@ export default class Profile {
   changePassword() {
     if (!this.isPasswordFormValid()) {
       this.showMessage(
-        'Por favor completa todos los campos de contraseña correctamente',
+        'Please complete all password fields correctly',
         'error'
       );
       return;
@@ -168,11 +165,11 @@ export default class Profile {
           confirm_password: '',
         });
 
-        this.showMessage('Contraseña cambiada correctamente', 'success');
+        this.showMessage('Password changed successfully', 'success');
         this.isLoading.set(false);
       } catch (error) {
         console.error('Error changing password:', error);
-        this.showMessage('Error al cambiar la contraseña', 'error');
+        this.showMessage('Error changing password', 'error');
         this.isLoading.set(false);
       }
     }, 1000);
@@ -194,13 +191,13 @@ export default class Profile {
     this.message.set(text);
     this.messageType.set(type);
 
-    // Limpiar mensaje después de 5 segundos
+    // Clear message after 5 seconds
     setTimeout(() => {
       this.message.set('');
     }, 5000);
   }
 
-  // Navegar de vuelta
+  // Navigate back
   goBack() {
     this.router.navigate(['/private']);
   }

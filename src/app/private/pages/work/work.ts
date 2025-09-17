@@ -43,7 +43,7 @@ export default class Work implements OnInit, OnDestroy {
         await window.electronAPI.resizeWindow(440, screenHeight);
         await window.electronAPI.moveWindow(0, 0);
       } catch (error) {
-        console.error('Error al configurar la ventana de trabajo:', error);
+        console.error('Error configuring work window:', error);
       }
     }
   }
@@ -53,7 +53,7 @@ export default class Work implements OnInit, OnDestroy {
       try {
         await window.electronAPI.resetWindowSize();
       } catch (error) {
-        console.error('Error al restaurar el tamaño de la ventana:', error);
+        console.error('Error restoring window size:', error);
       }
     }
   }
@@ -64,13 +64,13 @@ export default class Work implements OnInit, OnDestroy {
     }
   }
 
-  eliminarTarea(index: number) {
+  deleteTask(index: number) {
     if (index >= 0 && index < this.today().length) {
       this.today().splice(index, 1);
     }
   }
 
-  marcarComoCompletada(taskId: number) {
+  markAsCompleted(taskId: number) {
     this.taskService
       .updateTask(taskId, {
         status_task_id: 3,
@@ -84,12 +84,12 @@ export default class Work implements OnInit, OnDestroy {
           );
         },
         error: (error) => {
-          console.error('Error al marcar como completada:', error);
+          console.error('Error marking as completed:', error);
         },
       });
   }
 
-  iniciarTareas() {
+  startTasks() {
     this.store.setOneTaskForWork(this.today()[0]);
     this.router.navigate(['/private/timer']);
   }

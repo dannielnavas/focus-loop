@@ -5,7 +5,7 @@ const isDev = process.env.NODE_ENV === "development";
 let mainWindow;
 
 function createWindow() {
-  // Crear la ventana del navegador
+  // Create the browser window
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -17,47 +17,47 @@ function createWindow() {
     },
     icon: path.join(__dirname, "../src/assets/icon.png"),
     show: false,
-    // Configurar para mostrar solo controles nativos del sistema operativo
-    titleBarStyle: "customButtonsOnHover", // Usar controles nativos
-    frame: true, // Mantener el marco nativo con controles del sistema
-    // Hacer la ventana redimensionable
-    resizable: true, // Cambiado a true para permitir redimensionamiento dinámico
-    // Permitir minimizar y maximizar
+    // Configure to show only native operating system controls
+    titleBarStyle: "customButtonsOnHover", // Use native controls
+    frame: true, // Keep native frame with system controls
+    // Make the window resizable
+    resizable: true, // Changed to true to allow dynamic resizing
+    // Allow minimize and maximize
     minimizable: false,
     maximizable: false,
-    // Configuraciones adicionales para una mejor experiencia
+    // Additional configurations for a better experience
     transparent: true,
     hasShadow: true,
   });
 
-  // Cargar la aplicación Angular
+  // Load the Angular application
   const startUrl = isDev
     ? "http://localhost:4200"
-    : `file://${path.join(__dirname, "../dist/my-tracker/browser/index.html")}`;
+    : `file://${path.join(__dirname, "../dist/focus-loop/browser/index.html")}`;
 
   mainWindow.loadURL(startUrl);
 
-  // Mostrar la ventana cuando esté lista
+  // Show the window when ready
   mainWindow.once("ready-to-show", () => {
     mainWindow.show();
 
-    // Abrir DevTools en desarrollo
+    // Open DevTools in development
     if (isDev) {
       mainWindow.webContents.openDevTools();
     }
   });
 
-  // Manejar cuando se cierra la ventana
+  // Handle when the window is closed
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
 }
 
-// Este método se llamará cuando Electron haya terminado de inicializar
+// This method will be called when Electron has finished initializing
 app.whenReady().then(() => {
   createWindow();
 
-  // En macOS, es común recrear una ventana cuando se hace clic en el icono del dock
+  // On macOS, it is common to recreate a window when clicking on the dock icon
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -65,15 +65,15 @@ app.whenReady().then(() => {
   });
 });
 
-// Salir cuando todas las ventanas estén cerradas
+// Exit when all windows are closed
 app.on("window-all-closed", () => {
-  // En macOS, es común que las aplicaciones permanezcan activas hasta que se cierren explícitamente
+  // On macOS, it is common for applications to remain active until explicitly closed
   if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
-// Configurar el menú de la aplicación
+// Configure the application menu
 function buildAppMenu() {
   const template = [
     {
@@ -88,7 +88,7 @@ function buildAppMenu() {
           },
         },
         {
-          label: "Perfil",
+          label: "Profile",
           click: () => {
             if (mainWindow) {
               mainWindow.webContents.send("menu:profile");
@@ -97,7 +97,7 @@ function buildAppMenu() {
         },
         { type: "separator" },
         {
-          label: "Cerrar Sesión",
+          label: "Logout",
           click: () => {
             if (mainWindow) {
               mainWindow.webContents.send("menu:logout");
@@ -106,15 +106,15 @@ function buildAppMenu() {
         },
         { type: "separator" },
         process.platform === "darwin"
-          ? { role: "close", label: "Cerrar Ventana" }
-          : { role: "quit", label: "Salir" },
+          ? { role: "close", label: "Close Window" }
+          : { role: "quit", label: "Exit" },
       ],
     },
-    // Menú de edición estándar
+    // Standard edit menu
 
-    // Menú de ventana estándar
+    // Standard window menu
 
-    // Menú ayuda simple
+    // Simple help menu
   ];
 
   const menu = Menu.buildFromTemplate(template);
@@ -128,7 +128,7 @@ const menu = buildAppMenu();
 ipcMain.handle("resize-window", (event, { width, height }) => {
   if (mainWindow) {
     mainWindow.setSize(width, height);
-    // Centrar la ventana en la pantalla
+    // Center the window on the screen
     mainWindow.center();
     return true;
   }
@@ -146,13 +146,13 @@ ipcMain.handle("reset-window-size", () => {
 
 ipcMain.handle("make-window-floating", (event, { width, height }) => {
   if (mainWindow) {
-    // Hacer la ventana siempre visible sobre otras aplicaciones
+    // Make the window always visible over other applications
     mainWindow.setAlwaysOnTop(true);
-    // Redimensionar la ventana con las dimensiones específicas
-    mainWindow.setSize(width, height, false); // false para no animar el cambio
-    // Centrar la ventana
+    // Resize the window with specific dimensions
+    mainWindow.setSize(width, height, false); // false to not animate the change
+    // Center the window
     mainWindow.center();
-    // Forzar el redibujado de la ventana
+    // Force window redraw
     mainWindow.webContents.invalidate();
     return true;
   }
@@ -161,12 +161,12 @@ ipcMain.handle("make-window-floating", (event, { width, height }) => {
 
 ipcMain.handle("reset-window-floating", () => {
   if (mainWindow) {
-    // Quitar la propiedad de siempre visible
+    // Remove always visible property
     mainWindow.setAlwaysOnTop(false);
-    // Restaurar tamaño original
-    mainWindow.setSize(1200, 800, false); // false para no animar el cambio
+    // Restore original size
+    mainWindow.setSize(1200, 800, false); // false to not animate the change
     mainWindow.center();
-    // Forzar el redibujado de la ventana
+    // Force window redraw
     mainWindow.webContents.invalidate();
     return true;
   }
@@ -183,8 +183,8 @@ ipcMain.handle("move-window", (event, { x, y }) => {
 
 ipcMain.handle("hide-titlebar", () => {
   if (mainWindow) {
-    mainWindow.setWindowButtonVisibility(false); // Solo en macOS
-    // Para Windows/Linux, se requiere recrear la ventana sin frame, lo cual es más complejo.
+    mainWindow.setWindowButtonVisibility(false); // Only on macOS
+    // For Windows/Linux, recreating the window without frame is required, which is more complex.
     return true;
   }
   return false;
@@ -192,7 +192,7 @@ ipcMain.handle("hide-titlebar", () => {
 
 ipcMain.handle("show-titlebar", () => {
   if (mainWindow) {
-    mainWindow.setWindowButtonVisibility(true); // Solo en macOS
+    mainWindow.setWindowButtonVisibility(true); // Only on macOS
     return true;
   }
   return false;

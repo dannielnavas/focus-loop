@@ -39,19 +39,19 @@ export default class Principal {
   createSprint() {
     const sprintData = this.newSprint();
     if (!sprintData.name.trim()) {
-      alert('El título es obligatorio');
+      alert('Title is required');
       return;
     }
     if (!sprintData.start_date) {
-      alert('La fecha de inicio es obligatoria');
+      alert('Start date is required');
       return;
     }
     if (!sprintData.end_date) {
-      alert('La fecha de fin es obligatoria');
+      alert('End date is required');
       return;
     }
     if (new Date(sprintData.start_date) >= new Date(sprintData.end_date)) {
-      alert('La fecha de fin debe ser posterior a la fecha de inicio');
+      alert('End date must be after start date');
       return;
     }
 
@@ -67,7 +67,7 @@ export default class Principal {
         },
         error: (err) => {
           console.error('Error creating sprint:', err);
-          alert('Error al crear el sprint. Inténtalo de nuevo.');
+          alert('Error creating sprint. Please try again.');
         },
       });
   }
@@ -85,18 +85,18 @@ export default class Principal {
         next: () => this.resourcesSprints.reload(),
         error: (err) => {
           console.error('Error updating sprint:', err);
-          alert('Error al actualizar el sprint. Inténtalo de nuevo.');
+          alert('Error updating sprint. Please try again.');
         },
       });
   }
 
   deleteSprint(sprintId: number) {
-    if (confirm('¿Estás seguro de que quieres eliminar este sprint?')) {
+    if (confirm('Are you sure you want to delete this sprint?')) {
       this.sprintService.deleteSprint(sprintId).subscribe({
         next: () => this.resourcesSprints.reload(),
         error: (err) => {
           console.error('Error deleting sprint:', err);
-          alert('Error al eliminar el sprint. Inténtalo de nuevo.');
+          alert('Error deleting sprint. Please try again.');
         },
       });
     }
@@ -164,8 +164,8 @@ export default class Principal {
   }
 
   getTaskCount(sprint: SprintResponse, taskStatus: string): void {
-    // Por ahora retornamos valores de ejemplo
-    // En el futuro esto se calcularía basado en las tareas reales del sprint
+    // For now we return example values
+    // In the future this would be calculated based on real sprint tasks
     // if (taskStatus === 'pending') {
     //   this.taskService.getCountPendingTasks(sprint.sprint_id).subscribe({
     //     next: (res) => {
@@ -190,12 +190,12 @@ export default class Principal {
   }
 
   viewSprintDetails(sprint: SprintResponse) {
-    // Por ahora solo navegamos al board, en el futuro podríamos navegar a una vista específica del sprint
+    // For now we only navigate to the board, in the future we could navigate to a specific sprint view
     this.router.navigate(['/private/board', sprint.sprint_id]);
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
+import { format, subDays } from 'date-fns';
 import { Sprint, SprintResponse } from '../models/sprint.model';
 
 @Injectable({
@@ -10,7 +11,6 @@ export class Sprints {
   private readonly session = computed(() => localStorage.getItem('token'));
 
   getSprints(userId: string | number) {
-    console.log(userId);
     return this.http.get<SprintResponse[]>(
       `https://my-tracker-backend-pied.vercel.app/sprint/user/${userId}`,
       {
@@ -22,7 +22,6 @@ export class Sprints {
   }
 
   createSprint(sprint: Sprint) {
-    console.log(sprint);
     return this.http.post<Sprint>(
       'https://my-tracker-backend-pied.vercel.app/sprint',
       sprint,
@@ -58,6 +57,9 @@ export class Sprints {
   }
 
   generateDaily(sprint_id: number) {
+    const currentDate = new Date();
+    const yesterdayDate = subDays(currentDate, 1);
+    const dateReport = format(yesterdayDate, "yyyy-MM-dd HH:mm:ss 'GMT'X");
     return this.http.post<{
       role: string | null;
       content: string;
@@ -67,7 +69,7 @@ export class Sprints {
       `https://my-tracker-backend-pied.vercel.app/ai-functions/generate`,
       {
         sprint_id,
-        dateReport: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        dateReport,
       },
       {
         headers: {

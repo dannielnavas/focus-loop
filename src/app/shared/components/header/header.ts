@@ -80,7 +80,44 @@ export class Header {
   }
 
   goToBack() {
-    this.location.back();
+    const currentUrl = this.router.url;
+
+    // Si estamos en la página principal, verificar si hay historial
+    if (currentUrl === '/private' || currentUrl === '/private/') {
+      if (window.history.length > 1) {
+        this.location.back();
+      } else {
+        // Si no hay historial, quedarse en la página principal
+        console.log('Ya estás en la página principal');
+      }
+      return;
+    }
+
+    // Verificar si estamos en una ruta que debe volver a la página principal
+    const shouldGoToMain = [
+      '/private/work',
+      '/private/timer',
+      '/private/profile',
+      '/private/settings',
+      '/private/sprints',
+    ].some((route) => currentUrl.startsWith(route));
+
+    // Verificar si estamos en board con parámetros
+    const isBoardRoute = currentUrl.startsWith('/private/board/');
+
+    if (shouldGoToMain || isBoardRoute) {
+      // Navegar directamente a la página principal
+      this.router.navigate(['/private']);
+      return;
+    }
+
+    // Para cualquier otra ruta, intentar navegar hacia atrás
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      // Fallback: navegar a la página principal
+      this.router.navigate(['/private']);
+    }
   }
 
   constructor() {

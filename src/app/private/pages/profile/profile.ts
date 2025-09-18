@@ -1,3 +1,4 @@
+import { Header } from '@/shared/components/header/header';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,7 +25,7 @@ interface UserPreferences {
 
 @Component({
   selector: 'app-profile',
-  imports: [FormsModule],
+  imports: [FormsModule, Header],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

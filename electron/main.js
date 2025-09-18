@@ -104,6 +104,14 @@ function buildAppMenu() {
             }
           },
         },
+        {
+          label: "DevTools",
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.openDevTools();
+            }
+          },
+        },
         { type: "separator" },
         process.platform === "darwin"
           ? { role: "close", label: "Close Window" }
@@ -183,8 +191,14 @@ ipcMain.handle("move-window", (event, { x, y }) => {
 
 ipcMain.handle("hide-titlebar", () => {
   if (mainWindow) {
-    mainWindow.setWindowButtonVisibility(false); // Only on macOS
-    // For Windows/Linux, recreating the window without frame is required, which is more complex.
+    // macOS only: hide traffic-light buttons if API exists
+    if (typeof mainWindow.setWindowButtonVisibility === "function") {
+      mainWindow.setWindowButtonVisibility(false);
+    } else {
+      // Windows/Linux fallback: we can't hide titlebar at runtime without recreating the window.
+      // As a best-effort, hide the app menu bar.
+      mainWindow.setMenuBarVisibility(false);
+    }
     return true;
   }
   return false;
@@ -192,7 +206,12 @@ ipcMain.handle("hide-titlebar", () => {
 
 ipcMain.handle("show-titlebar", () => {
   if (mainWindow) {
-    mainWindow.setWindowButtonVisibility(true); // Only on macOS
+    if (typeof mainWindow.setWindowButtonVisibility === "function") {
+      mainWindow.setWindowButtonVisibility(true); // macOS
+    } else {
+      // Restore the menu bar on Windows/Linux
+      mainWindow.setMenuBarVisibility(true);
+    }
     return true;
   }
   return false;

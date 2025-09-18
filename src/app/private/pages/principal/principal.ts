@@ -2,6 +2,8 @@ import { SprintResponse } from '@/core/models/sprint.model';
 import { Sprints } from '@/core/services/sprints';
 import { Task } from '@/core/services/task';
 import { Header } from '@/shared/components/header/header';
+import { NotificationsComponent } from '@/shared/components/notifications/notifications';
+import { OptimisticStatusComponent } from '@/shared/components/optimistic-status/optimistic-status';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +11,12 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-principal',
-  imports: [FormsModule, Header],
+  imports: [
+    FormsModule,
+    Header,
+    OptimisticStatusComponent,
+    NotificationsComponent,
+  ],
   templateUrl: './principal.html',
   styleUrl: './principal.css',
 })
@@ -55,8 +62,9 @@ export default class Principal {
       return;
     }
 
+    // Crear sprint optimista
     this.sprintService
-      .createSprint({
+      .createSprintOptimistic({
         ...sprintData,
         user_id: Number(this.user_id()) || 0,
       })

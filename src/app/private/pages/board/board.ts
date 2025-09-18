@@ -1,7 +1,10 @@
 import { TaskResponse } from '@/core/models/task.model';
+import { OptimisticUIService } from '@/core/services/optimistic-ui';
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
+import { NotificationsComponent } from '@/shared/components/notifications/notifications';
+import { OptimisticStatusComponent } from '@/shared/components/optimistic-status/optimistic-status';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -17,7 +20,14 @@ import { formatISO } from 'date-fns';
 
 @Component({
   selector: 'app-board',
-  imports: [CdkDropList, CdkDrag, FormsModule, Header],
+  imports: [
+    CdkDropList,
+    CdkDrag,
+    FormsModule,
+    Header,
+    OptimisticStatusComponent,
+    NotificationsComponent,
+  ],
   templateUrl: './board.html',
   styleUrl: './board.css',
 })
@@ -30,6 +40,7 @@ export default class Board implements OnInit {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
   private readonly store = inject(Store);
+  private readonly optimisticUI = inject(OptimisticUIService);
 
   resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({
     stream: ({ params }) => this.taskService.getTasks(Number(this.sprint_id())),
@@ -97,15 +108,39 @@ export default class Board implements OnInit {
   }
 
   private updateTaskStatus(task: any, newStatus: number) {
+    // Actualizar inmediatamente en el store optimista
+    this.store.updateOptimisticTask(task.task_id, {
+      statusTask: { ...task.statusTask, status_task_id: newStatus },
+      date_end: newStatus === 3 ? formatISO(new Date()) : null,
+      updated_at: new Date().toISOString(),
+    });
+
+    // Ejecutar actualización real
     this.taskService
-      .updateTask(task.task_id, {
-        title: task.title,
-        status_task_id: newStatus,
-        date_end: newStatus === 3 ? formatISO(new Date()) : undefined,
-      })
+      .updateTaskOptimistic(
+        task.task_id,
+        {
+          title: task.title,
+          status_task_id: newStatus,
+          date_end: newStatus === 3 ? formatISO(new Date()) : undefined,
+        },
+        task
+      )
       .subscribe({
-        next: () => this.resourcesTasks.reload(),
-        error: (err) => console.error(err),
+        next: () => {
+          // Actualizar el store real y recargar
+          this.store.setTasks(this.resourcesTasks.value() || []);
+          this.resourcesTasks.reload();
+        },
+        error: (err) => {
+          console.error('Error updating task:', err);
+          // Rollback: restaurar estado original
+          this.store.updateOptimisticTask(task.task_id, {
+            statusTask: task.statusTask,
+            date_end: task.date_end,
+            updated_at: task.updated_at,
+          });
+        },
       });
   }
 
@@ -146,17 +181,46 @@ export default class Board implements OnInit {
 
   addTodoTask() {
     if (this.newTodoTask.trim()) {
-      this.taskService
-        .createTask({
-          title: this.newTodoTask.trim(),
+      const newTask = {
+        title: this.newTodoTask.trim(),
+        status_task_id: 1,
+        sprint_id: Number(this.sprint_id()),
+        position: this.todo().length + 1,
+      };
+
+      // Crear tarea optimista inmediatamente
+      const optimisticTask: TaskResponse = {
+        task_id: -Date.now(), // ID temporal
+        title: newTask.title,
+        position: newTask.position,
+        date_end: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        statusTask: {
           status_task_id: 1,
-          sprint_id: Number(this.sprint_id()),
-          position: this.todo().length + 1,
-        })
-        .subscribe({
-          next: () => this.resourcesTasks.reload(),
-          error: (err) => console.error(err),
-        });
+          name: 'Pending',
+          created_at: '',
+          updated_at: '',
+        },
+        description: null,
+      };
+
+      this.store.addOptimisticTask(optimisticTask);
+
+      // Ejecutar creación real
+      this.taskService.createTaskOptimistic(newTask).subscribe({
+        next: (createdTask) => {
+          // Remover tarea optimista y actualizar con la real
+          this.store.removeOptimisticTask(optimisticTask.task_id);
+          this.resourcesTasks.reload();
+        },
+        error: (err) => {
+          console.error('Error creating task:', err);
+          // Rollback: remover tarea optimista
+          this.store.removeOptimisticTask(optimisticTask.task_id);
+        },
+      });
+
       this.newTodoTask = '';
       this.showTodoInput = false;
     }

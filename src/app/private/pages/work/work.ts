@@ -1,3 +1,4 @@
+import { OptimisticUIService } from '@/core/services/optimistic-ui';
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
 import {
@@ -19,6 +20,7 @@ export default class Work implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
   private readonly store = inject(Store);
+  private readonly optimisticUI = inject(OptimisticUIService);
 
   today = computed(() => {
     const tasks = this.store.getTaskForWork();
@@ -71,20 +73,45 @@ export default class Work implements OnInit, OnDestroy {
   }
 
   markAsCompleted(taskId: number) {
+    const task = this.today().find((t) => t.task_id === taskId);
+    if (!task) return;
+
+    // Actualizar inmediatamente en el store optimista
+    this.store.updateOptimisticTask(taskId, {
+      statusTask: { ...task.statusTask, status_task_id: 3 },
+      date_end: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    // Remover de la lista de trabajo inmediatamente
+    this.store.setTaskForWork(
+      this.store.getTaskForWork().filter((task) => task.task_id !== taskId)
+    );
+
+    // Ejecutar actualización real
     this.taskService
-      .updateTask(taskId, {
-        status_task_id: 3,
-      })
+      .updateTaskOptimistic(
+        taskId,
+        {
+          status_task_id: 3,
+          date_end: new Date().toISOString(),
+        },
+        task
+      )
       .subscribe({
         next: () => {
-          this.store.setTaskForWork(
-            this.store
-              .getTaskForWork()
-              .filter((task) => task.task_id !== taskId)
-          );
+          // Éxito: la tarea ya fue removida del store
+          console.log('Task marked as completed successfully');
         },
         error: (error) => {
           console.error('Error marking as completed:', error);
+          // Rollback: restaurar tarea en la lista de trabajo
+          this.store.setTaskForWork([...this.store.getTaskForWork(), task]);
+          this.store.updateOptimisticTask(taskId, {
+            statusTask: task.statusTask,
+            date_end: task.date_end,
+            updated_at: task.updated_at,
+          });
         },
       });
   }

@@ -15,6 +15,7 @@ export interface TaskResponse {
   created_at: string;
   updated_at: string;
   statusTask: StatusTask;
+  date_end: string | null;
 }
 
 export interface StatusTask {

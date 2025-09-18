@@ -149,7 +149,6 @@ export default class Board implements OnInit {
       this.taskService
         .updateTask(task.task_id, {
           position: index + 1,
-          status_task_id,
         })
         .subscribe({
           error: (err) => console.error(err),

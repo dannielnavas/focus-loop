@@ -104,14 +104,6 @@ function buildAppMenu() {
             }
           },
         },
-        {
-          label: "DevTools",
-          click: () => {
-            if (mainWindow) {
-              mainWindow.webContents.openDevTools();
-            }
-          },
-        },
         { type: "separator" },
         process.platform === "darwin"
           ? { role: "close", label: "Close Window" }

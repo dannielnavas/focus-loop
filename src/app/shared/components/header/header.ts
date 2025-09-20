@@ -23,6 +23,7 @@ export class Header {
   showDaily = signal(false);
   dailyContent = signal('');
   showMenu = signal(false);
+  isLoadingDaily = signal(false);
 
   user_id = computed(() => localStorage.getItem('user_id'));
   private readonly router = inject(Router);
@@ -56,6 +57,7 @@ export class Header {
   closeDaily() {
     this.showDaily.set(false);
     this.dailyContent.set('');
+    this.isLoadingDaily.set(false);
   }
 
   generateDailyAi() {
@@ -74,13 +76,20 @@ export class Header {
 
     console.log(idSprintActive);
 
+    // Mostrar el modal y activar el loading
+    this.showDaily.set(true);
+    this.isLoadingDaily.set(true);
+    this.dailyContent.set('');
+
     this.sprintService.generateDaily(idSprintActive).subscribe({
       next: (res) => {
         this.dailyContent.set(res.content);
-        this.showDaily.set(true);
+        this.isLoadingDaily.set(false);
       },
       error: (err) => {
         console.error('Error generating daily report:', err);
+        this.isLoadingDaily.set(false);
+        this.showDaily.set(false);
         alert('Error generating daily report. Please try again.');
       },
     });

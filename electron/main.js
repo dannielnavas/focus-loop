@@ -21,7 +21,7 @@ function createWindow() {
     titleBarStyle: "customButtonsOnHover", // Use native controls
     frame: true, // Keep native frame with system controls
     // Make the window resizable
-    resizable: true, // Changed to true to allow dynamic resizing
+    resizable: true,
     // Allow minimize and maximize
     minimizable: false,
     maximizable: false,

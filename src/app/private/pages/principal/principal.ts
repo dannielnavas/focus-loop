@@ -45,6 +45,9 @@ export default class Principal {
     defaultValue: [],
   });
 
+  // Computed para saber si está cargando
+  isLoadingSprints = computed(() => this.resourcesSprints.isLoading());
+
   constructor() {
     effect(() => {
       this.resourcesSprints.value();

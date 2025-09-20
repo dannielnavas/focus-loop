@@ -1,3 +1,4 @@
+import { StorageService } from '@/core/services/storage.service';
 import { Header } from '@/shared/components/header/header';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -31,6 +32,7 @@ interface UserPreferences {
 })
 export default class Profile {
   private readonly router = inject(Router);
+  private readonly storage = inject(StorageService);
 
   // Signals para el estado del formulario
   profileForm = signal<ProfileForm>({
@@ -81,7 +83,7 @@ export default class Profile {
 
   // Cargar perfil del usuario desde localStorage
   loadUserProfile() {
-    const userData = localStorage.getItem('user_data');
+    const userData = this.storage.getUserData();
     if (userData) {
       try {
         const user = JSON.parse(userData);
@@ -129,7 +131,7 @@ export default class Profile {
           ...this.profileForm(),
           preferences: this.preferences(),
         };
-        localStorage.setItem('user_data', JSON.stringify(userData));
+        this.storage.setUserData(userData);
 
         this.showMessage('Profile updated successfully', 'success');
         this.isLoading.set(false);

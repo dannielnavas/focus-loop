@@ -1,4 +1,5 @@
 import { Sprints } from '@/core/services/sprints';
+import { StorageService } from '@/core/services/storage.service';
 import { Store } from '@/core/store/store';
 import { Location } from '@angular/common';
 import {
@@ -25,12 +26,13 @@ export class Header {
   showMenu = signal(false);
   isLoadingDaily = signal(false);
 
-  user_id = computed(() => localStorage.getItem('user_id'));
+  user_id = computed(() => this.storage.getUserId());
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly sprintService = inject(Sprints);
   private readonly ngZone = inject(NgZone);
   private readonly store = inject(Store);
+  private readonly storage = inject(StorageService);
 
   goToProfile() {
     this.router.navigate(['/private/profile']);
@@ -46,9 +48,7 @@ export class Header {
 
   logout() {
     // Clear session data
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('user_data');
-    localStorage.removeItem('token');
+    this.storage.clearUserData();
 
     // Navigate to login
     this.router.navigate(['/']);

@@ -4,14 +4,17 @@ import { format, subDays } from 'date-fns';
 import { Observable } from 'rxjs';
 import { Sprint, SprintResponse } from '../models/sprint.model';
 import { OptimisticUIService } from './optimistic-ui';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Sprints {
   private readonly http = inject(HttpClient);
-  private readonly session = computed(() => localStorage.getItem('token'));
   private readonly optimisticUI = inject(OptimisticUIService);
+  private readonly storage = inject(StorageService);
+
+  private readonly session = computed(() => this.storage.getToken());
 
   getSprints(userId: string | number) {
     return this.http.get<SprintResponse[]>(

@@ -1,5 +1,6 @@
 import { TaskResponse } from '@/core/models/task.model';
 import { OptimisticUIService } from '@/core/services/optimistic-ui';
+import { StorageService } from '@/core/services/storage.service';
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
@@ -34,12 +35,13 @@ import { formatISO } from 'date-fns';
 export default class Board implements OnInit {
   newTodoTask = '';
   showTodoInput = false;
-  user_id = computed(() => localStorage.getItem('user_id'));
+  user_id = computed(() => this.storage.getUserId());
   sprint_id = input<string>();
 
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
   private readonly store = inject(Store);
+  private readonly storage = inject(StorageService);
   private readonly optimisticUI = inject(OptimisticUIService);
 
   resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({

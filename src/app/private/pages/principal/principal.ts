@@ -1,5 +1,6 @@
 import { SprintResponse } from '@/core/models/sprint.model';
 import { Sprints } from '@/core/services/sprints';
+import { StorageService } from '@/core/services/storage.service';
 import { Task } from '@/core/services/task';
 import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
@@ -31,11 +32,12 @@ export default class Principal {
     status: 'planned' as const,
   });
 
-  user_id = computed(() => localStorage.getItem('user_id'));
+  user_id = computed(() => this.storage.getUserId());
   private readonly sprintService = inject(Sprints);
   private readonly router = inject(Router);
   private readonly taskService = inject(Task);
   private readonly store = inject(Store);
+  private readonly storage = inject(StorageService);
 
   resourcesSprints = rxResource<SprintResponse[], { user_id: number }>({
     stream: ({ params }) => this.sprintService.getSprints(params.user_id),

@@ -1,4 +1,5 @@
 import { Login as LoginService } from '@/core/services/login';
+import { StorageService } from '@/core/services/storage.service';
 import { Component, computed, effect, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -18,7 +19,9 @@ export default class Login implements OnInit {
   private readonly router = inject(Router);
   private readonly loginService = inject(LoginService);
   private readonly formBuilder = inject(FormBuilder);
-  session = computed(() => localStorage.getItem('token'));
+  private readonly storage = inject(StorageService);
+
+  session = computed(() => this.storage.getToken());
 
   formLogin!: FormGroup;
 
@@ -42,10 +45,8 @@ export default class Login implements OnInit {
 
     this.loginService.login(this.formLogin.value).subscribe({
       next: (res) => {
-        localStorage.setItem('token', res.access_token);
-        localStorage.setItem('user_id', res.user.user_id.toString());
-        localStorage.setItem('user_name', res.user.full_name);
-        localStorage.setItem('user_email', res.user.email);
+        this.storage.setToken(res.access_token);
+        this.storage.setUserData(res.user);
         this.router.navigate(['/private']);
       },
       error: (err) => {

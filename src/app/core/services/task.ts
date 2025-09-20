@@ -3,14 +3,17 @@ import { computed, inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Task as TaskModel, TaskResponse } from '../models/task.model';
 import { OptimisticUIService } from './optimistic-ui';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Task {
   private readonly http = inject(HttpClient);
-  private readonly session = computed(() => localStorage.getItem('token'));
   private readonly optimisticUI = inject(OptimisticUIService);
+  private readonly storage = inject(StorageService);
+
+  private readonly session = computed(() => this.storage.getToken());
 
   getTasks(sprint_id: string | number) {
     return this.http.get<TaskResponse[]>(

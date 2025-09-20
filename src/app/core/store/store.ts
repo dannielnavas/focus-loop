@@ -40,7 +40,7 @@ export class Store {
 
   // Métodos para sprints
   getSprints() {
-    return this.sprints();
+    return this.sprints;
   }
 
   setSprints(sprints: SprintResponse[]) {

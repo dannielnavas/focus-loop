@@ -1,8 +1,14 @@
-import { SprintResponse } from '@/core/models/sprint.model';
 import { Sprints } from '@/core/services/sprints';
+import { Store } from '@/core/store/store';
 import { Location } from '@angular/common';
-import { Component, computed, inject, NgZone, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  NgZone,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,6 +18,8 @@ import { Router } from '@angular/router';
   styleUrl: './header.css',
 })
 export class Header {
+  countTasks = input(0);
+
   showDaily = signal(false);
   dailyContent = signal('');
   showMenu = signal(false);
@@ -21,14 +29,7 @@ export class Header {
   private readonly location = inject(Location);
   private readonly sprintService = inject(Sprints);
   private readonly ngZone = inject(NgZone);
-
-  resourcesSprints = rxResource<SprintResponse[], { user_id: number }>({
-    stream: ({ params }) => this.sprintService.getSprints(params.user_id),
-    params: () => ({
-      user_id: Number(this.user_id()) || 0,
-    }),
-    defaultValue: [],
-  });
+  private readonly store = inject(Store);
 
   goToProfile() {
     this.router.navigate(['/private/profile']);
@@ -58,16 +59,22 @@ export class Header {
   }
 
   generateDailyAi() {
-    const activeSprint = this.resourcesSprints
-      .value()
-      .filter((sprint) => sprint.status === 'active')[0];
-
-    if (!activeSprint) {
+    console.log('generateDailyAi');
+    console.log(this.store.getSprints());
+    const activeSprint = this.store.getSprints();
+    // .filter((sprint) => sprint.status === 'active')[0];
+    const idSprintActive = activeSprint().find(
+      (sprint) => sprint.status === 'active'
+    )?.sprint_id;
+    console.log(idSprintActive);
+    if (!idSprintActive) {
       alert('There is no active sprint to generate the daily report');
       return;
     }
 
-    this.sprintService.generateDaily(activeSprint.sprint_id).subscribe({
+    console.log(idSprintActive);
+
+    this.sprintService.generateDaily(idSprintActive).subscribe({
       next: (res) => {
         this.dailyContent.set(res.content);
         this.showDaily.set(true);

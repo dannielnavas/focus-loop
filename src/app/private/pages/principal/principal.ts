@@ -1,10 +1,11 @@
 import { SprintResponse } from '@/core/models/sprint.model';
 import { Sprints } from '@/core/services/sprints';
 import { Task } from '@/core/services/task';
+import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
 import { NotificationsComponent } from '@/shared/components/notifications/notifications';
 import { OptimisticStatusComponent } from '@/shared/components/optimistic-status/optimistic-status';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -34,6 +35,7 @@ export default class Principal {
   private readonly sprintService = inject(Sprints);
   private readonly router = inject(Router);
   private readonly taskService = inject(Task);
+  private readonly store = inject(Store);
 
   resourcesSprints = rxResource<SprintResponse[], { user_id: number }>({
     stream: ({ params }) => this.sprintService.getSprints(params.user_id),
@@ -42,6 +44,13 @@ export default class Principal {
     }),
     defaultValue: [],
   });
+
+  constructor() {
+    effect(() => {
+      this.resourcesSprints.value();
+      this.store.setSprints(this.resourcesSprints.value());
+    });
+  }
 
   createSprint() {
     const sprintData = this.newSprint();

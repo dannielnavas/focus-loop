@@ -1,6 +1,7 @@
 import { OptimisticUIService } from '@/core/services/optimistic-ui';
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
+import { Header } from '@/shared/components/header/header';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -8,11 +9,11 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-work',
-  imports: [CdkDropList, CdkDrag, RouterLink],
+  imports: [CdkDropList, CdkDrag, Header],
   templateUrl: './work.html',
   styleUrl: './work.css',
 })

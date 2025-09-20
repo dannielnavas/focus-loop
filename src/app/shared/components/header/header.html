@@ -1,5 +1,5 @@
 <header
-  class="max-w-7xl mx-auto flex justify-start px-16 pt-2 items-center bg-transparent"
+  class="max-w-7xl mx-auto flex justify-start pb-2 items-center bg-transparent"
 >
   <!-- Back Button - Left Side -->
   <a
@@ -15,6 +15,30 @@
       />
     </svg>
   </a>
+
+  @if(countTasks() > 0){
+  <div class="px-4 py-3 sm:px-6 sm:py-4 flex-shrink-0">
+    <h2
+      class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+        ></path>
+      </svg>
+      Today
+    </h2>
+    <p class="text-blue-200 text-xs sm:text-sm mt-1">{{countTasks()}} tasks</p>
+  </div>
+  }
 </header>
 
 <!-- Daily Report Modal -->

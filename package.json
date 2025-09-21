@@ -1,6 +1,6 @@
 {
   "name": "focus-loop",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Aplicación de seguimiento y gestión de tareas",
   "author": {
     "name": "Danniel Navas",
@@ -15,8 +15,13 @@
     "test": "ng test",
     "electron": "electron .",
     "electron:dev": "concurrently \"npm run start\" \"wait-on http://localhost:4200 && electron .\"",
-    "electron:build": "npm run build && electron-builder",
-    "electron:serve": "npm run build && electron ."
+    "electron:build": "node scripts/increment-version.js patch && npm run build && electron-builder",
+    "electron:build:minor": "node scripts/increment-version.js minor && npm run build && electron-builder",
+    "electron:build:major": "node scripts/increment-version.js major && npm run build && electron-builder",
+    "electron:serve": "npm run build && electron .",
+    "version:patch": "node scripts/increment-version.js patch",
+    "version:minor": "node scripts/increment-version.js minor",
+    "version:major": "node scripts/increment-version.js major"
   },
   "private": true,
   "dependencies": {

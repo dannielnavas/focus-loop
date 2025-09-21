@@ -24,6 +24,8 @@ export default class Login implements OnInit {
   session = computed(() => this.storage.getToken());
 
   formLogin!: FormGroup;
+  isLoading = false;
+  errorMessage = '';
 
   constructor() {
     effect(() => {
@@ -43,14 +45,31 @@ export default class Login implements OnInit {
       return;
     }
 
+    this.isLoading = true;
+    this.errorMessage = '';
+
     this.loginService.login(this.formLogin.value).subscribe({
       next: (res) => {
+        this.isLoading = false;
         this.storage.setToken(res.access_token);
         this.storage.setUserData(res.user);
         this.router.navigate(['/private']);
       },
       error: (err) => {
+        this.isLoading = false;
         console.error(err);
+
+        // Set error message based on the error response
+        if (err.status === 401) {
+          this.errorMessage = 'Invalid email or password. Please try again.';
+        } else if (err.status === 0) {
+          this.errorMessage =
+            'Network error. Please check your connection and try again.';
+        } else if (err.status >= 500) {
+          this.errorMessage = 'Server error. Please try again later.';
+        } else {
+          this.errorMessage = 'Login failed. Please try again.';
+        }
       },
     });
   }

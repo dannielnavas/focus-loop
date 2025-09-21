@@ -1,6 +1,8 @@
 const { app, BrowserWindow, Menu, ipcMain } = require("electron");
 const path = require("path");
 const isDev = process.env.NODE_ENV === "development";
+const adminSubscriptionPlanId = "2";
+const roleAdmin = "admin";
 
 let mainWindow;
 
@@ -45,6 +47,30 @@ function createWindow() {
     if (isDev) {
       mainWindow.webContents.openDevTools();
     }
+
+    // Actualizar el menú con los datos del usuario después de que la ventana esté lista
+    setTimeout(async () => {
+      try {
+        // Verificar que el DOM esté listo antes de ejecutar el script
+        const userData = await mainWindow.webContents.executeJavaScript(`
+          try {
+            if (typeof localStorage !== 'undefined') {
+              const userData = localStorage.getItem('user_data');
+              return userData ? JSON.parse(userData) : null;
+            }
+            return null;
+          } catch (e) {
+            console.error('Error accediendo a localStorage:', e);
+            return null;
+          }
+        `);
+        updateMenu(userData);
+      } catch (error) {
+        console.error("Error actualizando menú al iniciar:", error);
+        // Continuar con menú por defecto si hay error
+        updateMenu(null);
+      }
+    }, 2000); // Aumentar el tiempo de espera para asegurar que Angular esté listo
   });
 
   // Handle when the window is closed
@@ -74,7 +100,7 @@ app.on("window-all-closed", () => {
 });
 
 // Configure the application menu
-function buildAppMenu() {
+function buildAppMenu(userData = null) {
   const template = [
     {
       label: "FocusLoop",
@@ -86,6 +112,11 @@ function buildAppMenu() {
               mainWindow.webContents.send("menu:generateDaily");
             }
           },
+          visible:
+            (userData && userData.role === roleAdmin) ||
+            (userData &&
+              userData.subscriptionPlan.subscription_plan_id ===
+                adminSubscriptionPlanId),
         },
         {
           label: "Profile",
@@ -94,6 +125,16 @@ function buildAppMenu() {
               mainWindow.webContents.send("menu:profile");
             }
           },
+          visible: userData && userData.role === roleAdmin,
+        },
+        {
+          label: "DevTools",
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.openDevTools();
+            }
+          },
+          visible: userData && userData.role === roleAdmin,
         },
         { type: "separator" },
         {
@@ -103,6 +144,7 @@ function buildAppMenu() {
               mainWindow.webContents.send("menu:logout");
             }
           },
+          visible: userData,
         },
         { type: "separator" },
         process.platform === "darwin"
@@ -122,7 +164,17 @@ function buildAppMenu() {
   return menu;
 }
 
-const menu = buildAppMenu();
+// Variable para almacenar el menú actual
+let currentMenu = null;
+
+// Función para actualizar el menú con datos del usuario
+function updateMenu(userData) {
+  currentMenu = buildAppMenu(userData);
+  Menu.setApplicationMenu(currentMenu);
+}
+
+// Inicializar menú sin datos de usuario
+updateMenu(null);
 
 // Agregar listeners para IPC
 ipcMain.handle("resize-window", (event, { width, height }) => {
@@ -215,6 +267,60 @@ ipcMain.handle("hide-menu", () => {
 });
 
 ipcMain.handle("show-menu", () => {
-  Menu.setApplicationMenu(menu || buildAppMenu());
+  Menu.setApplicationMenu(currentMenu || buildAppMenu());
   return true;
+});
+
+// Handler para obtener datos del usuario desde el renderizado
+ipcMain.handle("get-user-data", async () => {
+  if (mainWindow) {
+    try {
+      // Solicitar datos del usuario al renderizado
+      const userData = await mainWindow.webContents.executeJavaScript(`
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const userData = localStorage.getItem('user_data');
+            return userData ? JSON.parse(userData) : null;
+          }
+          return null;
+        } catch (e) {
+          console.error('Error accediendo a localStorage:', e);
+          return null;
+        }
+      `);
+      return userData;
+    } catch (error) {
+      console.error("Error obteniendo datos del usuario:", error);
+      return null;
+    }
+  }
+  return null;
+});
+
+// Handler para actualizar el menú con datos del usuario
+ipcMain.handle("update-menu-with-user-data", async () => {
+  if (mainWindow) {
+    try {
+      const userData = await mainWindow.webContents.executeJavaScript(`
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const userData = localStorage.getItem('user_data');
+            return userData ? JSON.parse(userData) : null;
+          }
+          return null;
+        } catch (e) {
+          console.error('Error accediendo a localStorage:', e);
+          return null;
+        }
+      `);
+      updateMenu(userData);
+      return true;
+    } catch (error) {
+      console.error("Error actualizando menú:", error);
+      // Continuar con menú por defecto si hay error
+      updateMenu(null);
+      return false;
+    }
+  }
+  return false;
 });

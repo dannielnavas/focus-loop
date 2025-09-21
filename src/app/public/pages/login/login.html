@@ -15,7 +15,8 @@
       class="flex flex-col gap-y-4"
     >
       <div
-        class="w-full border-b-2 border-gray-700 bg-transparent text-lg duration-300 focus-within:border-indigo-500"
+        class="w-full border-b-2 bg-transparent text-lg duration-300 focus-within:border-indigo-500"
+        [class]="(formLogin.get('email')?.touched || formLogin.get('email')?.dirty) && formLogin.get('email')?.errors ? 'border-red-500' : 'border-gray-700'"
       >
         <input
           type="text"
@@ -26,21 +27,104 @@
       </div>
       @if(formLogin.get("email")?.touched || formLogin.get("email")?.dirty ) {
       @if (formLogin.get("email")?.errors?.['required']) {
-      <p class="text-red-500 text-xs mt-1">Email is required</p>
+      <div
+        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
+      >
+        <svg
+          class="w-4 h-4 text-red-400 flex-shrink-0"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <p class="text-red-400 text-sm font-medium">Email is required</p>
+      </div>
       } @if (formLogin.get("email")?.errors?.['email']) {
-      <p class="text-red-500 text-xs mt-1">Email is not valid</p>
+      <div
+        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
+      >
+        <svg
+          class="w-4 h-4 text-red-400 flex-shrink-0"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <p class="text-red-400 text-sm font-medium">
+          Please enter a valid email address
+        </p>
+      </div>
       } @if (formLogin.get("email")?.errors?.['minlength']) {
-      <p class="text-red-500 text-xs mt-1">
-        Email must be at least 3 characters
-      </p>
+      <div
+        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
+      >
+        <svg
+          class="w-4 h-4 text-red-400 flex-shrink-0"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <p class="text-red-400 text-sm font-medium">
+          Email must be at least 3 characters long
+        </p>
+      </div>
       } @if (formLogin.get("email")?.errors?.['maxlength']) {
-      <p class="text-red-500 text-xs mt-1">
-        Email must be less than 255 characters
-      </p>
+      <div
+        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
+      >
+        <svg
+          class="w-4 h-4 text-red-400 flex-shrink-0"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <p class="text-red-400 text-sm font-medium">
+          Email must be less than 255 characters
+        </p>
+      </div>
       } }
 
+      <!-- Error Message -->
+      @if (errorMessage) {
       <div
-        class="w-full border-b-2 border-gray-700 bg-transparent text-lg duration-300 focus-within:border-indigo-500"
+        class="flex items-center gap-2 mt-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg"
+      >
+        <svg
+          class="w-5 h-5 text-red-400 flex-shrink-0"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <p class="text-red-400 text-sm font-medium">{{ errorMessage }}</p>
+      </div>
+      }
+
+      <div
+        class="w-full border-b-2 bg-transparent text-lg duration-300 focus-within:border-indigo-500"
+        [class]="(formLogin.get('password')?.touched || formLogin.get('password')?.dirty) && formLogin.get('password')?.errors ? 'border-red-500' : 'border-gray-700'"
       >
         <input
           type="password"
@@ -51,14 +135,55 @@
       </div>
       @if(formLogin.get("password")?.touched || formLogin.get("password")?.dirty
       ) { @if (formLogin.get("password")?.errors?.['required']) {
-      <p class="text-red-500 text-xs mt-1">Password is required</p>
+      <div
+        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
+      >
+        <svg
+          class="w-4 h-4 text-red-400 flex-shrink-0"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <p class="text-red-400 text-sm font-medium">Password is required</p>
+      </div>
       } }
 
       <button
-        class="rounded-lg bg-indigo-600 py-2 font-bold duration-300 hover:bg-indigo-400 focus:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer w-full mt-4 text-white text-lg shadow-md transition-all"
+        class="rounded-lg py-2 font-bold duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full mt-4 text-white text-lg shadow-md transition-all flex items-center justify-center gap-2"
+        [class]="isLoading ? 'bg-indigo-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-400 focus:bg-indigo-700 cursor-pointer'"
         type="submit"
+        [disabled]="isLoading"
       >
-        LOG IN
+        @if (isLoading) {
+        <svg
+          class="animate-spin h-5 w-5 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        <span>LOGGING IN...</span>
+        } @else {
+        <span>LOG IN</span>
+        }
       </button>
     </form>
   </section>

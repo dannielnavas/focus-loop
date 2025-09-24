@@ -1,5 +1,5 @@
 <main
-  class="mx-auto flex min-h-screen w-full items-center justify-center bg-gray-900 text-white px-2"
+  class="mx-auto flex w-full items-center justify-center bg-gray-900 text-white px-2"
 >
   <section
     class="flex w-full max-w-md flex-col space-y-10 bg-gray-800/80 rounded-2xl shadow-2xl p-6 sm:p-10 border border-gray-700"
@@ -127,12 +127,19 @@
         [class]="(formLogin.get('password')?.touched || formLogin.get('password')?.dirty) && formLogin.get('password')?.errors ? 'border-red-500' : 'border-gray-700'"
       >
         <input
-          type="password"
+          [type]="showPassword() ? 'text' : 'password'"
           formControlName="password"
           placeholder="Password"
           class="w-full border-none bg-transparent outline-none placeholder:italic focus:outline-none text-white placeholder:text-gray-400 py-2 px-1"
         />
       </div>
+      <button
+        type="button"
+        class="text-white text-sm text-right mb-2 hover:underline cursor-pointer"
+        (click)="togglePasswordVisibility()"
+      >
+        @if(!showPassword()) { show password } @else { hide password }
+      </button>
       @if(formLogin.get("password")?.touched || formLogin.get("password")?.dirty
       ) { @if (formLogin.get("password")?.errors?.['required']) {
       <div

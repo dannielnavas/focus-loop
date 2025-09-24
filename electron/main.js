@@ -47,30 +47,89 @@ function createWindow() {
     if (isDev) {
       mainWindow.webContents.openDevTools();
     }
+  });
 
-    // Actualizar el menú con los datos del usuario después de que la ventana esté lista
-    setTimeout(async () => {
+  // Escuchar cuando la página esté completamente cargada
+  mainWindow.webContents.once("did-finish-load", () => {
+    console.log("Página completamente cargada");
+
+    // Actualizar el menú con los datos del usuario después de que la página esté cargada
+    // Usar un enfoque más robusto con múltiples intentos
+    const attemptMenuUpdate = async (attempt = 1, maxAttempts = 5) => {
       try {
-        // Verificar que el DOM esté listo antes de ejecutar el script
+        console.log(`Intento ${attempt} de actualización del menú...`);
+
+        // Ejecutar script con manejo de errores más detallado
         const userData = await mainWindow.webContents.executeJavaScript(`
-          try {
-            if (typeof localStorage !== 'undefined') {
-              const userData = localStorage.getItem('user_data');
-              return userData ? JSON.parse(userData) : null;
+          (function() {
+            try {
+              // Verificar que el contexto esté listo
+              if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+                return { error: 'Context not ready', attempt: ${attempt} };
+              }
+
+              const focusLoopData = localStorage.getItem('focus_loop_data');
+              if (!focusLoopData || focusLoopData === 'null' || focusLoopData === 'undefined') {
+                return { error: 'No data found', attempt: ${attempt} };
+              }
+
+              const parsedData = JSON.parse(focusLoopData);
+              if (!parsedData || typeof parsedData !== 'object' || !parsedData.user_data) {
+                return { error: 'Invalid data structure', attempt: ${attempt} };
+              }
+
+              // Asegurar que user_data sea un objeto, no una cadena
+              let userDataObj = parsedData.user_data;
+              if (typeof userDataObj === 'string') {
+                userDataObj = JSON.parse(userDataObj);
+              }
+
+              return { success: true, data: userDataObj, attempt: ${attempt} };
+            } catch (e) {
+              return { error: e.message, attempt: ${attempt} };
             }
-            return null;
-          } catch (e) {
-            console.error('Error accediendo a localStorage:', e);
-            return null;
-          }
+          })();
         `);
-        updateMenu(userData);
+
+        console.log(`Resultado del intento ${attempt}:`, userData);
+
+        if (userData && userData.success && userData.data) {
+          console.log("Datos del usuario parseados:", userData.data);
+          console.log("Tipo de datos:", typeof userData.data);
+          console.log("subscriptionPlan:", userData.data.subscriptionPlan);
+          updateMenu(userData.data);
+          console.log("Menú actualizado exitosamente con datos del usuario");
+        } else if (userData && userData.error) {
+          console.log(`Error en intento ${attempt}:`, userData.error);
+          if (attempt < maxAttempts) {
+            setTimeout(() => attemptMenuUpdate(attempt + 1, maxAttempts), 2000);
+          } else {
+            console.log(
+              "Máximo de intentos alcanzado, usando menú por defecto"
+            );
+            updateMenu(null);
+          }
+        } else {
+          updateMenu(null);
+        }
       } catch (error) {
-        console.error("Error actualizando menú al iniciar:", error);
-        // Continuar con menú por defecto si hay error
-        updateMenu(null);
+        console.error(
+          `Error en intento ${attempt} de actualización del menú:`,
+          error
+        );
+        if (attempt < maxAttempts) {
+          setTimeout(() => attemptMenuUpdate(attempt + 1, maxAttempts), 2000);
+        } else {
+          console.log(
+            "Máximo de intentos alcanzado debido a errores, usando menú por defecto"
+          );
+          updateMenu(null);
+        }
       }
-    }, 2000); // Aumentar el tiempo de espera para asegurar que Angular esté listo
+    };
+
+    // Iniciar el primer intento después de un breve delay para que Angular se inicialice
+    setTimeout(() => attemptMenuUpdate(), 3000);
   });
 
   // Handle when the window is closed
@@ -115,6 +174,7 @@ function buildAppMenu(userData = null) {
           visible:
             (userData && userData.role === roleAdmin) ||
             (userData &&
+              userData.subscriptionPlan &&
               userData.subscriptionPlan.subscription_plan_id ===
                 adminSubscriptionPlanId),
         },
@@ -127,15 +187,15 @@ function buildAppMenu(userData = null) {
           },
           visible: userData && userData.role === roleAdmin,
         },
-        {
-          label: "DevTools",
-          click: () => {
-            if (mainWindow) {
-              mainWindow.webContents.openDevTools();
-            }
-          },
-          visible: userData && userData.role === roleAdmin,
-        },
+        // {
+        //   label: "DevTools",
+        //   click: () => {
+        //     if (mainWindow) {
+        //       mainWindow.webContents.openDevTools();
+        //     }
+        //   },
+        //   visible: userData && userData.role === roleAdmin,
+        // },
         { type: "separator" },
         {
           label: "Logout",
@@ -275,20 +335,46 @@ ipcMain.handle("show-menu", () => {
 ipcMain.handle("get-user-data", async () => {
   if (mainWindow) {
     try {
-      // Solicitar datos del usuario al renderizado
-      const userData = await mainWindow.webContents.executeJavaScript(`
-        try {
-          if (typeof localStorage !== 'undefined') {
-            const userData = localStorage.getItem('user_data');
-            return userData ? JSON.parse(userData) : null;
+      // Solicitar datos del usuario al renderizado con manejo robusto de errores
+      const result = await mainWindow.webContents.executeJavaScript(`
+        (function() {
+          try {
+            if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+              return { error: 'Context not ready' };
+            }
+
+            const focusLoopData = localStorage.getItem('focus_loop_data');
+            if (!focusLoopData || focusLoopData === 'null' || focusLoopData === 'undefined') {
+              return { error: 'No data found' };
+            }
+
+            const parsedData = JSON.parse(focusLoopData);
+            if (!parsedData || typeof parsedData !== 'object' || !parsedData.user_data) {
+              return { error: 'Invalid data structure' };
+            }
+
+            // Asegurar que user_data sea un objeto, no una cadena
+            let userDataObj = parsedData.user_data;
+            if (typeof userDataObj === 'string') {
+              userDataObj = JSON.parse(userDataObj);
+            }
+
+            return { success: true, data: userDataObj };
+          } catch (e) {
+            return { error: e.message };
           }
-          return null;
-        } catch (e) {
-          console.error('Error accediendo a localStorage:', e);
-          return null;
-        }
+        })();
       `);
-      return userData;
+
+      if (result && result.success && result.data) {
+        return result.data;
+      } else {
+        console.log(
+          "No se pudieron obtener datos del usuario:",
+          result?.error || "Resultado inesperado"
+        );
+        return null;
+      }
     } catch (error) {
       console.error("Error obteniendo datos del usuario:", error);
       return null;
@@ -301,19 +387,46 @@ ipcMain.handle("get-user-data", async () => {
 ipcMain.handle("update-menu-with-user-data", async () => {
   if (mainWindow) {
     try {
-      const userData = await mainWindow.webContents.executeJavaScript(`
-        try {
-          if (typeof localStorage !== 'undefined') {
-            const userData = localStorage.getItem('user_data');
-            return userData ? JSON.parse(userData) : null;
+      const result = await mainWindow.webContents.executeJavaScript(`
+        (function() {
+          try {
+            if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+              return { error: 'Context not ready' };
+            }
+
+            const focusLoopData = localStorage.getItem('focus_loop_data');
+            if (!focusLoopData || focusLoopData === 'null' || focusLoopData === 'undefined') {
+              return { error: 'No data found' };
+            }
+
+            const parsedData = JSON.parse(focusLoopData);
+            if (!parsedData || typeof parsedData !== 'object' || !parsedData.user_data) {
+              return { error: 'Invalid data structure' };
+            }
+
+            // Asegurar que user_data sea un objeto, no una cadena
+            let userDataObj = parsedData.user_data;
+            if (typeof userDataObj === 'string') {
+              userDataObj = JSON.parse(userDataObj);
+            }
+
+            return { success: true, data: userDataObj };
+          } catch (e) {
+            return { error: e.message };
           }
-          return null;
-        } catch (e) {
-          console.error('Error accediendo a localStorage:', e);
-          return null;
-        }
+        })();
       `);
-      updateMenu(userData);
+
+      if (result && result.success && result.data) {
+        updateMenu(result.data);
+        console.log("Menú actualizado exitosamente via IPC");
+      } else {
+        console.log(
+          "No se pudieron obtener datos del usuario para actualizar menú:",
+          result?.error || "Resultado inesperado"
+        );
+        updateMenu(null);
+      }
       return true;
     } catch (error) {
       console.error("Error actualizando menú:", error);

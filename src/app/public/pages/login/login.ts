@@ -1,6 +1,13 @@
 import { Login as LoginService } from '@/core/services/login';
 import { StorageService } from '@/core/services/storage.service';
-import { Component, computed, effect, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -22,6 +29,7 @@ export default class Login implements OnInit {
   private readonly storage = inject(StorageService);
 
   session = computed(() => this.storage.getToken());
+  showPassword = signal(false);
 
   formLogin!: FormGroup;
   isLoading = false;
@@ -87,5 +95,8 @@ export default class Login implements OnInit {
       ],
       password: ['', [Validators.required]],
     });
+  }
+  togglePasswordVisibility() {
+    this.showPassword.update((prev) => !prev);
   }
 }

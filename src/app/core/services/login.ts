@@ -11,14 +11,14 @@ export class Login {
 
   login(auth: Auth) {
     return this.http.post<LoginResponse>(
-      'https://my-tracker-backend-pied.vercel.app/auth/login',
+      'https://focus-loop-api.danniel.dev/auth/login',
       auth
     );
   }
 
   register(user: CreateUser) {
     return this.http.post<CreateUser>(
-      'https://my-tracker-backend-pied.vercel.app/users',
+      'https://focus-loop-api.danniel.dev/users',
       user
     );
   }

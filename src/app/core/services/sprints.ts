@@ -18,7 +18,7 @@ export class Sprints {
 
   getSprints(userId: string | number) {
     return this.http.get<SprintResponse[]>(
-      `https://my-tracker-backend-pied.vercel.app/sprint/user/${userId}`,
+      `https://focus-loop-api.danniel.dev/sprint/user/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -29,7 +29,7 @@ export class Sprints {
 
   createSprint(sprint: Sprint) {
     return this.http.post<Sprint>(
-      'https://my-tracker-backend-pied.vercel.app/sprint',
+      'https://focus-loop-api.danniel.dev/sprint',
       sprint,
       {
         headers: {
@@ -60,7 +60,7 @@ export class Sprints {
 
   updateSprint(id: number, sprint: Partial<Sprint>) {
     return this.http.patch<Sprint>(
-      `https://my-tracker-backend-pied.vercel.app/sprint/${id}`,
+      `https://focus-loop-api.danniel.dev/sprint/${id}`,
       sprint,
       {
         headers: {
@@ -101,7 +101,7 @@ export class Sprints {
 
   deleteSprint(id: number) {
     return this.http.delete(
-      `https://my-tracker-backend-pied.vercel.app/sprints/${id}`,
+      `https://focus-loop-api.danniel.dev/sprints/${id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -120,7 +120,7 @@ export class Sprints {
       refusal: string | null;
       annotations: string[];
     }>(
-      `https://my-tracker-backend-pied.vercel.app/ai-functions/generate`,
+      `https://focus-loop-api.danniel.dev/ai-functions/generate`,
       {
         sprint_id,
         dateReport,

@@ -17,7 +17,7 @@ export class Task {
 
   getTasks(sprint_id: string | number) {
     return this.http.get<TaskResponse[]>(
-      `https://my-tracker-backend-pied.vercel.app/tasks?sprint_id=${sprint_id}`,
+      `https://focus-loop-api.danniel.dev/tasks?sprint_id=${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -28,7 +28,7 @@ export class Task {
 
   createTask(task: TaskModel) {
     return this.http.post<TaskModel>(
-      'https://my-tracker-backend-pied.vercel.app/tasks',
+      'https://focus-loop-api.danniel.dev/tasks',
       task,
       {
         headers: {
@@ -59,7 +59,7 @@ export class Task {
 
   updateTask(id: number, task: Partial<TaskModel>) {
     return this.http.patch<TaskModel>(
-      `https://my-tracker-backend-pied.vercel.app/tasks/${id}`,
+      `https://focus-loop-api.danniel.dev/tasks/${id}`,
       task,
       {
         headers: {
@@ -100,7 +100,7 @@ export class Task {
 
   getCountPendingTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `https://my-tracker-backend-pied.vercel.app/tasks/count-task-pending/${sprint_id}`,
+      `https://focus-loop-api.danniel.dev/tasks/count-task-pending/${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -111,7 +111,7 @@ export class Task {
 
   getCountInProgressTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `https://my-tracker-backend-pied.vercel.app/tasks/count-task-in-progress/${sprint_id}`,
+      `https://focus-loop-api.danniel.dev/tasks/count-task-in-progress/${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,
@@ -122,7 +122,7 @@ export class Task {
 
   getCountCompletedTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `https://my-tracker-backend-pied.vercel.app/tasks/count-task-completed/${sprint_id}`,
+      `https://focus-loop-api.danniel.dev/tasks/count-task-completed/${sprint_id}`,
       {
         headers: {
           Authorization: `Bearer ${this.session()}`,

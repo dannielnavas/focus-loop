@@ -187,15 +187,15 @@ function buildAppMenu(userData = null) {
           },
           visible: userData && userData.role === roleAdmin,
         },
-        // {
-        //   label: "DevTools",
-        //   click: () => {
-        //     if (mainWindow) {
-        //       mainWindow.webContents.openDevTools();
-        //     }
-        //   },
-        //   visible: userData && userData.role === roleAdmin,
-        // },
+        {
+          label: "DevTools",
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.openDevTools();
+            }
+          },
+          visible: userData && userData.role === roleAdmin,
+        },
         { type: "separator" },
         {
           label: "Logout",

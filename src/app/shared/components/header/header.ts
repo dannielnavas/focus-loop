@@ -8,6 +8,7 @@ import {
   inject,
   input,
   NgZone,
+  OnDestroy,
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -18,7 +19,7 @@ import { Router } from '@angular/router';
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
-export class Header {
+export class Header implements OnDestroy {
   countTasks = input(0);
 
   showDaily = signal(false);
@@ -33,6 +34,11 @@ export class Header {
   private readonly ngZone = inject(NgZone);
   private readonly store = inject(Store);
   private readonly storage = inject(StorageService);
+
+  // Variable estática para controlar si ya se registraron los listeners
+  private static listenersRegistered = false;
+  // Referencia estática a la instancia actual para manejar los callbacks
+  private static currentInstance: Header | null = null;
 
   goToProfile() {
     this.router.navigate(['/private/profile']);
@@ -68,13 +74,10 @@ export class Header {
     const idSprintActive = activeSprint().find(
       (sprint) => sprint.status === 'active'
     )?.sprint_id;
-    console.log(idSprintActive);
     if (!idSprintActive) {
       alert('There is no active sprint to generate the daily report');
       return;
     }
-
-    console.log(idSprintActive);
 
     // Mostrar el modal y activar el loading
     this.showDaily.set(true);
@@ -87,7 +90,6 @@ export class Header {
         this.isLoadingDaily.set(false);
       },
       error: (err) => {
-        console.error('Error generating daily report:', err);
         this.isLoadingDaily.set(false);
         this.showDaily.set(false);
         alert('Error generating daily report. Please try again.');
@@ -138,19 +140,47 @@ export class Header {
 
   constructor() {
     // Subscribe to native menu events if available
-    if (window.electronAPI) {
+    // Solo registrar los listeners una vez para evitar duplicaciones
+    if (window.electronAPI && !Header.listenersRegistered) {
       window.electronAPI.onMenuGenerateDaily(() => {
-        this.ngZone.run(() => this.generateDailyAi());
+        if (Header.currentInstance) {
+          Header.currentInstance.ngZone.run(() =>
+            Header.currentInstance!.generateDailyAi()
+          );
+        }
       });
       window.electronAPI.onMenuProfile(() => {
-        this.ngZone.run(() => this.goToProfile());
+        if (Header.currentInstance) {
+          Header.currentInstance.ngZone.run(() =>
+            Header.currentInstance!.goToProfile()
+          );
+        }
       });
       window.electronAPI.onMenuLogout(() => {
-        this.ngZone.run(() => this.logout());
+        if (Header.currentInstance) {
+          Header.currentInstance.ngZone.run(() =>
+            Header.currentInstance!.logout()
+          );
+        }
       });
       window.electronAPI.onMenuAbout(() => {
-        this.ngZone.run(() => alert('FocusLoop'));
+        if (Header.currentInstance) {
+          Header.currentInstance.ngZone.run(() => alert('FocusLoop'));
+        }
       });
+
+      // Marcar que los listeners ya se registraron
+      Header.listenersRegistered = true;
+    }
+
+    // Establecer esta instancia como la actual
+    Header.currentInstance = this;
+  }
+
+  ngOnDestroy() {
+    // Limpiar la referencia estática si esta es la instancia actual
+    if (Header.currentInstance === this) {
+      Header.currentInstance = null;
     }
   }
 }

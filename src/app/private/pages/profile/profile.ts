@@ -159,7 +159,6 @@ export default class Profile {
     setTimeout(() => {
       try {
         // Aquí se haría la llamada a la API para cambiar la contraseña
-        console.log('Changing password...');
 
         // Limpiar formulario de contraseña
         this.passwordForm.set({

@@ -51,14 +51,10 @@ function createWindow() {
 
   // Escuchar cuando la página esté completamente cargada
   mainWindow.webContents.once("did-finish-load", () => {
-    console.log("Página completamente cargada");
-
     // Actualizar el menú con los datos del usuario después de que la página esté cargada
     // Usar un enfoque más robusto con múltiples intentos
     const attemptMenuUpdate = async (attempt = 1, maxAttempts = 5) => {
       try {
-        console.log(`Intento ${attempt} de actualización del menú...`);
-
         // Ejecutar script con manejo de errores más detallado
         const userData = await mainWindow.webContents.executeJavaScript(`
           (function() {
@@ -91,22 +87,12 @@ function createWindow() {
           })();
         `);
 
-        console.log(`Resultado del intento ${attempt}:`, userData);
-
         if (userData && userData.success && userData.data) {
-          console.log("Datos del usuario parseados:", userData.data);
-          console.log("Tipo de datos:", typeof userData.data);
-          console.log("subscriptionPlan:", userData.data.subscriptionPlan);
           updateMenu(userData.data);
-          console.log("Menú actualizado exitosamente con datos del usuario");
         } else if (userData && userData.error) {
-          console.log(`Error en intento ${attempt}:`, userData.error);
           if (attempt < maxAttempts) {
             setTimeout(() => attemptMenuUpdate(attempt + 1, maxAttempts), 2000);
           } else {
-            console.log(
-              "Máximo de intentos alcanzado, usando menú por defecto"
-            );
             updateMenu(null);
           }
         } else {
@@ -120,9 +106,6 @@ function createWindow() {
         if (attempt < maxAttempts) {
           setTimeout(() => attemptMenuUpdate(attempt + 1, maxAttempts), 2000);
         } else {
-          console.log(
-            "Máximo de intentos alcanzado debido a errores, usando menú por defecto"
-          );
           updateMenu(null);
         }
       }
@@ -369,10 +352,6 @@ ipcMain.handle("get-user-data", async () => {
       if (result && result.success && result.data) {
         return result.data;
       } else {
-        console.log(
-          "No se pudieron obtener datos del usuario:",
-          result?.error || "Resultado inesperado"
-        );
         return null;
       }
     } catch (error) {
@@ -419,12 +398,7 @@ ipcMain.handle("update-menu-with-user-data", async () => {
 
       if (result && result.success && result.data) {
         updateMenu(result.data);
-        console.log("Menú actualizado exitosamente via IPC");
       } else {
-        console.log(
-          "No se pudieron obtener datos del usuario para actualizar menú:",
-          result?.error || "Resultado inesperado"
-        );
         updateMenu(null);
       }
       return true;

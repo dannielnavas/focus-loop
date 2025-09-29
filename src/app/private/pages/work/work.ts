@@ -102,7 +102,6 @@ export default class Work implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           // Éxito: la tarea ya fue removida del store
-          console.log('Task marked as completed successfully');
         },
         error: (error) => {
           console.error('Error marking as completed:', error);

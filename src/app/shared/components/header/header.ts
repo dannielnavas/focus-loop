@@ -67,8 +67,6 @@ export class Header implements OnDestroy {
   }
 
   generateDailyAi() {
-    console.log('generateDailyAi');
-    console.log(this.store.getSprints());
     const activeSprint = this.store.getSprints();
     // .filter((sprint) => sprint.status === 'active')[0];
     const idSprintActive = activeSprint().find(
@@ -106,7 +104,6 @@ export class Header implements OnDestroy {
         this.location.back();
       } else {
         // Si no hay historial, quedarse en la página principal
-        console.log('Ya estás en la página principal');
       }
       return;
     }

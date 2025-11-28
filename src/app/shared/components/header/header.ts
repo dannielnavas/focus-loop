@@ -1,10 +1,11 @@
 import { Sprints } from '@/core/services/sprints';
 import { StorageService } from '@/core/services/storage.service';
 import { Store } from '@/core/store/store';
-import { Location } from '@angular/common';
+import { Location, NgOptimizedImage } from '@angular/common';
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   NgZone,
@@ -15,7 +16,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [],
+  imports: [NgOptimizedImage],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
@@ -28,6 +29,7 @@ export class Header implements OnDestroy {
   isLoadingDaily = signal(false);
 
   user_id = computed(() => this.storage.getUserId());
+  user = computed(() => this.storage.getAll());
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly sprintService = inject(Sprints);
@@ -39,6 +41,11 @@ export class Header implements OnDestroy {
   private static listenersRegistered = false;
   // Referencia estática a la instancia actual para manejar los callbacks
   private static currentInstance: Header | null = null;
+
+  public $image = computed(() => {
+    const user = JSON.parse(this.user().user_data || '');
+    return user?.profile_image;
+  });
 
   goToProfile() {
     this.router.navigate(['/private/profile']);

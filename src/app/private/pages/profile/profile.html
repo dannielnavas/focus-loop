@@ -65,7 +65,7 @@
             </div>
             <button
               type="button"
-              (click)="selectImage()"
+              (click)="fileInput.click()"
               class="absolute -bottom-2 -right-2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <svg
@@ -96,11 +96,18 @@
             <p class="text-gray-400">{{profileForm().email}}</p>
             <button
               type="button"
-              (click)="selectImage()"
+              (click)="fileInput.click()"
               class="text-blue-400 hover:text-blue-300 text-sm mt-1 transition-colors"
             >
               Change profile photo
             </button>
+            <input
+              #fileInput
+              type="file"
+              class="hidden"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+            />
           </div>
         </div>
 

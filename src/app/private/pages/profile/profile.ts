@@ -83,10 +83,10 @@ export default class Profile {
 
   // Cargar perfil del usuario desde localStorage
   loadUserProfile() {
-    const userData = this.storage.getUserData();
+    const userData = this.storage.getAll();
     if (userData) {
       try {
-        const user = JSON.parse(userData);
+        const user = JSON.parse(userData.user_data);
         this.profileForm.set({
           full_name: user.full_name || '',
           email: user.email || '',
@@ -102,15 +102,28 @@ export default class Profile {
   }
 
   // Seleccionar imagen de perfil
-  selectImage() {
-    // En una aplicación real, esto abriría un selector de archivos
-    // Por ahora, simulamos la selección de una imagen
-    const imageUrl = prompt('Enter your profile image URL:');
-    if (imageUrl) {
-      this.profileForm.update((form) => ({
-        ...form,
-        profile_image: imageUrl,
-      }));
+  // Seleccionar imagen de perfil
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      // Validar tamaño y tipo si es necesario
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
+        this.showMessage('Image size should be less than 5MB', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target?.result as string;
+        this.profileForm.update((form) => ({
+          ...form,
+          profile_image: imageUrl,
+        }));
+      };
+      reader.readAsDataURL(file);
     }
   }
 

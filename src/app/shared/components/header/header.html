@@ -1,5 +1,5 @@
 <header
-  class="max-w-7xl mx-auto flex justify-start pb-2 items-center bg-transparent"
+  class="max-w-7xl mx-auto flex justify-between pb-2 items-center bg-transparent"
 >
   <!-- Back Button - Left Side -->
   <a
@@ -39,6 +39,19 @@
     <p class="text-blue-200 text-xs sm:text-sm mt-1">{{countTasks()}} tasks</p>
   </div>
   }
+
+  <!-- datos del usuario -->
+  <div class="flex items-center gap-2">
+    <img
+      class="w-12 h-12 rounded-full cursor-pointer"
+      ngSrc="{{$image()}}"
+      width="48"
+      height="48"
+      alt="User Image"
+      priority
+      (click)="goToProfile()"
+    />
+  </div>
 </header>
 
 <!-- Daily Report Modal -->

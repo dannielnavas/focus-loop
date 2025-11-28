@@ -44,9 +44,9 @@ function createWindow() {
     mainWindow.show();
 
     // Open DevTools in development
-    if (isDev) {
-      mainWindow.webContents.openDevTools();
-    }
+    // if (isDev) {
+    //   mainWindow.webContents.openDevTools();
+    // }
   });
 
   // Escuchar cuando la página esté completamente cargada
@@ -170,15 +170,15 @@ function buildAppMenu(userData = null) {
           },
           visible: userData && userData.role === roleAdmin,
         },
-        {
-          label: "DevTools",
-          click: () => {
-            if (mainWindow) {
-              mainWindow.webContents.openDevTools();
-            }
-          },
-          visible: userData && userData.role === roleAdmin,
-        },
+        // {
+        //   label: "DevTools",
+        //   click: () => {
+        //     if (mainWindow) {
+        //       mainWindow.webContents.openDevTools();
+        //     }
+        //   },
+        //   visible: userData && userData.role === roleAdmin,
+        // },
         { type: "separator" },
         {
           label: "Logout",

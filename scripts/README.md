@@ -2,7 +2,7 @@
 
 ## Incremento Automático de Versión
 
-Este directorio contiene scripts para automatizar tareas comunes del proyecto, especialmente el incremento automático de versión para las builds de Electron.
+Este directorio contiene scripts para automatizar tareas comunes del proyecto, especialmente el incremento automático de versión para las builds de Tauri.
 
 ### Scripts Disponibles
 
@@ -27,17 +27,17 @@ node scripts/increment-version.js major
 
 Se han agregado los siguientes scripts al `package.json`:
 
-#### Builds de Electron con Incremento Automático
+#### Builds de Tauri con Incremento Automático
 
 ```bash
 # Build con incremento patch (por defecto)
-npm run electron:build
+npm run tauri:build:patch
 
 # Build con incremento minor
-npm run electron:build:minor
+npm run tauri:build:minor
 
 # Build con incremento major
-npm run electron:build:major
+npm run tauri:build:major
 ```
 
 #### Incremento Manual de Versión
@@ -51,20 +51,21 @@ npm run version:major
 
 ### Flujo de Trabajo Recomendado
 
-1. **Para releases normales:** Usa `npm run electron:build` (incremento patch automático)
-2. **Para nuevas funcionalidades:** Usa `npm run electron:build:minor`
-3. **Para cambios importantes:** Usa `npm run electron:build:major`
+1. **Para releases normales:** Usa `npm run tauri:build:patch` (incremento patch automático)
+2. **Para nuevas funcionalidades:** Usa `npm run tauri:build:minor`
+3. **Para cambios importantes:** Usa `npm run tauri:build:major`
 
 ### Ejemplo de Uso
 
 ```bash
 # Hacer una build normal (incrementa patch)
-npm run electron:build
+npm run tauri:build:patch
 
 # El script automáticamente:
 # 1. Incrementa la versión en package.json
+# 2. Incrementa la versión en src-tauri/tauri.conf.json
 # 2. Ejecuta ng build
-# 3. Ejecuta electron-builder
+# 3. Ejecuta tauri build
 ```
 
 ### Notas
@@ -72,4 +73,4 @@ npm run electron:build
 - El script valida que el tipo de incremento sea válido (patch, minor, major)
 - La versión se actualiza en `package.json` antes de hacer la build
 - El script es compatible con el sistema de versionado semántico
-- Los archivos de build de Electron usarán automáticamente la nueva versión
+- Los bundles de Tauri usarán automáticamente la nueva versión

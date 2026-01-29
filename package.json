@@ -1,24 +1,23 @@
 {
   "name": "focus-loop",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Aplicación de seguimiento y gestión de tareas",
   "author": {
     "name": "Danniel Navas",
     "email": "me@danniel.dev"
   },
-  "main": "electron/main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "electron": "electron .",
-    "electron:dev": "concurrently \"npm run start\" \"wait-on -v http://localhost:4200 && NODE_ENV=development electron . --trace-warnings\"",
-    "electron:build": "node scripts/increment-version.js patch && npm run build && electron-builder",
-    "electron:build:minor": "node scripts/increment-version.js minor && npm run build && electron-builder",
-    "electron:build:major": "node scripts/increment-version.js major && npm run build && electron-builder",
-    "electron:serve": "npm run build && electron .",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build:patch": "node scripts/increment-version.js patch && npm run tauri:build",
+    "tauri:build:minor": "node scripts/increment-version.js minor && npm run tauri:build",
+    "tauri:build:major": "node scripts/increment-version.js major && npm run tauri:build",
     "version:patch": "node scripts/increment-version.js patch",
     "version:minor": "node scripts/increment-version.js minor",
     "version:major": "node scripts/increment-version.js major"
@@ -33,6 +32,8 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
     "@omnedia/ngx-orb": "^3.0.0",
+    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/plugin-notification": "^2.0.0",
     "@tailwindcss/postcss": "^4.1.10",
     "date-fns": "^4.1.0",
     "ogl": "^1.0.11",
@@ -48,9 +49,8 @@
     "@angular/cli": "^20.0.3",
     "@angular/compiler-cli": "^20.0.0",
     "@types/jasmine": "~5.1.0",
+    "@tauri-apps/cli": "^2.0.0",
     "concurrently": "^9.1.0",
-    "electron": "^32.0.0",
-    "electron-builder": "^25.1.0",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -59,34 +59,5 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.8.2",
     "wait-on": "^8.0.1"
-  },
-  "build": {
-    "appId": "dev.danniel.focusloop",
-    "productName": "Focus Loop",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/**/*",
-      "node_modules/**/*",
-      "package.json"
-    ],
-    "mac": {
-      "appId": "dev.danniel.focusloop",
-      "category": "public.app-category.productivity",
-      "icon": "src/assets/icon.icns",
-      "target": "dmg"
-    },
-    "win": {
-      "appId": "dev.danniel.focusloop",
-      "icon": "src/assets/icon.png",
-      "target": "nsis"
-    },
-    "linux": {
-      "appId": "dev.danniel.focusloop",
-      "icon": "src/assets/icon.png",
-      "target": "AppImage"
-    }
   }
 }

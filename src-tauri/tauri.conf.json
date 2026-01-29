@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Focus Loop",
+  "version": "0.0.3",
+  "identifier": "dev.danniel.focusloop",
+  "build": {
+    "beforeDevCommand": "npm run start",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:4200",
+    "frontendDist": "../dist/focus-loop/browser"
+  },
+  "app": {
+    "security": {
+      "capabilities": [
+        "default"
+      ]
+    },
+    "windows": [
+      {
+        "label": "main",
+        "title": "Focus Loop",
+        "width": 1200,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  }
+}

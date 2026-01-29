@@ -276,13 +276,13 @@ Additional context, screenshots, etc.
 ### Documentation
 
 - [Angular Documentation](https://angular.io/docs)
-- [Electron Documentation](https://www.electronjs.org/docs)
+- [Tauri Documentation](https://v2.tauri.app/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 
 ### Tools
 
 - [Angular CLI](https://angular.io/cli)
-- [Electron Builder](https://www.electron.build/)
+- [tauri-action (GitHub Actions)](https://github.com/tauri-apps/tauri-action)
 - [Jasmine Testing](https://jasmine.github.io/)
 
 ### Community

@@ -2,10 +2,10 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/dannielnavas/focus-loop)
 [![Angular Version](https://img.shields.io/badge/angular-20.0.3-blue)](https://angular.io/)
-[![Electron Version](https://img.shields.io/badge/electron-32.0.0-green)](https://www.electronjs.org/)
+[![Tauri Version](https://img.shields.io/badge/tauri-2-green)](https://v2.tauri.app/)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
 
-A modern desktop application for task management and Pomodoro technique, built with Angular 20 and Electron.
+A modern desktop application for task management and Pomodoro technique, built with Angular 20 and Tauri.
 
 ## 🚀 Features
 
@@ -33,7 +33,7 @@ A modern desktop application for task management and Pomodoro technique, built w
 ## 🛠️ Technologies
 
 - **Frontend**: Angular 20, TypeScript, Tailwind CSS
-- **Desktop**: Electron 32
+- **Desktop**: Tauri 2
 - **Backend**: REST API (Vercel)
 - **State**: Angular Signals
 - **Testing**: Jasmine & Karma
@@ -88,17 +88,14 @@ Navigate to `http://localhost:4200` to view the application.
 
 ```bash
 # Run in development mode
-npm run electron:dev
+npm run tauri:dev
 ```
 
 #### Production
 
 ```bash
 # Build application
-npm run electron:build
-
-# Run built application
-npm run electron:serve
+npm run tauri:build
 ```
 
 ### Other Commands
@@ -141,7 +138,7 @@ my-tracker/
 │   │           └── layout/      # Main layout
 │   ├── assets/                  # Static resources
 │   └── types/                   # Type definitions
-├── electron/                    # Electron configuration
+├── src-tauri/                   # Tauri (Rust) desktop backend
 ├── public/                      # Public files
 └── dist/                        # Production build
 ```
@@ -153,9 +150,6 @@ my-tracker/
 ```bash
 # Backend API
 API_URL=http://localhost:3000
-
-# Electron configuration
-ELECTRON_IS_DEV=true
 ```
 
 ### Build Configuration
@@ -163,7 +157,7 @@ ELECTRON_IS_DEV=true
 The project includes optimized configurations for:
 
 - **Web**: Angular CLI with production optimizations
-- **Desktop**: Electron Builder with multi-platform configurations
+- **Desktop**: Tauri (Rust) with multi-platform configurations
 - **Testing**: Karma with code coverage
 
 ## 🧪 Testing
@@ -201,9 +195,7 @@ npm run build
 
 ```bash
 # Build for all platforms
-npm run electron:build
-
-# Executables are generated in release/
+npm run tauri:build
 ```
 
 ### Supported Platforms
@@ -238,7 +230,7 @@ npm run electron:build
 # The application has fallback to HTML5 Audio
 ```
 
-2. **Electron Error**
+2. **Tauri Error**
 
 ```bash
 # Make sure you have admin permissions on macOS
@@ -276,7 +268,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 ## 🙏 Acknowledgments
 
 - [Angular Team](https://angular.io/) for the framework
-- [Electron Team](https://www.electronjs.org/) for the desktop platform
+- [Tauri Team](https://v2.tauri.app/) for the desktop platform
 - [Tailwind CSS](https://tailwindcss.com/) for the design system
 - [Vercel](https://vercel.com/) for backend hosting
 

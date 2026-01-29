@@ -86,10 +86,6 @@ export default class Timer implements OnInit, OnDestroy {
         window.electronAPI.hideTitlebar?.();
         window.electronAPI.hideMenu?.();
       }
-    } else if ((window as any).electron?.ipcRenderer) {
-      (window as any).electron.ipcRenderer.invoke(
-        show ? 'show-menu' : 'hide-menu'
-      );
     }
   }
 

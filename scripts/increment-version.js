@@ -32,6 +32,12 @@ function incrementVersion(version, type = "patch") {
 
 function updatePackageVersion() {
   const packagePath = path.join(__dirname, "..", "package.json");
+  const tauriConfigPath = path.join(
+    __dirname,
+    "..",
+    "src-tauri",
+    "tauri.conf.json"
+  );
 
   try {
     // Leer el package.json actual
@@ -58,6 +64,17 @@ function updatePackageVersion() {
 
     // Escribir el package.json actualizado
     fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2) + "\n");
+
+    // Mantener la versión de Tauri en sync (si existe el config)
+    if (fs.existsSync(tauriConfigPath)) {
+      const tauriConfigContent = fs.readFileSync(tauriConfigPath, "utf8");
+      const tauriConfig = JSON.parse(tauriConfigContent);
+      tauriConfig.version = newVersion;
+      fs.writeFileSync(
+        tauriConfigPath,
+        JSON.stringify(tauriConfig, null, 2) + "\n"
+      );
+    }
 
     console.log(
       `✅ Versión actualizada: ${oldVersion} → ${newVersion} (${incrementType})`

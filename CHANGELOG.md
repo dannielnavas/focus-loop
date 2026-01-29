@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Audio system optimization with AudioContext
 - Timer change detection improvement
 - README documentation update
+- Desktop runtime migrated from Electron to Tauri 2
 
 ### Fixed
 

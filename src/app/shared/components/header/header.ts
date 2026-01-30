@@ -169,7 +169,11 @@ export class Header implements OnDestroy {
       });
       window.desktopAPI.onMenuAbout(() => {
         if (Header.currentInstance) {
-          Header.currentInstance.ngZone.run(() => alert('FocusLoop'));
+          Header.currentInstance.ngZone.run(() =>
+            alert(
+              'Focus Loop\n\nVersión 0.0.3\n\nAplicación de seguimiento y gestión de tareas v2.'
+            )
+          );
         }
       });
 

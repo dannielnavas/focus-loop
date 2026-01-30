@@ -6,6 +6,7 @@ use tauri::{
   menu::{MenuBuilder, SubmenuBuilder},
   AppHandle, Emitter, LogicalPosition, LogicalSize, Manager, Size, State, Window,
 };
+use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
 
 const ADMIN_SUBSCRIPTION_PLAN_ID: &str = "2";
 const ROLE_ADMIN: &str = "admin";
@@ -52,16 +53,19 @@ fn is_role_admin(user: Option<&Value>) -> bool {
 
 fn apply_app_menu(app: &AppHandle, user: Option<&Value>) -> tauri::Result<()> {
   let is_admin = is_admin_user(user);
+  println!("is_admin: {:?}", is_admin);
   let is_admin_role = is_role_admin(user);
+  println!("is_admin_role: {:?}", is_admin_role);
   let is_logged_in = user.is_some();
+  println!("is_logged_in: {:?}", is_logged_in);
 
   let mut focus_loop = SubmenuBuilder::new(app, "Focus Loop")
     .text("about", "About Focus Loop")
     .separator();
 
-  if is_admin {
+
     focus_loop = focus_loop.text("generate_daily", "Generate Daily");
-  }
+
 
   if is_admin_role {
     focus_loop = focus_loop.text("profile", "Profile");
@@ -221,10 +225,12 @@ pub fn run() {
             let _ = app_handle.emit("menu:logout", ());
           }
           "about" => {
-            let _ = app_handle.emit("menu:about", ());
-          }
-          "quit" => {
-            app_handle.exit(0);
+            app_handle
+              .dialog()
+              .message("Focus Loop\n\nVersión 0.0.3\n\nDeveloped by Danniel Navas. Focus Loop is a task management and productivity application.")
+              .title("Focus Loop")
+              .kind(MessageDialogKind::Info)
+              .show(|_| {});
           }
           _ => {}
         }
@@ -232,6 +238,7 @@ pub fn run() {
 
       Ok(())
     })
+    .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_notification::init())
     .invoke_handler(tauri::generate_handler![
       resize_window,

@@ -10,6 +10,7 @@
     "frontendDist": "../dist/focus-loop/browser"
   },
   "app": {
+    "withGlobalTauri": true,
     "security": {
       "capabilities": [
         "default"

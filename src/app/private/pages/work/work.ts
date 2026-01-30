@@ -40,11 +40,11 @@ export default class Work implements OnInit, OnDestroy {
   }
 
   private async setWorkWindowLayout() {
-    if (window.electronAPI) {
+    if (window.desktopAPI) {
       try {
         const screenHeight = window.screen.height;
-        await window.electronAPI.resizeWindow(440, screenHeight);
-        await window.electronAPI.moveWindow(0, 0);
+        await window.desktopAPI.resizeWindow(440, screenHeight);
+        await window.desktopAPI.moveWindow(0, 0);
       } catch (error) {
         console.error('Error configuring work window:', error);
       }
@@ -52,9 +52,9 @@ export default class Work implements OnInit, OnDestroy {
   }
 
   private async resetWindowLayout() {
-    if (window.electronAPI) {
+    if (window.desktopAPI) {
       try {
-        await window.electronAPI.resetWindowSize();
+        await window.desktopAPI.resetWindowSize();
       } catch (error) {
         console.error('Error restoring window size:', error);
       }

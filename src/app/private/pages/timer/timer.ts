@@ -54,37 +54,37 @@ export default class Timer implements OnInit, OnDestroy {
   }
 
   private async setFloatingWindow() {
-    if (!window.electronAPI) return;
+    if (!window.desktopAPI) return;
     try {
       const { userAgent } = navigator;
       if (userAgent.includes('Windows') || userAgent.includes('Linux')) {
-        await window.electronAPI.makeWindowFloating(340, 100);
+        await window.desktopAPI.makeWindowFloating(340, 100);
       } else if (userAgent.includes('Macintosh')) {
-        await window.electronAPI.makeWindowFloating(306, 60);
+        await window.desktopAPI.makeWindowFloating(306, 60);
       }
-      await window.electronAPI.moveWindow(0, 50);
+      await window.desktopAPI.moveWindow(0, 50);
     } catch (error) {
       console.error('Error making window floating:', error);
     }
   }
 
   private async resetFloatingWindow() {
-    if (!window.electronAPI) return;
+    if (!window.desktopAPI) return;
     try {
-      await window.electronAPI.resetWindowFloating();
+      await window.desktopAPI.resetWindowFloating();
     } catch (error) {
       console.error('Error restoring window state:', error);
     }
   }
 
   private toggleTitlebarAndMenu(show: boolean) {
-    if (window.electronAPI) {
+    if (window.desktopAPI) {
       if (show) {
-        window.electronAPI.showTitlebar?.();
-        window.electronAPI.showMenu?.();
+        window.desktopAPI.showTitlebar?.();
+        window.desktopAPI.showMenu?.();
       } else {
-        window.electronAPI.hideTitlebar?.();
-        window.electronAPI.hideMenu?.();
+        window.desktopAPI.hideTitlebar?.();
+        window.desktopAPI.hideMenu?.();
       }
     }
   }
@@ -145,6 +145,7 @@ export default class Timer implements OnInit, OnDestroy {
         if (this.statusTimer() !== timerState.status) {
           this.statusTimer.set(timerState.status || 'init');
           this.playAudioForStatus(timerState.status);
+          this.showDesktopNotificationForStatus(timerState.status);
         }
         if (timerState.status === 'work') {
           this.totalTime.update((current) => current + 1);
@@ -154,6 +155,27 @@ export default class Timer implements OnInit, OnDestroy {
       });
     } catch (error) {
       console.error('Error listening to timer:', error);
+    }
+  }
+
+  private showDesktopNotificationForStatus(status: string | undefined) {
+    if (!status) return;
+    if (!window.desktopAPI?.showNotification) return;
+
+    const messages: Record<string, { title: string; body: string }> = {
+      work: {
+        title: 'Focus Loop',
+        body: 'Descanso terminado. Volvamos al trabajo.',
+      },
+      break: {
+        title: 'Focus Loop',
+        body: 'Ciclo de trabajo terminado. Toma un descanso.',
+      },
+    };
+
+    const msg = messages[status];
+    if (msg) {
+      void window.desktopAPI.showNotification(msg.title, msg.body);
     }
   }
 

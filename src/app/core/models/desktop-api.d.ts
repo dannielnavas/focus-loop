@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    electronAPI?: {
+    desktopAPI?: {
       resizeWindow: (width: number, height: number) => Promise<boolean>;
       resetWindowSize: () => Promise<boolean>;
       makeWindowFloating: (width: number, height: number) => Promise<boolean>;

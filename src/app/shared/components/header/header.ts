@@ -145,29 +145,29 @@ export class Header implements OnDestroy {
   constructor() {
     // Subscribe to native menu events if available
     // Solo registrar los listeners una vez para evitar duplicaciones
-    if (window.electronAPI && !Header.listenersRegistered) {
-      window.electronAPI.onMenuGenerateDaily(() => {
+    if (window.desktopAPI && !Header.listenersRegistered) {
+      window.desktopAPI.onMenuGenerateDaily(() => {
         if (Header.currentInstance) {
           Header.currentInstance.ngZone.run(() =>
             Header.currentInstance!.generateDailyAi()
           );
         }
       });
-      window.electronAPI.onMenuProfile(() => {
+      window.desktopAPI.onMenuProfile(() => {
         if (Header.currentInstance) {
           Header.currentInstance.ngZone.run(() =>
             Header.currentInstance!.goToProfile()
           );
         }
       });
-      window.electronAPI.onMenuLogout(() => {
+      window.desktopAPI.onMenuLogout(() => {
         if (Header.currentInstance) {
           Header.currentInstance.ngZone.run(() =>
             Header.currentInstance!.logout()
           );
         }
       });
-      window.electronAPI.onMenuAbout(() => {
+      window.desktopAPI.onMenuAbout(() => {
         if (Header.currentInstance) {
           Header.currentInstance.ngZone.run(() => alert('FocusLoop'));
         }

@@ -1,8 +1,10 @@
 type UnlistenFn = () => void;
 
 function isTauriRuntime(): boolean {
-  // Tauri v2 exposes internal globals in desktop builds.
-  return typeof window !== 'undefined' && Boolean((window as any).__TAURI_INTERNALS__);
+  if (typeof window === 'undefined') return false;
+  const w = window as any;
+  // Tauri v2: withGlobalTauri exposes __TAURI__; core injects __TAURI_INTERNALS__.
+  return Boolean(w.__TAURI__ ?? w.__TAURI_INTERNALS__);
 }
 
 function readUserDataFromStorage(): any | null {
@@ -22,9 +24,9 @@ function readUserDataFromStorage(): any | null {
   }
 }
 
-export async function installTauriElectronApi(): Promise<void> {
+export async function installDesktopApi(): Promise<void> {
   if (!isTauriRuntime()) return;
-  if (window.electronAPI) return;
+  if (window.desktopAPI) return;
 
   const [{ invoke }, { listen }, notification] = await Promise.all([
     import('@tauri-apps/api/core'),
@@ -50,7 +52,6 @@ export async function installTauriElectronApi(): Promise<void> {
   const updateMenuWithUserData = async (): Promise<boolean> => {
     try {
       const user = readUserDataFromStorage();
-      // Command is implemented in the Tauri backend.
       await invoke('set_user_context', { user_context: user });
       return true;
     } catch {
@@ -66,7 +67,7 @@ export async function installTauriElectronApi(): Promise<void> {
     listeners[eventName].push(unlisten);
   };
 
-  window.electronAPI = {
+  window.desktopAPI = {
     resizeWindow: async (width: number, height: number) => {
       try {
         await invoke('resize_window', { width, height });
@@ -156,6 +157,5 @@ export async function installTauriElectronApi(): Promise<void> {
     },
   };
 
-  // Best-effort: set initial menu based on persisted user.
   void updateMenuWithUserData();
 }

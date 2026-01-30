@@ -136,8 +136,8 @@ export class StorageService {
     this.set('user_email', user.email || '');
     this.set('user_role', user.role || '');
 
-    // Desktop: refresh native menu (Tauri bridge keeps Electron-compatible API).
-    void window.electronAPI?.updateMenuWithUserData?.();
+    // Desktop: refresh native menu (Tauri API).
+    void window.desktopAPI?.updateMenuWithUserData?.();
   }
 
   getUserData(): any {
@@ -172,7 +172,7 @@ export class StorageService {
     this.delete('user_role');
 
     // Desktop: refresh native menu after logout.
-    void window.electronAPI?.updateMenuWithUserData?.();
+    void window.desktopAPI?.updateMenuWithUserData?.();
   }
 
   /**

@@ -1,4 +1,4 @@
-import { installTauriElectronApi } from './tauri-electron-api';
+import { installDesktopApi } from './tauri-desktop-api';
 
-// Initialize desktop bridge as early as possible.
-void installTauriElectronApi();
+// Initialize Tauri desktop bridge (window.desktopAPI).
+void installDesktopApi();

@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Task management application with Angular 20
-- Electron integration for desktop application
+- Tauri integration for desktop application
 - JWT authentication system
 - Kanban board with drag & drop
 - Pomodoro timer with floating window
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical
 
 - Angular 20 with standalone components
-- Electron 32 for desktop application
+- Tauri 2 for desktop application
 - TypeScript with strict configuration
 - Tailwind CSS for styling
 - RxJS for reactive programming

@@ -53,6 +53,15 @@ jobs:
       - name: install frontend dependencies
         run: npm ci
 
+      - name: verify Windows icons (Windows only)
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "src-tauri/icons/icon.ico")) {
+            Write-Error "icon.ico is required for Windows build. Add and commit src-tauri/icons/icon.ico and ensure branch 'release' has it."
+            exit 1
+          }
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

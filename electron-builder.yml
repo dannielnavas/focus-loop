@@ -21,12 +21,14 @@ mac:
     - dmg
     - zip
   artifactName: Focus-Loop-${version}-${arch}.${ext}
+  icon: build/icons/icon-512.png
 
 win:
   target:
     - nsis
     - portable
   artifactName: Focus-Loop-${version}.${ext}
+  icon: build/icons/icon-512.png
   # Firma con CSC_LINK/CSC_KEY_PASSWORD o WIN_CSC_* (certificado auto-firmado válido para desarrollo)
 
 linux:
@@ -34,6 +36,7 @@ linux:
     - AppImage
   category: Utility
   artifactName: Focus-Loop-${version}-${arch}.${ext}
+  icon: build/icons/icon-512.png
 
 nsis:
   oneClick: false

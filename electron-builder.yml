@@ -1,5 +1,7 @@
 appId: dev.danniel.focus-loop
 productName: Focus Loop
+# La publicación la hace el job "release" del workflow; no usar la de electron-builder
+publish: null
 files:
   - out
   - dist

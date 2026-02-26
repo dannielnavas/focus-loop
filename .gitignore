@@ -41,7 +41,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# Tauri
+# Electron / instalables
 /release
 
 # Tauri / Rust

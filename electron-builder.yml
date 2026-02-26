@@ -1,0 +1,27 @@
+appId: dev.danniel.focus-loop
+productName: Focus Loop
+files:
+  - out
+  - dist
+  - package.json
+directories:
+  output: release
+mac:
+  category: public.app-category.productivity
+  target:
+    - dmg
+    - zip
+  artifactName: Focus-Loop-${version}-${arch}.${ext}
+win:
+  target:
+    - nsis
+    - portable
+  artifactName: Focus-Loop-${version}.${ext}
+linux:
+  target:
+    - AppImage
+  category: Utility
+  artifactName: Focus-Loop-${version}-${arch}.${ext}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true

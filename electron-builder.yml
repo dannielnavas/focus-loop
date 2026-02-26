@@ -9,12 +9,6 @@ files:
 directories:
   output: release
 
-# --- Firma de código (opcional, vía variables de entorno) ---
-# Linux: electron-builder no firma AppImage; el workflow puede firmar con GPG (gratis).
-# Windows: CSC_LINK + CSC_KEY_PASSWORD (o WIN_CSC_* en Mac/Linux). Certificado auto-firmado
-#   gratis: npx electron-builder create-self-signed-cert -p "Tu Nombre"
-# macOS: CSC_LINK + CSC_KEY_PASSWORD. Notarización requiere Apple Developer (de pago).
-
 mac:
   category: public.app-category.productivity
   target:
@@ -29,7 +23,6 @@ win:
     - portable
   artifactName: Focus-Loop-${version}.${ext}
   icon: build/icons/icon-512.png
-  # Firma con CSC_LINK/CSC_KEY_PASSWORD o WIN_CSC_* (certificado auto-firmado válido para desarrollo)
 
 linux:
   target:

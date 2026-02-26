@@ -171,8 +171,6 @@ Uses Jasmine and Karma. Each component/service has a `.spec.ts` file. Tests use 
 
 **Electron Build**: `npm run electron:build` runs `ng build` then `electron-vite build`. Angular output is `dist/focus-loop/browser`; Electron output is `out/main` and `out/preload`. Package `main` is `out/main/index.js`. Installers: `npm run dist` (electron-builder); output in `release/`.
 
-**Firma de instalables (gratuita donde aplica)**: Linux = GPG (secretos `GPG_PRIVATE_KEY`, `GPG_KEY_ID`); Windows = certificado auto-firmado (`npm run electron:create-cert` en Windows, secretos `WIN_CSC_LINK`, `WIN_CSC_KEY_PASSWORD`); macOS = requiere certificado Apple (secretos `CSC_LINK`, `CSC_KEY_PASSWORD`). Ver README sección "Firma de instalables".
-
 ## Important Notes
 
 - When working with tasks or sprints, always use optimistic methods from services, not direct HTTP calls

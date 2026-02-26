@@ -198,7 +198,31 @@ npm run build
 npm run electron:build
 ```
 
-To produce installers (e.g. .dmg, .exe), add [electron-builder](https://www.electron.build/) and configure it to include `dist/focus-loop/browser` and `out/`.
+To produce installers (e.g. .dmg, .exe, .AppImage):
+
+```bash
+npm run dist
+```
+
+Los artefactos se generan en `release/`. El workflow de GitHub Actions (rama `release` o tags `v*`) construye los instalables para macOS, Windows y Linux.
+
+### Firma de instalables (opciones gratuitas)
+
+Se puede firmar los instalables de forma gratuita donde el sistema lo permita:
+
+| Plataforma | Opción gratuita | Cómo activarla |
+|------------|------------------|----------------|
+| **Linux**  | GPG (firma detached) | Añadir secretos en el repo: `GPG_PRIVATE_KEY` (clave privada exportada) y opcionalmente `GPG_KEY_ID` (ID de la clave). Los usuarios verifican con `gpg --verify archivo.AppImage.asc archivo.AppImage`. |
+| **Windows** | Certificado auto-firmado | En **Windows**, ejecutar `npm run electron:create-cert` para generar un `.pfx`. Codificar en base64, guardar como secreto `WIN_CSC_LINK`, y la contraseña en `WIN_CSC_KEY_PASSWORD`. Reduce el aviso "publicador desconocido" (para confianza total hace falta certificado de pago). |
+| **macOS** | Sin opción gratuita oficial | Apple exige cuenta de desarrollador (de pago) para notarización. Si tienes certificado, usa secretos `CSC_LINK` (base64 del .p12) y `CSC_KEY_PASSWORD`. |
+
+Crear certificado auto-firmado para Windows (solo en máquina Windows):
+
+```bash
+npm run electron:create-cert
+```
+
+Se genera un `.pfx` en el proyecto. Para usarlo en CI: `base64 -i nombre.pfx -o pfx.txt` (o en PowerShell equivalente) y el contenido de `pfx.txt` como valor de `WIN_CSC_LINK`; la contraseña que hayas puesto como `WIN_CSC_KEY_PASSWORD`.
 
 ## 🔍 Implemented Optimizations
 

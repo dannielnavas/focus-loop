@@ -41,8 +41,25 @@ jobs:
       - name: Build installers (electron-builder)
         run: npm run dist
         env:
-          # Evitar que electron-builder intente publicar en este paso
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Firma opcional: configurar secretos en el repo para activar
+          # macOS: CSC_LINK (base64 del .p12), CSC_KEY_PASSWORD. Sin cert no usa keychain.
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ matrix.os == 'macos-latest' && 'false' || '' }}
+          # En macOS usa CSC_*; en Windows usa WIN_CSC_* si existen, si no CSC_*
+          CSC_LINK: ${{ matrix.os == 'windows-latest' && secrets.WIN_CSC_LINK || secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ matrix.os == 'windows-latest' && secrets.WIN_CSC_KEY_PASSWORD || secrets.CSC_KEY_PASSWORD }}
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+
+      - name: Sign AppImage with GPG (Linux, opcional)
+        if: matrix.os == 'ubuntu-22.04' && secrets.GPG_PRIVATE_KEY != ''
+        env:
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+          for f in release/*.AppImage; do
+            gpg --batch --yes --detach-sign --armor ${GPG_KEY_ID:+--local-user "$GPG_KEY_ID"} "$f"
+          done
 
       - name: Upload artifacts (macOS)
         if: matrix.os == 'macos-latest'
@@ -58,7 +75,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-linux
-          path: release/*.AppImage
+          path: |
+            release/*.AppImage
+            release/*.AppImage.asc
 
       - name: Upload artifacts (Windows)
         if: matrix.os == 'windows-latest'

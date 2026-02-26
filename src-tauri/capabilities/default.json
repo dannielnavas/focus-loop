@@ -12,6 +12,12 @@
     "core:menu:default",
     "core:tray:default",
     "dialog:default",
-    "notification:default"
+    "notification:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "https://focus-loop-api.danniel.dev/**" }
+      ]
+    }
   ]
 }

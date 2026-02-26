@@ -20,7 +20,6 @@ mac:
 win:
   target:
     - nsis
-    - portable
   artifactName: Focus-Loop-${version}.${ext}
   icon: build/icons/icon-512.png
 

@@ -2,10 +2,10 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/dannielnavas/focus-loop)
 [![Angular Version](https://img.shields.io/badge/angular-20.0.3-blue)](https://angular.io/)
-[![Tauri Version](https://img.shields.io/badge/tauri-2-green)](https://v2.tauri.app/)
+[![Electron](https://img.shields.io/badge/electron-vite-3-blue)](https://electron-vite.org/)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
 
-A modern desktop application for task management and Pomodoro technique, built with Angular 20 and Tauri.
+A modern desktop application for task management and Pomodoro technique, built with Angular 20 and Electron (electron-vite).
 
 ## 🚀 Features
 
@@ -33,7 +33,7 @@ A modern desktop application for task management and Pomodoro technique, built w
 ## 🛠️ Technologies
 
 - **Frontend**: Angular 20, TypeScript, Tailwind CSS
-- **Desktop**: Tauri 2
+- **Desktop**: Electron + electron-vite
 - **Backend**: REST API (Vercel)
 - **State**: Angular Signals
 - **Testing**: Jasmine & Karma
@@ -82,20 +82,20 @@ ng serve
 
 Navigate to `http://localhost:4200` to view the application.
 
-### Desktop Application
+### Desktop Application (Electron)
 
 #### Development
 
 ```bash
-# Run in development mode
-npm run tauri:dev
+# Start Angular dev server and Electron (waits for http://localhost:4200)
+npm run electron:dev
 ```
 
 #### Production
 
 ```bash
-# Build application
-npm run tauri:build
+# Build Angular then Electron (output: out/main, out/preload; load from dist/focus-loop/browser)
+npm run electron:build
 ```
 
 ### Other Commands
@@ -138,7 +138,7 @@ my-tracker/
 │   │           └── layout/      # Main layout
 │   ├── assets/                  # Static resources
 │   └── types/                   # Type definitions
-├── src-tauri/                   # Tauri (Rust) desktop backend
+├── electron/                    # Electron main process and preload
 ├── public/                      # Public files
 └── dist/                        # Production build
 ```
@@ -157,7 +157,7 @@ API_URL=http://localhost:3000
 The project includes optimized configurations for:
 
 - **Web**: Angular CLI with production optimizations
-- **Desktop**: Tauri (Rust) with multi-platform configurations
+- **Desktop**: Electron (electron-vite) with main and preload
 - **Testing**: Karma with code coverage
 
 ## 🧪 Testing
@@ -194,15 +194,11 @@ npm run build
 ### Desktop
 
 ```bash
-# Build for all platforms
-npm run tauri:build
+# Build Angular + Electron (output in out/)
+npm run electron:build
 ```
 
-### Supported Platforms
-
-- **macOS**: `.dmg` (Apple Silicon + Intel)
-- **Windows**: `.exe` (NSIS installer)
-- **Linux**: `.AppImage` (AppImage format)
+To produce installers (e.g. .dmg, .exe), add [electron-builder](https://www.electron.build/) and configure it to include `dist/focus-loop/browser` and `out/`.
 
 ## 🔍 Implemented Optimizations
 
@@ -230,11 +226,12 @@ npm run tauri:build
 # The application has fallback to HTML5 Audio
 ```
 
-2. **Tauri Error**
+2. **Electron / Permission Error**
 
 ```bash
-# Make sure you have admin permissions on macOS
-# On Windows, run as administrator if necessary
+# If electron-vite fails with "Permission denied", run:
+chmod +x node_modules/.bin/electron-vite
+# Or use: node node_modules/electron-vite/bin/electron-vite.js dev
 ```
 
 3. **Build Error**
@@ -268,7 +265,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 ## 🙏 Acknowledgments
 
 - [Angular Team](https://angular.io/) for the framework
-- [Tauri Team](https://v2.tauri.app/) for the desktop platform
+- [Electron](https://www.electronjs.org/) and [electron-vite](https://electron-vite.org/) for the desktop platform
 - [Tailwind CSS](https://tailwindcss.com/) for the design system
 - [Vercel](https://vercel.com/) for backend hosting
 

@@ -1,0 +1,279 @@
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+const electron = require("electron");
+const path = require("path");
+function _interopNamespaceDefault(e) {
+  const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
+  if (e) {
+    for (const k in e) {
+      if (k !== "default") {
+        const d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: () => e[k]
+        });
+      }
+    }
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
+const path__namespace = /* @__PURE__ */ _interopNamespaceDefault(path);
+const ADMIN_SUBSCRIPTION_PLAN_ID = "2";
+const ROLE_ADMIN = "admin";
+const DEFAULT_WIDTH = 1200;
+const DEFAULT_HEIGHT = 800;
+let mainWindow = null;
+let userContext = null;
+function isAdminUser(user) {
+  if (!user) return false;
+  if (user.role === ROLE_ADMIN) return true;
+  const planId = user.subscriptionPlan?.subscription_plan_id;
+  const idStr = planId != null ? String(planId) : "";
+  return idStr === ADMIN_SUBSCRIPTION_PLAN_ID;
+}
+function isRoleAdmin(user) {
+  return user?.role === ROLE_ADMIN;
+}
+function buildApplicationMenu() {
+  isAdminUser(userContext);
+  const isAdminRole = isRoleAdmin(userContext);
+  const isLoggedIn = userContext != null;
+  const template = [
+    {
+      label: "Focus Loop",
+      submenu: [
+        { label: "About Focus Loop", click: () => showAboutDialog() },
+        { type: "separator" },
+        { label: "Generate Daily", click: () => mainWindow?.webContents.send("menu:generateDaily") },
+        ...isAdminRole ? [{ label: "Profile", click: () => mainWindow?.webContents.send("menu:profile") }] : [],
+        ...isLoggedIn ? [{ type: "separator" }, { label: "Logout", click: () => mainWindow?.webContents.send("menu:logout") }] : [],
+        { type: "separator" },
+        { label: "Quit", role: "quit" }
+      ].filter(Boolean)
+    }
+  ];
+  return electron.Menu.buildFromTemplate(template);
+}
+function showAboutDialog() {
+  const version = electron.app.getVersion();
+  electron.dialog.showMessageBox(mainWindow, {
+    type: "info",
+    title: "Focus Loop",
+    message: "Focus Loop",
+    detail: `Versión ${version}
+
+Developed by Danniel Navas. Focus Loop is a task management and productivity application.`
+  }).catch(() => {
+  });
+}
+function getAngularPath() {
+  if (electron.app.isPackaged) {
+    return path__namespace.join(process.resourcesPath, "app.asar", "dist", "focus-loop", "browser", "index.html");
+  }
+  return path__namespace.join(__dirname, "../../../dist/focus-loop/browser/index.html");
+}
+function createWindow() {
+  const preloadPath = path__namespace.join(__dirname, "../preload/index.js");
+  const isDev = process.env.ELECTRON_RENDERER_URL != null;
+  mainWindow = new electron.BrowserWindow({
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT,
+    title: "Focus Loop",
+    resizable: true,
+    fullscreen: false,
+    webPreferences: {
+      preload: preloadPath,
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      webSecurity: !electron.app.isPackaged
+    },
+    show: false
+  });
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
+  if (isDev && process.env.ELECTRON_RENDERER_URL) {
+    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL).catch(() => {
+    });
+  } else {
+    mainWindow.loadFile(getAngularPath()).catch((err) => {
+      console.error("Failed to load Angular app:", err);
+    });
+  }
+  mainWindow.once("ready-to-show", () => {
+    mainWindow?.show();
+  });
+  applyMenu();
+}
+function applyMenu() {
+  if (!mainWindow) return;
+  const menu = buildApplicationMenu();
+  electron.Menu.setApplicationMenu(menu);
+}
+electron.app.whenReady().then(() => {
+  createWindow();
+  electron.app.on("activate", () => {
+    if (electron.BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+electron.app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") electron.app.quit();
+});
+electron.ipcMain.handle("resize_window", async (_, width, height) => {
+  try {
+    if (mainWindow) {
+      mainWindow.setSize(width, height);
+      mainWindow.center();
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("reset_window_size", async () => {
+  try {
+    if (mainWindow) {
+      mainWindow.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+      mainWindow.setAlwaysOnTop(false);
+      mainWindow.setResizable(true);
+      mainWindow.center();
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("make_window_floating", async (_, width, height) => {
+  try {
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(true);
+      mainWindow.setResizable(false);
+      mainWindow.setSize(width, height);
+      mainWindow.center();
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("reset_window_floating", async () => {
+  try {
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(false);
+      mainWindow.setResizable(true);
+      mainWindow.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+      mainWindow.center();
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("move_window", async (_, x, y) => {
+  try {
+    if (mainWindow) {
+      mainWindow.setPosition(x, y);
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("hide_titlebar", async () => {
+  try {
+    if (mainWindow) {
+      mainWindow.setMenuBarVisibility(false);
+      mainWindow.setFullScreenable(false);
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("show_titlebar", async () => {
+  try {
+    if (mainWindow) {
+      mainWindow.setMenuBarVisibility(true);
+      mainWindow.setFullScreenable(true);
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("hide_menu", async () => {
+  try {
+    if (mainWindow) mainWindow.setMenu(null);
+    return true;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("show_menu", async () => {
+  try {
+    applyMenu();
+    return true;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("set_user_context", async (_, user_context) => {
+  try {
+    userContext = user_context ?? null;
+    applyMenu();
+    return true;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("show_notification", async (_, title, body) => {
+  try {
+    if (mainWindow && process.platform !== "darwin") {
+      const { Notification } = await import("electron");
+      if (Notification.isSupported()) {
+        new Notification({ title, body }).show();
+        return true;
+      }
+    }
+    if (process.platform === "darwin") {
+      const { Notification } = await import("electron");
+      if (Notification.isSupported()) {
+        new Notification({ title, body }).show();
+        return true;
+      }
+    }
+    return false;
+  } catch {
+    return false;
+  }
+});

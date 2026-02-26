@@ -12,7 +12,7 @@ declare global {
       hideNotification: () => Promise<boolean>;
       hideMenu: () => Promise<boolean>;
       showMenu: () => Promise<boolean>;
-      updateMenuWithUserData?: () => Promise<boolean>;
+      updateMenuWithUserData?: (userContext?: unknown) => Promise<boolean>;
       onMenuGenerateDaily: (cb: () => void) => void;
       onMenuProfile: (cb: () => void) => void;
       onMenuLogout: (cb: () => void) => void;

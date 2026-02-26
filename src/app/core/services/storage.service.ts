@@ -136,8 +136,8 @@ export class StorageService {
     this.set('user_email', user.email || '');
     this.set('user_role', user.role || '');
 
-    // Desktop: refresh native menu (Tauri API).
-    void window.desktopAPI?.updateMenuWithUserData?.();
+    // Desktop: refresh native menu (Electron/Tauri API).
+    void window.desktopAPI?.updateMenuWithUserData?.(user);
   }
 
   getUserData(): any {

@@ -4,7 +4,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project Overview
 
-Focus Loop is a desktop task management and Pomodoro timer application built with Angular 20 and Tauri 2. The app uses Angular Signals for state management and implements optimistic UI patterns for immediate user feedback.
+Focus Loop is a desktop task management and Pomodoro timer application built with Angular 20 and Electron (electron-vite). The app uses Angular Signals for state management and implements optimistic UI patterns for immediate user feedback.
 
 ## Development Commands
 
@@ -16,13 +16,13 @@ npm run build                # Production build (output: dist/focus-loop/)
 npm run watch                # Build with watch mode
 ```
 
-### Desktop Application (Tauri)
+### Desktop Application (Electron)
 ```bash
-npm run tauri:dev            # Run desktop app in development mode
-npm run tauri:build          # Build desktop app for production
-npm run tauri:build:patch    # Increment patch version and build
-npm run tauri:build:minor    # Increment minor version and build
-npm run tauri:build:major    # Increment major version and build
+npm run electron:dev         # Start Angular + Electron in development mode
+npm run electron:build       # Build Angular then Electron (output: out/)
+npm run electron:build:patch # Increment patch version and build
+npm run electron:build:minor  # Increment minor version and build
+npm run electron:build:major  # Increment major version and build
 ```
 
 ### Testing
@@ -65,8 +65,8 @@ src/app/
 │   │   └── settings.ts     # User settings service
 │   ├── store/              # Global state management with Signals
 │   │   └── store.ts        # Centralized store for tasks, sprints, optimistic state
-│   └── desktop/            # Tauri-specific APIs
-│       └── tauri-desktop-api.ts  # Desktop features (notifications, window control)
+│   └── desktop/            # Desktop init (Electron exposes API via preload)
+│       └── init.ts         # Bootstrap; window.desktopAPI from Electron preload
 ├── private/                 # Authenticated routes
 │   └── pages/
 │       ├── board/          # Kanban board with drag-and-drop
@@ -87,9 +87,9 @@ src/app/
         └── notifications/  # Toast notification display
 ```
 
-### Tauri Desktop Integration
+### Electron Desktop Integration
 
-The `src-tauri/` directory contains the Rust backend. The configuration is in `src-tauri/tauri.conf.json` with version synced to `package.json`. Desktop APIs are accessed through `src/app/core/desktop/tauri-desktop-api.ts`.
+The desktop app uses Electron with electron-vite. The main process is in `electron/main.ts`, the preload in `electron/preload.ts`; config in `electron.vite.config.ts`. The preload exposes `window.desktopAPI` (notifications, window control, menu events). Angular builds to `dist/focus-loop/browser`; in dev the window loads `http://localhost:4200`, in prod it loads the built files.
 
 ### Key Models
 
@@ -169,7 +169,7 @@ Uses Jasmine and Karma. Each component/service has a `.spec.ts` file. Tests use 
 
 **Build Budgets**: Initial bundle max is 1MB, component styles max is 8kB. These are enforced in production builds.
 
-**Tauri Build**: Uses `beforeBuildCommand: npm run build` which outputs to `dist/focus-loop/browser`. This path is referenced in `tauri.conf.json`.
+**Electron Build**: `npm run electron:build` runs `ng build` then `electron-vite build`. Angular output is `dist/focus-loop/browser`; Electron output is `out/main` and `out/preload`. Package `main` is `out/main/index.js`.
 
 ## Important Notes
 

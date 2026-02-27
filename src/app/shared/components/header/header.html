@@ -1,15 +1,15 @@
 <header
-  class="w-full border-b border-gray-200 dark:border-dark-border bg-white dark:bg-dark transition-colors duration-200"
+  class="w-full dark:border-dark-border bg-transparent transition-colors duration-200 fixed top-0 left-0 right-0 z-50"
 >
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
-    <div class="flex items-center gap-4 min-w-0">
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 flex justify-between items-center py-1">
+    <div class="flex items-center gap-2 min-w-0">
       <app-ui-button
         variant="ghost"
         size="sm"
-        class="!p-2 shrink-0"
+        class="!p-1.5 shrink-0"
         (click)="goToBack()"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -20,12 +20,12 @@
       </app-ui-button>
 
       @if (countTasks() > 0) {
-        <div class="flex items-center gap-2 min-w-0">
+        <div class="flex items-center gap-1.5 min-w-0">
           <h2
-            class="text-lg font-semibold text-gray-900 dark:text-dark-text flex items-center gap-2 truncate"
+            class="text-base font-semibold text-gray-900 dark:text-dark-text flex items-center gap-1.5 truncate"
           >
             <svg
-              class="w-5 h-5 shrink-0"
+              class="w-4 h-4 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -39,19 +39,19 @@
             </svg>
             Today
           </h2>
-          <p class="text-sm text-gray-500 dark:text-dark-text-muted shrink-0">
+          <p class="text-xs text-gray-500 dark:text-dark-text-muted shrink-0">
             {{ countTasks() }} tasks
           </p>
         </div>
       }
     </div>
 
-    <div class="flex items-center gap-2 shrink-0">
+    <div class="flex items-center shrink-0">
       <img
-        class="w-10 h-10 rounded-full cursor-pointer border border-gray-200 dark:border-dark-border object-cover"
+        class="w-8 h-8 rounded-full cursor-pointer border border-gray-200 dark:border-dark-border object-cover"
         ngSrc="{{ $image() }}"
-        width="40"
-        height="40"
+        width="32"
+        height="32"
         alt="Profile"
         priority
         (click)="goToProfile()"

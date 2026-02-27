@@ -3,7 +3,7 @@ declare global {
     desktopAPI?: {
       resizeWindow: (width: number, height: number) => Promise<boolean>;
       resetWindowSize: () => Promise<boolean>;
-      makeWindowFloating: (width: number, height: number) => Promise<boolean>;
+      makeWindowFloating: (width: number, height: number, x?: number, y?: number) => Promise<boolean>;
       resetWindowFloating: () => Promise<boolean>;
       moveWindow: (x: number, y: number) => Promise<boolean>;
       hideTitlebar: () => Promise<boolean>;

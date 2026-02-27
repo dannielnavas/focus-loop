@@ -101,7 +101,8 @@ function createWindow() {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
     title: "Focus Loop",
-    resizable: true,
+    resizable: false,
+    maximizable: false,
     fullscreen: false,
     webPreferences: {
       preload: preloadPath,
@@ -159,7 +160,6 @@ electron.ipcMain.handle("reset_window_size", async () => {
     if (mainWindow) {
       mainWindow.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
       mainWindow.setAlwaysOnTop(false);
-      mainWindow.setResizable(true);
       mainWindow.center();
       return true;
     }
@@ -168,13 +168,17 @@ electron.ipcMain.handle("reset_window_size", async () => {
     return false;
   }
 });
-electron.ipcMain.handle("make_window_floating", async (_, width, height) => {
+electron.ipcMain.handle("make_window_floating", async (_, width, height, x, y) => {
   try {
     if (mainWindow) {
-      mainWindow.setAlwaysOnTop(true);
+      mainWindow.setAlwaysOnTop(true, "floating");
       mainWindow.setResizable(false);
+      mainWindow.setMinimumSize(width, height);
+      mainWindow.setMaximumSize(width, height);
       mainWindow.setSize(width, height);
-      mainWindow.center();
+      if (x !== void 0 && y !== void 0) {
+        mainWindow.setPosition(x, y);
+      }
       return true;
     }
     return false;
@@ -185,8 +189,9 @@ electron.ipcMain.handle("make_window_floating", async (_, width, height) => {
 electron.ipcMain.handle("reset_window_floating", async () => {
   try {
     if (mainWindow) {
+      mainWindow.setMinimumSize(0, 0);
+      mainWindow.setMaximumSize(0, 0);
       mainWindow.setAlwaysOnTop(false);
-      mainWindow.setResizable(true);
       mainWindow.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
       mainWindow.center();
       return true;

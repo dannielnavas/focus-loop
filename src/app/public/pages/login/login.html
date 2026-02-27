@@ -1,197 +1,90 @@
 <main
-  class="mx-auto flex w-full items-center justify-center bg-gray-900 text-white px-2"
+  class="min-h-screen w-full flex items-center justify-center px-4 py-12 bg-white dark:bg-dark"
 >
-  <section
-    class="flex w-full max-w-md flex-col space-y-10 bg-gray-800/80 rounded-2xl shadow-2xl p-6 sm:p-10 border border-gray-700"
+  <app-ui-card
+    variant="default"
+    padding="lg"
+    class="w-full max-w-md border border-gray-200 dark:border-dark-border"
   >
-    <div class="text-center text-3xl sm:text-4xl font-bold tracking-tight">
-      Log In
-    </div>
+    <h1
+      class="text-center text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-dark-text mb-8"
+    >
+      Log in
+    </h1>
 
     <form
       [formGroup]="formLogin"
       novalidate
       (ngSubmit)="login()"
-      class="flex flex-col gap-y-4"
+      class="flex flex-col gap-6"
     >
-      <div
-        class="w-full border-b-2 bg-transparent text-lg duration-300 focus-within:border-indigo-500"
-        [class]="(formLogin.get('email')?.touched || formLogin.get('email')?.dirty) && formLogin.get('email')?.errors ? 'border-red-500' : 'border-gray-700'"
-      >
-        <input
-          type="text"
-          formControlName="email"
-          placeholder="Email or Username"
-          class="w-full border-none bg-transparent outline-none placeholder:italic focus:outline-none text-white placeholder:text-gray-400 py-2 px-1"
-        />
-      </div>
-      @if(formLogin.get("email")?.touched || formLogin.get("email")?.dirty ) {
-      @if (formLogin.get("email")?.errors?.['required']) {
-      <div
-        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
-      >
-        <svg
-          class="w-4 h-4 text-red-400 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-        <p class="text-red-400 text-sm font-medium">Email is required</p>
-      </div>
-      } @if (formLogin.get("email")?.errors?.['email']) {
-      <div
-        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
-      >
-        <svg
-          class="w-4 h-4 text-red-400 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-        <p class="text-red-400 text-sm font-medium">
-          Please enter a valid email address
-        </p>
-      </div>
-      } @if (formLogin.get("email")?.errors?.['minlength']) {
-      <div
-        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
-      >
-        <svg
-          class="w-4 h-4 text-red-400 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-        <p class="text-red-400 text-sm font-medium">
-          Email must be at least 3 characters long
-        </p>
-      </div>
-      } @if (formLogin.get("email")?.errors?.['maxlength']) {
-      <div
-        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
-      >
-        <svg
-          class="w-4 h-4 text-red-400 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-        <p class="text-red-400 text-sm font-medium">
-          Email must be less than 255 characters
-        </p>
-      </div>
-      } }
+      <app-ui-input
+        formControlName="email"
+        label="Email or Username"
+        placeholder="Email or Username"
+        [error]="getEmailError()"
+      />
 
-      <!-- Error Message -->
-      @if (errorMessage) {
-      <div
-        class="flex items-center gap-2 mt-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg"
-      >
-        <svg
-          class="w-5 h-5 text-red-400 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
+      <div class="space-y-1">
+        <app-ui-input
+          formControlName="password"
+          label="Password"
+          [type]="showPassword() ? 'text' : 'password'"
+          placeholder="Password"
+          [error]="getPasswordError()"
+        />
+        <button
+          type="button"
+          class="text-sm text-gray-500 hover:text-gray-900 dark:text-dark-text-muted dark:hover:text-dark-text transition-colors duration-200"
+          (click)="togglePasswordVisibility()"
         >
-          <path
-            fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-        <p class="text-red-400 text-sm font-medium">{{ errorMessage }}</p>
+          @if (showPassword()) { Hide password } @else { Show password }
+        </button>
       </div>
+
+      @if (errorMessage) {
+        <div
+          class="rounded-md border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 px-3 py-2 text-sm text-red-800 dark:text-red-300"
+        >
+          {{ errorMessage }}
+        </div>
       }
 
-      <div
-        class="w-full border-b-2 bg-transparent text-lg duration-300 focus-within:border-indigo-500"
-        [class]="(formLogin.get('password')?.touched || formLogin.get('password')?.dirty) && formLogin.get('password')?.errors ? 'border-red-500' : 'border-gray-700'"
-      >
-        <input
-          [type]="showPassword() ? 'text' : 'password'"
-          formControlName="password"
-          placeholder="Password"
-          class="w-full border-none bg-transparent outline-none placeholder:italic focus:outline-none text-white placeholder:text-gray-400 py-2 px-1"
-        />
-      </div>
-      <button
-        type="button"
-        class="text-white text-sm text-right mb-2 hover:underline cursor-pointer"
-        (click)="togglePasswordVisibility()"
-      >
-        @if(!showPassword()) { show password } @else { hide password }
-      </button>
-      @if(formLogin.get("password")?.touched || formLogin.get("password")?.dirty
-      ) { @if (formLogin.get("password")?.errors?.['required']) {
-      <div
-        class="flex items-center gap-2 mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
-      >
-        <svg
-          class="w-4 h-4 text-red-400 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-        <p class="text-red-400 text-sm font-medium">Password is required</p>
-      </div>
-      } }
-
-      <button
-        class="rounded-lg py-2 font-bold duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full mt-4 text-white text-lg shadow-md transition-all flex items-center justify-center gap-2"
-        [class]="isLoading ? 'bg-indigo-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-400 focus:bg-indigo-700 cursor-pointer'"
+      <app-ui-button
         type="submit"
+        variant="primary"
         [disabled]="isLoading"
+        class="w-full"
       >
         @if (isLoading) {
-        <svg
-          class="animate-spin h-5 w-5 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          ></circle>
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-        <span>LOGGING IN...</span>
+          <span class="inline-flex items-center gap-2">
+            <svg
+              class="animate-spin h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            Signing in…
+          </span>
         } @else {
-        <span>LOG IN</span>
+          Sign in
         }
-      </button>
+      </app-ui-button>
     </form>
-  </section>
+  </app-ui-card>
 </main>

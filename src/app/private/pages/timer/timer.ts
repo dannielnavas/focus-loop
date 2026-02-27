@@ -1,5 +1,6 @@
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
+import { UiButtonComponent } from '@/shared/components/ui';
 import {
   ChangeDetectorRef,
   Component,
@@ -14,7 +15,7 @@ import TimerPomodoro, { TimerState } from 'timer-for-pomodoro';
 
 @Component({
   selector: 'app-timer',
-  imports: [],
+  imports: [UiButtonComponent],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
 })
@@ -56,13 +57,15 @@ export default class Timer implements OnInit, OnDestroy {
   private async setFloatingWindow() {
     if (!window.desktopAPI) return;
     try {
+      await new Promise<void>((resolve) => setTimeout(resolve, 150));
+
       const { userAgent } = navigator;
       if (userAgent.includes('Windows') || userAgent.includes('Linux')) {
-        await window.desktopAPI.makeWindowFloating(306, 60);
+        await window.desktopAPI.makeWindowFloating(380, 120, 0, 50);
       } else if (userAgent.includes('Macintosh')) {
-        await window.desktopAPI.makeWindowFloating(306, 60);
+        await window.desktopAPI.makeWindowFloating(306, 90, 0, 50);
       }
-      await window.desktopAPI.moveWindow(0, 50);
+
     } catch (error) {
       console.error('Error making window floating:', error);
     }

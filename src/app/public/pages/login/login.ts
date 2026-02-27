@@ -15,10 +15,20 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import {
+  UiButtonComponent,
+  UiCardComponent,
+  UiInputComponent,
+} from '@/shared/components/ui';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    UiButtonComponent,
+    UiCardComponent,
+    UiInputComponent,
+  ],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -98,5 +108,23 @@ export default class Login implements OnInit {
   }
   togglePasswordVisibility() {
     this.showPassword.update((prev) => !prev);
+  }
+
+  getEmailError(): string {
+    const c = this.formLogin?.get('email');
+    if (!c?.touched && !c?.dirty) return '';
+    const e = c.errors;
+    if (!e) return '';
+    if (e['required']) return 'Email is required';
+    if (e['email']) return 'Please enter a valid email address';
+    if (e['minlength']) return 'Email must be at least 3 characters';
+    if (e['maxlength']) return 'Email must be less than 255 characters';
+    return '';
+  }
+
+  getPasswordError(): string {
+    const c = this.formLogin?.get('password');
+    if (!c?.touched && !c?.dirty) return '';
+    return c?.errors?.['required'] ? 'Password is required' : '';
   }
 }

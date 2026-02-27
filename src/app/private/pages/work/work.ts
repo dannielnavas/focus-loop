@@ -2,6 +2,7 @@ import { OptimisticUIService } from '@/core/services/optimistic-ui';
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
+import { UiButtonComponent } from '@/shared/components/ui';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -13,7 +14,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-work',
-  imports: [CdkDropList, CdkDrag, Header],
+  imports: [CdkDropList, CdkDrag, Header, UiButtonComponent],
   templateUrl: './work.html',
   styleUrl: './work.css',
 })

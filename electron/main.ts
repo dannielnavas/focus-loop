@@ -69,7 +69,8 @@ function createWindow(): void {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
     title: 'Focus Loop',
-    resizable: true,
+    resizable: false,
+    maximizable: false,
     fullscreen: false,
     webPreferences: {
       preload: preloadPath,
@@ -136,7 +137,6 @@ ipcMain.handle('reset_window_size', async () => {
     if (mainWindow) {
       mainWindow.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
       mainWindow.setAlwaysOnTop(false);
-      mainWindow.setResizable(true);
       mainWindow.center();
       return true;
     }
@@ -146,13 +146,17 @@ ipcMain.handle('reset_window_size', async () => {
   }
 });
 
-ipcMain.handle('make_window_floating', async (_, width: number, height: number) => {
+ipcMain.handle('make_window_floating', async (_, width: number, height: number, x?: number, y?: number) => {
   try {
     if (mainWindow) {
-      mainWindow.setAlwaysOnTop(true);
+      mainWindow.setAlwaysOnTop(true, 'floating');
       mainWindow.setResizable(false);
+      mainWindow.setMinimumSize(width, height);
+      mainWindow.setMaximumSize(width, height);
       mainWindow.setSize(width, height);
-      mainWindow.center();
+      if (x !== undefined && y !== undefined) {
+        mainWindow.setPosition(x, y);
+      }
       return true;
     }
     return false;
@@ -164,8 +168,9 @@ ipcMain.handle('make_window_floating', async (_, width: number, height: number) 
 ipcMain.handle('reset_window_floating', async () => {
   try {
     if (mainWindow) {
+      mainWindow.setMinimumSize(0, 0);
+      mainWindow.setMaximumSize(0, 0);
       mainWindow.setAlwaysOnTop(false);
-      mainWindow.setResizable(true);
       mainWindow.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
       mainWindow.center();
       return true;

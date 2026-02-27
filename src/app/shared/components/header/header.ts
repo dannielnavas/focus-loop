@@ -1,6 +1,11 @@
 import { Sprints } from '@/core/services/sprints';
 import { StorageService } from '@/core/services/storage.service';
 import { Store } from '@/core/store/store';
+import {
+  UiButtonComponent,
+  UiCardComponent,
+  UiSkeletonComponent,
+} from '@/shared/components/ui';
 import { Location, NgOptimizedImage } from '@angular/common';
 import {
   Component,
@@ -16,7 +21,12 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [NgOptimizedImage],
+  imports: [
+    NgOptimizedImage,
+    UiButtonComponent,
+    UiCardComponent,
+    UiSkeletonComponent,
+  ],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

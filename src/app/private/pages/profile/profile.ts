@@ -1,5 +1,6 @@
 import { StorageService } from '@/core/services/storage.service';
 import { Header } from '@/shared/components/header/header';
+import { UiButtonComponent, UiCardComponent } from '@/shared/components/ui';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -26,7 +27,7 @@ interface UserPreferences {
 
 @Component({
   selector: 'app-profile',
-  imports: [FormsModule, Header],
+  imports: [FormsModule, Header, UiButtonComponent, UiCardComponent],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

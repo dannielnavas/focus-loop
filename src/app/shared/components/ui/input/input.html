@@ -1,0 +1,27 @@
+<div class="w-full">
+  @if (label()) {
+    <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-1">
+      {{ label() }}
+      @if (required()) {
+        <span class="text-red-600 dark:text-red-400" aria-hidden="true">*</span>
+      }
+    </label>
+  }
+  <input
+    [type]="type()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled() || disabledState()"
+    [required]="required()"
+    [value]="value()"
+    (input)="handleInput($event)"
+    (blur)="handleBlur()"
+    [class]="inputClasses + ' ' + class()"
+    [class.border-red-500]="error()"
+  />
+  @if (hint() && !error()) {
+    <p class="mt-1 text-xs text-gray-500 dark:text-dark-text-muted">{{ hint() }}</p>
+  }
+  @if (error()) {
+    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ error() }}</p>
+  }
+</div>

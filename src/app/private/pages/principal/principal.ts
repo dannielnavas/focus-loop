@@ -6,6 +6,14 @@ import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
 import { NotificationsComponent } from '@/shared/components/notifications/notifications';
 import { OptimisticStatusComponent } from '@/shared/components/optimistic-status/optimistic-status';
+import {
+  UiBadgeComponent,
+  UiButtonComponent,
+  UiCardComponent,
+  UiContainerComponent,
+  UiSkeletonComponent,
+} from '@/shared/components/ui';
+import type { BadgeVariant } from '@/shared/components/ui';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +26,11 @@ import { Router } from '@angular/router';
     Header,
     OptimisticStatusComponent,
     NotificationsComponent,
+    UiBadgeComponent,
+    UiButtonComponent,
+    UiCardComponent,
+    UiContainerComponent,
+    UiSkeletonComponent,
   ],
   templateUrl: './principal.html',
   styleUrl: './principal.css',
@@ -148,16 +161,16 @@ export default class Principal {
     }
   }
 
-  getStatusBadgeClass(status: string): string {
+  getStatusBadgeVariant(status: string): BadgeVariant {
     switch (status) {
       case 'active':
-        return 'bg-green-500 text-green-900';
+        return 'success';
       case 'completed':
-        return 'bg-blue-500 text-blue-900';
+        return 'neutral';
       case 'planned':
-        return 'bg-yellow-500 text-yellow-900';
+        return 'warning';
       default:
-        return 'bg-gray-500 text-gray-900';
+        return 'neutral';
     }
   }
 

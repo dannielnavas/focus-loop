@@ -13,7 +13,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "electron:dev": "concurrently -k \"npm run start\" \"wait-on http://localhost:4200 && cross-env ELECTRON_RENDERER_URL=http://localhost:4200 node node_modules/electron-vite/bin/electron-vite.js dev\"",
+    "electron:dev": "concurrently -k \"npm run start\" \"wait-on http://localhost:4200 && npx cross-env ELECTRON_RENDERER_URL=http://localhost:4200 node node_modules/electron-vite/bin/electron-vite.js dev\"",
     "electron:build": "npm run build && node node_modules/electron-vite/bin/electron-vite.js build",
     "electron:build:patch": "node scripts/increment-version.js patch && npm run electron:build",
     "electron:build:minor": "node scripts/increment-version.js minor && npm run electron:build",

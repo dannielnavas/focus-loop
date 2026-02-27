@@ -6,6 +6,7 @@ import { Store } from '@/core/store/store';
 import { Header } from '@/shared/components/header/header';
 import { NotificationsComponent } from '@/shared/components/notifications/notifications';
 import { OptimisticStatusComponent } from '@/shared/components/optimistic-status/optimistic-status';
+import { UiButtonComponent } from '@/shared/components/ui';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -28,6 +29,7 @@ import { formatISO } from 'date-fns';
     Header,
     OptimisticStatusComponent,
     NotificationsComponent,
+    UiButtonComponent,
   ],
   templateUrl: './board.html',
   styleUrl: './board.css',

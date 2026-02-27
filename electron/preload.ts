@@ -3,7 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 const desktopAPI = {
   resizeWindow: (width: number, height: number) => ipcRenderer.invoke('resize_window', width, height),
   resetWindowSize: () => ipcRenderer.invoke('reset_window_size'),
-  makeWindowFloating: (width: number, height: number) => ipcRenderer.invoke('make_window_floating', width, height),
+  makeWindowFloating: (width: number, height: number, x?: number, y?: number) => ipcRenderer.invoke('make_window_floating', width, height, x, y),
   resetWindowFloating: () => ipcRenderer.invoke('reset_window_floating'),
   moveWindow: (x: number, y: number) => ipcRenderer.invoke('move_window', x, y),
   hideTitlebar: () => ipcRenderer.invoke('hide_titlebar'),

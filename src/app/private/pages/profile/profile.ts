@@ -84,21 +84,20 @@ export default class Profile {
 
   // Cargar perfil del usuario desde localStorage
   loadUserProfile() {
-    const userData = this.storage.getAll();
-    if (userData) {
-      try {
-        const user = JSON.parse(userData.user_data);
-        this.profileForm.set({
-          full_name: user.full_name || '',
-          email: user.email || '',
-          profile_image: user.profile_image || '',
-          role: user.role || 'user',
-          subscription_plan_id: user.subscription_plan_id || 'free',
-        });
-      } catch (error) {
-        console.error('Error loading user profile:', error);
-        this.showMessage('Error loading user profile', 'error');
-      }
+    try {
+      const user = this.storage.getUserData();
+      if (!user) return;
+      this.profileForm.set({
+        full_name: user.full_name || '',
+        email: user.email || '',
+        profile_image: user.profile_image || '',
+        role: user.role || 'user',
+        subscription_plan_id:
+          user.subscriptionPlan?.name ?? user.subscription_plan_id ?? 'free',
+      });
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+      this.showMessage('Error loading user profile', 'error');
     }
   }
 

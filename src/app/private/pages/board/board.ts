@@ -1,5 +1,8 @@
 import { TaskResponse } from '@/core/models/task.model';
+import { NotificationService } from '@/core/services/notification.service';
 import { OptimisticUIService } from '@/core/services/optimistic-ui';
+import { PlanService } from '@/core/services/plan.service';
+import { Sprints } from '@/core/services/sprints';
 import { StorageService } from '@/core/services/storage.service';
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
@@ -19,6 +22,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { formatISO } from 'date-fns';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-board',
@@ -45,6 +49,9 @@ export default class Board implements OnInit {
   private readonly store = inject(Store);
   private readonly storage = inject(StorageService);
   private readonly optimisticUI = inject(OptimisticUIService);
+  private readonly planService = inject(PlanService);
+  private readonly sprintService = inject(Sprints);
+  private readonly notificationService = inject(NotificationService);
 
   resourcesTasks = rxResource<TaskResponse[], { user_id: number }>({
     stream: ({ params }) => this.taskService.getTasks(Number(this.sprint_id())),
@@ -183,7 +190,9 @@ export default class Board implements OnInit {
   }
 
   addTodoTask() {
-    if (this.newTodoTask.trim()) {
+    if (!this.newTodoTask.trim()) return;
+
+    const doCreate = () => {
       const newTask = {
         title: this.newTodoTask.trim(),
         status_task_id: 1,
@@ -191,9 +200,8 @@ export default class Board implements OnInit {
         position: this.todo().length + 1,
       };
 
-      // Crear tarea optimista inmediatamente
       const optimisticTask: TaskResponse = {
-        task_id: -Date.now(), // ID temporal
+        task_id: -Date.now(),
         title: newTask.title,
         position: newTask.position,
         date_end: null,
@@ -210,22 +218,53 @@ export default class Board implements OnInit {
 
       this.store.addOptimisticTask(optimisticTask);
 
-      // Ejecutar creación real
       this.taskService.createTaskOptimistic(newTask).subscribe({
-        next: (createdTask) => {
-          // Remover tarea optimista y actualizar con la real
+        next: () => {
           this.store.removeOptimisticTask(optimisticTask.task_id);
           this.resourcesTasks.reload();
         },
         error: (err) => {
           console.error('Error creating task:', err);
-          // Rollback: remover tarea optimista
           this.store.removeOptimisticTask(optimisticTask.task_id);
         },
       });
 
       this.newTodoTask = '';
       this.showTodoInput = false;
+    };
+
+    if (this.planService.isFreePlan()) {
+      this.sprintService
+        .getSprints(Number(this.user_id()) || 0)
+        .pipe(take(1))
+        .subscribe({
+          next: (sprints) => {
+            const total = sprints.reduce(
+              (sum, s) =>
+                sum +
+                s.countTaskPending +
+                s.countTaskInProgress +
+                s.countTaskCompleted,
+              0
+            );
+            if (total >= this.planService.getTaskLimit()) {
+              this.notificationService.warning(
+                'Task limit reached',
+                'You have reached the limit of 30 tasks on the Free plan. Upgrade to Monthly or Lifetime for unlimited tasks.'
+              );
+              return;
+            }
+            doCreate();
+          },
+          error: () => {
+            this.notificationService.error(
+              'Could not verify plan limits',
+              'Please try again.'
+            );
+          },
+        });
+    } else {
+      doCreate();
     }
   }
 
@@ -245,7 +284,8 @@ export default class Board implements OnInit {
   startTasks() {
     if (this.today().length > 0) {
       this.store.setTaskForWork(this.today());
-      this.router.navigate(['/private/work']);
+      this.store.setOneTaskForWork(this.today()[0]);
+      this.router.navigate(['/private/timer']);
     }
   }
 }

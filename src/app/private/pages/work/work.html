@@ -1,12 +1,12 @@
 <div class="w-full max-w-md mx-auto min-h-screen bg-white dark:bg-dark">
-  <div class="max-w-7xl mx-auto relative h-[calc(100vh-56px)] flex flex-col">
-    <div class="rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden h-full flex flex-col shadow-sm">
+  <div class="max-w-7xl mx-auto relative h-[calc(100vh-120px)] flex flex-col">
+    <div class="rounded-xl  overflow-hidden h-full flex flex-col shadow-sm">
       <app-header [countTasks]="today().length" />
       <div
         cdkDropList
         (cdkDropListDropped)="drop($event)"
         class="flex-1 overflow-y-auto p-3 sm:p-4 bg-white dark:bg-dark"
-        style="padding-bottom: 100px"
+        style="padding-bottom: 100px; margin-top: 62px;"
       >
         @for (item of today(); track item.task_id; let i = $index) {
           <div
@@ -55,7 +55,7 @@
 
     <app-ui-button
       variant="primary"
-      class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md !py-4 z-10"
+      class="fixed bottom-7 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md !py-4 z-10"
       (click)="startTasks()"
     >
       <span class="flex items-center gap-2">

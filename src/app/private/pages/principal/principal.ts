@@ -1,4 +1,6 @@
 import { SprintResponse } from '@/core/models/sprint.model';
+import { NotificationService } from '@/core/services/notification.service';
+import { PlanService } from '@/core/services/plan.service';
 import { Sprints } from '@/core/services/sprints';
 import { StorageService } from '@/core/services/storage.service';
 import { Task } from '@/core/services/task';
@@ -51,6 +53,8 @@ export default class Principal {
   private readonly taskService = inject(Task);
   private readonly store = inject(Store);
   private readonly storage = inject(StorageService);
+  private readonly planService = inject(PlanService);
+  private readonly notificationService = inject(NotificationService);
 
   resourcesSprints = rxResource<SprintResponse[], { user_id: number }>({
     stream: ({ params }) => this.sprintService.getSprints(params.user_id),
@@ -87,6 +91,17 @@ export default class Principal {
     if (new Date(sprintData.start_date) >= new Date(sprintData.end_date)) {
       alert('End date must be after start date');
       return;
+    }
+
+    if (this.planService.isFreePlan()) {
+      const sprints = this.store.getCombinedSprints();
+      if (sprints.length >= this.planService.getSprintLimit()) {
+        this.notificationService.warning(
+          'Sprint limit reached',
+          'You have reached the limit of 2 sprints on the Free plan. Upgrade to Monthly or Lifetime for unlimited sprints.'
+        );
+        return;
+      }
     }
 
     // Crear sprint optimista

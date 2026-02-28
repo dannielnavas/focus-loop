@@ -31,11 +31,11 @@ function buildApplicationMenu(): Menu {
       label: 'Focus Loop',
       submenu: [
         { label: 'About Focus Loop', click: () => showAboutDialog() },
-        { type: 'separator' },
+        { type: 'separator' as const },
         { label: 'Generate Daily', click: () => mainWindow?.webContents.send('menu:generateDaily') },
         ...(isAdminRole ? [{ label: 'Profile', click: () => mainWindow?.webContents.send('menu:profile') }] : []),
         ...(isLoggedIn ? [{ type: 'separator' as const }, { label: 'Logout', click: () => mainWindow?.webContents.send('menu:logout') }] : []),
-        { type: 'separator' },
+        { type: 'separator' as const },
         { label: 'Quit', role: 'quit' as const },
       ].filter(Boolean),
     },

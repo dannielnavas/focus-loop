@@ -144,6 +144,15 @@ export class StorageService {
     return this.getObject('user_data');
   }
 
+  /**
+   * Returns the subscription plan from user_data for PlanService.
+   */
+  getSubscriptionPlan(): { subscription_plan_id?: number; name?: string } | null {
+    const user = this.getUserData();
+    if (!user || typeof user !== 'object') return null;
+    return user.subscriptionPlan ?? null;
+  }
+
   getUserId(): string {
     return this.get('user_id');
   }

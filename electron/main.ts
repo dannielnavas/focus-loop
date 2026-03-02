@@ -96,9 +96,9 @@ function createWindow(): void {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show();
-    if (isDev) {
+    // if (isDev) {
       mainWindow?.webContents.openDevTools({ mode: 'detach' });
-    }
+    // }
   });
 
   applyMenu();

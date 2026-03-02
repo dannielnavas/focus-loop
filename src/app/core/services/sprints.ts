@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
 import { format, subDays } from 'date-fns';
-import { Observable } from 'rxjs';
+import { Observable, retry } from 'rxjs';
 import { Sprint, SprintResponse } from '../models/sprint.model';
 import { OptimisticUIService } from './optimistic-ui';
 import { StorageService } from './storage.service';
@@ -24,7 +24,7 @@ export class Sprints {
           Authorization: `Bearer ${this.session()}`,
         },
       }
-    );
+    ).pipe(retry({count: 3, delay: 1000}));
   }
 
   createSprint(sprint: Sprint) {

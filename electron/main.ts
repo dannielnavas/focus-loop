@@ -7,7 +7,53 @@ const DEFAULT_WIDTH = 1200;
 const DEFAULT_HEIGHT = 800;
 
 let mainWindow: BrowserWindow | null = null;
+let passBreakWindow: BrowserWindow | null = null;
+let passBreakContext: { taskTitle: string } | null = null;
 let userContext: { role?: string; subscriptionPlan?: { subscription_plan_id?: string | number } } | null = null;
+
+type PassBreakFlowPayload = { action: 'advance-queue' } | { action: 'cancelled' };
+
+const PASS_BREAK_ROUTE = '/private/timer-pass-break';
+
+/** Navega a la ruta del diálogo cuando Angular ya registró el listener (`electron-navigate`). */
+function schedulePassBreakNavigation(win: BrowserWindow): void {
+  let attempts = 0;
+  const maxAttempts = 200;
+
+  const tryNavigate = (): void => {
+    if (win.isDestroyed()) return;
+    const path = PASS_BREAK_ROUTE;
+    void win.webContents
+      .executeJavaScript(
+        `(() => {
+          if (window.__FL_APP_READY__) {
+            window.dispatchEvent(new CustomEvent('electron-navigate', { detail: '${path}' }));
+            return 'done';
+          }
+          return 'wait';
+        })()`
+      )
+      .then((result: unknown) => {
+        if (result === 'done') return;
+        attempts += 1;
+        if (attempts < maxAttempts) {
+          setTimeout(tryNavigate, 80);
+        } else {
+          void win.webContents
+            .executeJavaScript(
+              `window.dispatchEvent(new CustomEvent('electron-navigate', { detail: '${path}' }));`
+            )
+            .catch(() => {});
+        }
+      })
+      .catch(() => {
+        attempts += 1;
+        if (attempts < maxAttempts) setTimeout(tryNavigate, 80);
+      });
+  };
+
+  setTimeout(tryNavigate, 120);
+}
 
 function isAdminUser(user: typeof userContext): boolean {
   if (!user) return false;
@@ -244,6 +290,161 @@ ipcMain.handle('set_user_context', async (_, user_context: typeof userContext) =
   try {
     userContext = user_context ?? null;
     applyMenu();
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+ipcMain.handle('open_pass_break_window', async (_, ctx: { taskTitle: string }) => {
+  try {
+    if (!mainWindow || mainWindow.isDestroyed()) return false;
+    passBreakContext = ctx;
+
+    if (passBreakWindow && !passBreakWindow.isDestroyed()) {
+      passBreakWindow.focus();
+      schedulePassBreakNavigation(passBreakWindow);
+      return true;
+    }
+
+    const preloadPath = path.join(__dirname, '../preload/index.js');
+    const isDev = process.env.ELECTRON_RENDERER_URL != null;
+
+    passBreakWindow = new BrowserWindow({
+      width: 520,
+      height: 480,
+      minWidth: 400,
+      minHeight: 380,
+      title: 'Pasar tarea — Focus Loop',
+      parent: mainWindow,
+      modal: true,
+      resizable: true,
+      minimizable: false,
+      maximizable: false,
+      fullscreen: false,
+      show: false,
+      webPreferences: {
+        preload: preloadPath,
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
+        webSecurity: !app.isPackaged,
+      },
+    });
+
+    passBreakWindow.on('closed', () => {
+      passBreakWindow = null;
+      passBreakContext = null;
+      notifyMainPassBreakResult({ action: 'cancelled' });
+    });
+
+    if (isDev && process.env.ELECTRON_RENDERER_URL) {
+      const base = process.env.ELECTRON_RENDERER_URL.replace(/\/?$/, '/');
+      // Cargar la raíz: la ruta profunda en una ventana nueva a veces no hidrata; navegamos cuando Angular marque listo.
+      await passBreakWindow.loadURL(base);
+      schedulePassBreakNavigation(passBreakWindow);
+    } else {
+      passBreakWindow.webContents.once('did-finish-load', () => {
+        schedulePassBreakNavigation(passBreakWindow!);
+      });
+      await passBreakWindow.loadFile(getAngularPath());
+    }
+
+    passBreakWindow.once('ready-to-show', () => {
+      passBreakWindow?.show();
+    });
+
+    return true;
+  } catch (e) {
+    console.error('open_pass_break_window', e);
+    return false;
+  }
+});
+
+ipcMain.handle('get_pass_break_context', async () => passBreakContext);
+
+ipcMain.handle(
+  'pass_break_duration_chosen',
+  async (_, payload: { minutes: 5 | 10 | 15 }) => {
+    try {
+      const win = passBreakWindow;
+      if (win && !win.isDestroyed()) {
+        win.removeAllListeners('closed');
+        passBreakWindow = null;
+        passBreakContext = null;
+        win.close();
+      } else {
+        passBreakWindow = null;
+        passBreakContext = null;
+      }
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.focus();
+        mainWindow.webContents.send('pass-break-duration-chosen', payload);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+);
+
+ipcMain.handle('close_pass_break_window', async () => {
+  try {
+    const win = passBreakWindow;
+    if (win && !win.isDestroyed()) {
+      win.removeAllListeners('closed');
+      passBreakWindow = null;
+      passBreakContext = null;
+      win.close();
+    } else {
+      passBreakWindow = null;
+      passBreakContext = null;
+    }
+    notifyMainPassBreakResult({ action: 'cancelled' });
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+function notifyMainPassBreakResult(payload: PassBreakFlowPayload): void {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('pass-break-flow-done', payload);
+  }
+}
+
+ipcMain.handle('pass_break_flow_complete', async (_, payload: PassBreakFlowPayload) => {
+  try {
+    const win = passBreakWindow;
+    if (win && !win.isDestroyed()) {
+      win.removeAllListeners('closed');
+      passBreakWindow = null;
+      passBreakContext = null;
+      win.close();
+    } else {
+      passBreakWindow = null;
+      passBreakContext = null;
+    }
+    notifyMainPassBreakResult(payload);
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+ipcMain.handle('pass_break_flow_cancel', async () => {
+  try {
+    const win = passBreakWindow;
+    if (win && !win.isDestroyed()) {
+      win.removeAllListeners('closed');
+      passBreakWindow = null;
+      passBreakContext = null;
+      win.close();
+    } else {
+      passBreakWindow = null;
+      passBreakContext = null;
+    }
+    notifyMainPassBreakResult({ action: 'cancelled' });
     return true;
   } catch {
     return false;

@@ -1,4 +1,5 @@
 import {
+  APP_INITIALIZER,
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
@@ -13,6 +14,13 @@ import {
 import { authInterceptor } from '@/core/interceptors/auth.interceptor';
 import { routes } from './app.routes';
 import { StorageService } from './core/services/storage.service';
+import { ThemeService } from './core/services/theme.service';
+
+function themeInitFactory(theme: ThemeService): () => void {
+  return () => {
+    theme.syncFromStorage();
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,5 +29,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     StorageService,
+    ThemeService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: themeInitFactory,
+      deps: [ThemeService],
+      multi: true,
+    },
   ],
 };

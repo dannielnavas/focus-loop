@@ -24,6 +24,26 @@ const desktopAPI = {
   },
   onMenuAbout: (cb) => {
     electron.ipcRenderer.on("menu:about", () => cb());
+  },
+  openPassBreakWindow: (ctx) => electron.ipcRenderer.invoke("open_pass_break_window", ctx),
+  getPassBreakContext: () => electron.ipcRenderer.invoke("get_pass_break_context"),
+  closePassBreakWindow: () => electron.ipcRenderer.invoke("close_pass_break_window"),
+  passBreakFlowComplete: (payload) => electron.ipcRenderer.invoke("pass_break_flow_complete", payload),
+  passBreakFlowCancel: () => electron.ipcRenderer.invoke("pass_break_flow_cancel"),
+  passBreakDurationChosen: (minutes) => electron.ipcRenderer.invoke("pass_break_duration_chosen", { minutes }),
+  onPassBreakDurationChosen: (cb) => {
+    const fn = (_, payload) => cb(payload);
+    electron.ipcRenderer.on("pass-break-duration-chosen", fn);
+    return () => {
+      electron.ipcRenderer.removeListener("pass-break-duration-chosen", fn);
+    };
+  },
+  onPassBreakFlowDone: (cb) => {
+    const fn = (_, payload) => cb(payload);
+    electron.ipcRenderer.on("pass-break-flow-done", fn);
+    return () => {
+      electron.ipcRenderer.removeListener("pass-break-flow-done", fn);
+    };
   }
 };
 electron.contextBridge.exposeInMainWorld("desktopAPI", desktopAPI);

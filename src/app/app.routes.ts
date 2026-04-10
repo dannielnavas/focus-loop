@@ -32,6 +32,11 @@ export const routes: Routes = [
         loadComponent: () => import('./private/pages/timer/timer'),
       },
       {
+        path: 'timer-pass-break',
+        loadComponent: () =>
+          import('./private/pages/timer-pass-break/timer-pass-break'),
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./private/pages/profile/profile'),
       },

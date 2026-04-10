@@ -25,6 +25,32 @@ const desktopAPI = {
   onMenuAbout: (cb: () => void) => {
     ipcRenderer.on('menu:about', () => cb());
   },
+  openPassBreakWindow: (ctx: { taskTitle: string }) =>
+    ipcRenderer.invoke('open_pass_break_window', ctx),
+  getPassBreakContext: () => ipcRenderer.invoke('get_pass_break_context'),
+  closePassBreakWindow: () => ipcRenderer.invoke('close_pass_break_window'),
+  passBreakFlowComplete: (payload: { action: 'advance-queue' }) =>
+    ipcRenderer.invoke('pass_break_flow_complete', payload),
+  passBreakFlowCancel: () => ipcRenderer.invoke('pass_break_flow_cancel'),
+  passBreakDurationChosen: (minutes: 5 | 10 | 15) =>
+    ipcRenderer.invoke('pass_break_duration_chosen', { minutes }),
+  onPassBreakDurationChosen: (cb: (p: { minutes: 5 | 10 | 15 }) => void) => {
+    const fn = (_: unknown, payload: { minutes: 5 | 10 | 15 }) => cb(payload);
+    ipcRenderer.on('pass-break-duration-chosen', fn);
+    return () => {
+      ipcRenderer.removeListener('pass-break-duration-chosen', fn);
+    };
+  },
+  onPassBreakFlowDone: (
+    cb: (p: { action: 'advance-queue' } | { action: 'cancelled' }) => void
+  ) => {
+    const fn = (_: unknown, payload: { action: 'advance-queue' } | { action: 'cancelled' }) =>
+      cb(payload);
+    ipcRenderer.on('pass-break-flow-done', fn);
+    return () => {
+      ipcRenderer.removeListener('pass-break-flow-done', fn);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld('desktopAPI', desktopAPI);

@@ -47,3 +47,6 @@ Thumbs.db
 # Tauri / Rust
 /src-tauri/target
 /src-tauri/gen
+
+.agents/*
+.cursor/*

@@ -1,38 +1,133 @@
 <section
-  class="flex flex-col sm:flex-row items-center justify-center w-full min-h-[100dvh] h-full mx-auto gap-4 px-2 bg-white dark:bg-dark"
+  class="timer-shell"
+  aria-label="Temporizador Pomodoro"
 >
-  <div
-    class="group flex items-center gap-4 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-elevated p-2 shadow-sm hover:border-gray-300 dark:hover:border-dark-border-hover transition-all duration-200 w-full relative min-h-[60px]"
-  >
-    <div class="flex items-center justify-between w-full gap-4 px-4">
-      <div class="flex items-center flex-1 min-w-0">
-        <p class="text-gray-900 dark:text-dark-text font-semibold text-base truncate">
-          {{ task()?.title }}
-        </p>
-      </div>
-      <div class="flex items-center text-base text-gray-600 dark:text-dark-text-muted flex-shrink-0 tabular-nums">
-        {{ formatTime((timerState()?.minutes ?? 0) * 60 + (timerState()?.seconds ?? 0)) }}
+  <app-notifications />
+  <div class="timer-atmosphere" aria-hidden="true">
+    <div class="timer-grain"></div>
+    <div class="timer-glow" [attr.data-phase]="displayPhase()"></div>
+  </div>
+
+  <div class="timer-body">
+    <div class="timer-ring-column">
+      <div class="timer-ring-host">
+        <svg
+          class="timer-svg"
+          viewBox="0 0 72 72"
+          aria-hidden="true"
+        >
+          <circle class="timer-ring-track" cx="36" cy="36" r="30" />
+          <circle
+            class="timer-ring-fill"
+            [class.timer-ring-fill--work]="displayPhase() === 'work'"
+            [class.timer-ring-fill--break]="displayPhase() === 'break'"
+            [class.timer-ring-fill--idle]="
+              displayPhase() !== 'work' && displayPhase() !== 'break'
+            "
+            cx="36"
+            cy="36"
+            r="30"
+            [attr.stroke-dasharray]="ringDash()"
+          />
+        </svg>
+        <div class="timer-digits-wrap">
+          <span
+            class="timer-digits"
+            role="timer"
+            aria-live="polite"
+            aria-atomic="true"
+            [attr.aria-label]="
+              'Tiempo restante: ' + formatTime(remainingSecondsDisplay())
+            "
+          >
+            {{ formatTime(remainingSecondsDisplay()) }}
+          </span>
+        </div>
       </div>
     </div>
 
+    <div class="timer-meta">
+      <div class="timer-phase-row">
+        <span
+          class="timer-phase-dot"
+          [attr.data-phase]="displayPhase()"
+          aria-hidden="true"
+        ></span>
+        <span class="timer-phase-label">{{ phaseLabel() }}</span>
+        @if (totalTime() > 0 && !postPassManualBreak()) {
+          <span class="timer-session-pill" title="Tiempo de enfoque en esta sesión">
+            Sesión {{ formatTotalTime() }}
+          </span>
+        }
+      </div>
+
+      <p class="timer-task-line" [attr.title]="task()?.title ?? ''">
+        {{ task()?.title ?? 'Sin tarea vinculada' }}
+      </p>
+
+      @if (postPassManualBreak()) {
+        <p class="timer-rounds">Descanso antes de la siguiente tarea</p>
+      } @else {
+        @if (timerState(); as pomodoroState) {
+          <p class="timer-rounds" aria-label="Rondas completadas">
+            Ciclo {{ pomodoroState.rounds }} · Objetivo {{ pomodoroState.settings.workTime }} min trabajo /
+            {{ pomodoroState.settings.breakTime }} min pausa
+          </p>
+        } @else {
+          <p class="timer-rounds">
+            Objetivo {{ pomodoroDefaults.work }} min trabajo / {{ pomodoroDefaults.break }} min pausa
+          </p>
+        }
+      }
+    </div>
+  </div>
+
+  @if (postPassManualBreak()) {
     <div
-      class="items-center gap-2 absolute top-0 left-0 right-0 h-full hidden group-hover:flex justify-center bg-white/95 dark:bg-dark-elevated/98 backdrop-blur rounded-xl z-10 border border-gray-200 dark:border-dark-border w-full"
+      class="timer-toolbar timer-toolbar--unified"
+      role="toolbar"
+      aria-label="Descanso"
+    >
+      <app-ui-button
+        variant="secondary"
+        size="sm"
+        class="timer-btn timer-btn--grow"
+        title="Saltar descanso e ir a la siguiente tarea"
+        aria-label="Saltar descanso e ir a la siguiente tarea"
+        (click)="skipPostPassManualBreak()"
+      >
+        Saltar descanso
+      </app-ui-button>
+    </div>
+  } @else {
+    <div
+      class="timer-toolbar timer-toolbar--unified"
+      role="toolbar"
+      aria-label="Controles del temporizador"
     >
       <app-ui-button
         variant="ghost"
         size="sm"
-        class="!p-2"
-        title="Back"
+        class="timer-btn"
+        title="Volver al trabajo"
+        aria-label="Volver al trabajo"
         (click)="backToWork()"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       </app-ui-button>
 
       @if (!timerState()?.status) {
-        <app-ui-button variant="primary" size="sm" class="!p-2" title="Start" (click)="start()">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <app-ui-button
+          variant="primary"
+          size="sm"
+          class="timer-btn timer-btn--primary"
+          title="Iniciar"
+          aria-label="Iniciar temporizador"
+          (click)="start()"
+        >
+          <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
           </svg>
         </app-ui-button>
@@ -40,16 +135,17 @@
         <app-ui-button
           variant="primary"
           size="sm"
-          class="!p-2"
-          title="Pause / Resume"
+          class="timer-btn timer-btn--primary"
+          [title]="status() ? 'Pausar' : 'Reanudar'"
+          [attr.aria-label]="status() ? 'Pausar temporizador' : 'Reanudar temporizador'"
           (click)="status() ? pause() : play()"
         >
           @if (status()) {
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" />
             </svg>
           } @else {
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
             </svg>
           }
@@ -57,16 +153,31 @@
       }
 
       <app-ui-button
+        variant="ghost"
+        size="sm"
+        class="timer-btn"
+        title="Pasar a la siguiente tarea sin completar"
+        aria-label="Pasar a la siguiente tarea sin completar"
+        [disabled]="!task()"
+        (click)="openPassTaskFlow()"
+      >
+        <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        </svg>
+      </app-ui-button>
+
+      <app-ui-button
         variant="secondary"
         size="sm"
-        class="!p-2"
-        title="Finish task"
+        class="timer-btn"
+        title="Marcar tarea como completada"
+        aria-label="Marcar tarea como completada y volver"
         (click)="goToNextTask()"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </app-ui-button>
     </div>
-  </div>
+  }
 </section>

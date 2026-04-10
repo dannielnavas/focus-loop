@@ -1,6 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
 
+/* Modo oscuro por clase en <html> (sincronizado vía ThemeService; ventanas Electron comparten localStorage). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Paleta y tipografía alineada a PRD (estilo Vercel) */
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;

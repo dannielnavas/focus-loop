@@ -190,7 +190,8 @@
               </div>
               <input
                 type="checkbox"
-                [(ngModel)]="preferences().dark_mode"
+                [ngModel]="preferences().dark_mode"
+                (ngModelChange)="onDarkModeChange($event)"
                 name="dark_mode"
                 class="rounded border-gray-300 dark:border-dark-border text-gray-900 focus:ring-black dark:focus:ring-dark-accent"
               />

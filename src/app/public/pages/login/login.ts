@@ -1,5 +1,6 @@
 import { Login as LoginService } from '@/core/services/login';
 import { StorageService } from '@/core/services/storage.service';
+import { ThemeService } from '@/core/services/theme.service';
 import {
   Component,
   computed,
@@ -37,6 +38,7 @@ export default class Login implements OnInit {
   private readonly loginService = inject(LoginService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly storage = inject(StorageService);
+  private readonly theme = inject(ThemeService);
 
   session = computed(() => this.storage.getToken());
   showPassword = signal(false);
@@ -71,6 +73,7 @@ export default class Login implements OnInit {
         this.isLoading = false;
         this.storage.setToken(res.access_token);
         this.storage.setUserData(res.user);
+        this.theme.syncFromStorage();
         this.router.navigate(['/private']);
       },
       error: (err) => {

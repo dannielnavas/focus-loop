@@ -26,8 +26,22 @@ export class Store {
     return this.oneTaskForWork();
   }
 
-  setOneTaskForWork(task: TaskResponse) {
+  setOneTaskForWork(task: TaskResponse | null) {
     this.oneTaskForWork.set(task);
+  }
+
+  /** Siguiente tarea en la cola de trabajo de hoy (sin completar la actual en el servidor). */
+  advanceToNextWorkTask(): void {
+    const tasks = this.getTaskForWork();
+    const current = this.getOneTaskForWork();
+    if (!current) {
+      this.setOneTaskForWork(null);
+      return;
+    }
+    const idx = tasks.findIndex((t) => t.task_id === current.task_id);
+    const next =
+      idx >= 0 && idx < tasks.length - 1 ? tasks[idx + 1]! : null;
+    this.setOneTaskForWork(next);
   }
 
   getSprintId() {

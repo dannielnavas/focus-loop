@@ -45,7 +45,42 @@ const ROLE_ADMIN = "admin";
 const DEFAULT_WIDTH = 1200;
 const DEFAULT_HEIGHT = 800;
 let mainWindow = null;
+let passBreakWindow = null;
+let passBreakContext = null;
 let userContext = null;
+const PASS_BREAK_ROUTE = "/private/timer-pass-break";
+function schedulePassBreakNavigation(win) {
+  let attempts = 0;
+  const maxAttempts = 200;
+  const tryNavigate = () => {
+    if (win.isDestroyed()) return;
+    const path2 = PASS_BREAK_ROUTE;
+    void win.webContents.executeJavaScript(
+      `(() => {
+          if (window.__FL_APP_READY__) {
+            window.dispatchEvent(new CustomEvent('electron-navigate', { detail: '${path2}' }));
+            return 'done';
+          }
+          return 'wait';
+        })()`
+    ).then((result) => {
+      if (result === "done") return;
+      attempts += 1;
+      if (attempts < maxAttempts) {
+        setTimeout(tryNavigate, 80);
+      } else {
+        void win.webContents.executeJavaScript(
+          `window.dispatchEvent(new CustomEvent('electron-navigate', { detail: '${path2}' }));`
+        ).catch(() => {
+        });
+      }
+    }).catch(() => {
+      attempts += 1;
+      if (attempts < maxAttempts) setTimeout(tryNavigate, 80);
+    });
+  };
+  setTimeout(tryNavigate, 120);
+}
 function isAdminUser(user) {
   if (!user) return false;
   if (user.role === ROLE_ADMIN) return true;
@@ -259,6 +294,146 @@ electron.ipcMain.handle("set_user_context", async (_, user_context) => {
   try {
     userContext = user_context ?? null;
     applyMenu();
+    return true;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("open_pass_break_window", async (_, ctx) => {
+  try {
+    if (!mainWindow || mainWindow.isDestroyed()) return false;
+    passBreakContext = ctx;
+    if (passBreakWindow && !passBreakWindow.isDestroyed()) {
+      passBreakWindow.focus();
+      schedulePassBreakNavigation(passBreakWindow);
+      return true;
+    }
+    const preloadPath = path__namespace.join(__dirname, "../preload/index.js");
+    const isDev = process.env.ELECTRON_RENDERER_URL != null;
+    passBreakWindow = new electron.BrowserWindow({
+      width: 520,
+      height: 480,
+      minWidth: 400,
+      minHeight: 380,
+      title: "Pasar tarea — Focus Loop",
+      parent: mainWindow,
+      modal: true,
+      resizable: true,
+      minimizable: false,
+      maximizable: false,
+      fullscreen: false,
+      show: false,
+      webPreferences: {
+        preload: preloadPath,
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
+        webSecurity: !electron.app.isPackaged
+      }
+    });
+    passBreakWindow.on("closed", () => {
+      passBreakWindow = null;
+      passBreakContext = null;
+      notifyMainPassBreakResult({ action: "cancelled" });
+    });
+    if (isDev && process.env.ELECTRON_RENDERER_URL) {
+      const base = process.env.ELECTRON_RENDERER_URL.replace(/\/?$/, "/");
+      await passBreakWindow.loadURL(base);
+      schedulePassBreakNavigation(passBreakWindow);
+    } else {
+      passBreakWindow.webContents.once("did-finish-load", () => {
+        schedulePassBreakNavigation(passBreakWindow);
+      });
+      await passBreakWindow.loadFile(getAngularPath());
+    }
+    passBreakWindow.once("ready-to-show", () => {
+      passBreakWindow?.show();
+    });
+    return true;
+  } catch (e) {
+    console.error("open_pass_break_window", e);
+    return false;
+  }
+});
+electron.ipcMain.handle("get_pass_break_context", async () => passBreakContext);
+electron.ipcMain.handle(
+  "pass_break_duration_chosen",
+  async (_, payload) => {
+    try {
+      const win = passBreakWindow;
+      if (win && !win.isDestroyed()) {
+        win.removeAllListeners("closed");
+        passBreakWindow = null;
+        passBreakContext = null;
+        win.close();
+      } else {
+        passBreakWindow = null;
+        passBreakContext = null;
+      }
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.focus();
+        mainWindow.webContents.send("pass-break-duration-chosen", payload);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+);
+electron.ipcMain.handle("close_pass_break_window", async () => {
+  try {
+    const win = passBreakWindow;
+    if (win && !win.isDestroyed()) {
+      win.removeAllListeners("closed");
+      passBreakWindow = null;
+      passBreakContext = null;
+      win.close();
+    } else {
+      passBreakWindow = null;
+      passBreakContext = null;
+    }
+    notifyMainPassBreakResult({ action: "cancelled" });
+    return true;
+  } catch {
+    return false;
+  }
+});
+function notifyMainPassBreakResult(payload) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("pass-break-flow-done", payload);
+  }
+}
+electron.ipcMain.handle("pass_break_flow_complete", async (_, payload) => {
+  try {
+    const win = passBreakWindow;
+    if (win && !win.isDestroyed()) {
+      win.removeAllListeners("closed");
+      passBreakWindow = null;
+      passBreakContext = null;
+      win.close();
+    } else {
+      passBreakWindow = null;
+      passBreakContext = null;
+    }
+    notifyMainPassBreakResult(payload);
+    return true;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("pass_break_flow_cancel", async () => {
+  try {
+    const win = passBreakWindow;
+    if (win && !win.isDestroyed()) {
+      win.removeAllListeners("closed");
+      passBreakWindow = null;
+      passBreakContext = null;
+      win.close();
+    } else {
+      passBreakWindow = null;
+      passBreakContext = null;
+    }
+    notifyMainPassBreakResult({ action: "cancelled" });
     return true;
   } catch {
     return false;

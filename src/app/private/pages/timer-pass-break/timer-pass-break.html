@@ -1,0 +1,49 @@
+<div class="pass-root" aria-label="Pasar tarea y descanso">
+  <header class="pass-header">
+    <h1 class="pass-title">Pasar tarea</h1>
+    <p class="pass-subtitle">
+      Vas a dejar esta tarea en la cola y pasar a la siguiente.
+    </p>
+    @if (taskTitle()) {
+      <p class="pass-task-name" [attr.title]="taskTitle()">{{ taskTitle() }}</p>
+    }
+  </header>
+
+  @if (step() === 'break-question') {
+    <section class="pass-panel" aria-labelledby="pass-q-title">
+      <h2 id="pass-q-title" class="pass-panel-title">
+        ¿Quieres tomar un descanso antes de la siguiente tarea?
+      </h2>
+      <p class="pass-panel-text">
+        Si descansas, cuando termine el tiempo irás a tu lista con la siguiente tarea seleccionada.
+      </p>
+      <div class="pass-actions pass-actions--stack">
+        <app-ui-button variant="primary" size="md" class="w-full" (click)="onBreakQuestionAnswer(true)">
+          Sí, quiero descansar
+        </app-ui-button>
+        <app-ui-button variant="secondary" size="md" class="w-full" (click)="onBreakQuestionAnswer(false)">
+          No, ir a la siguiente tarea
+        </app-ui-button>
+      </div>
+      <button type="button" class="pass-link" (click)="cancel()">Cancelar y volver al temporizador</button>
+    </section>
+  }
+
+  @if (step() === 'break-pick') {
+    <section class="pass-panel" aria-labelledby="pass-pick-title">
+      <h2 id="pass-pick-title" class="pass-panel-title">¿Cuánto tiempo de descanso?</h2>
+      <p class="pass-panel-text">
+        Al elegir, volverás al temporizador en tamaño compacto para contar el descanso ahí.
+      </p>
+      <div class="pass-break-row">
+        @for (m of breakOptions; track m) {
+          <app-ui-button variant="primary" size="md" class="pass-break-btn" (click)="chooseBreakDuration(m)">
+            {{ m }} min
+          </app-ui-button>
+        }
+      </div>
+      <button type="button" class="pass-link" (click)="goBackToQuestion()">Volver</button>
+      <button type="button" class="pass-link" (click)="cancel()">Cancelar</button>
+    </section>
+  }
+</div>

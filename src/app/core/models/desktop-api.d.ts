@@ -17,6 +17,20 @@ declare global {
       onMenuProfile: (cb: () => void) => void;
       onMenuLogout: (cb: () => void) => void;
       onMenuAbout: (cb: () => void) => void;
+      openPassBreakWindow?: (ctx: { taskTitle: string }) => Promise<boolean>;
+      getPassBreakContext?: () => Promise<{ taskTitle: string } | null>;
+      closePassBreakWindow?: () => Promise<boolean>;
+      passBreakFlowComplete?: (payload: {
+        action: 'advance-queue';
+      }) => Promise<boolean>;
+      passBreakFlowCancel?: () => Promise<boolean>;
+      passBreakDurationChosen?: (minutes: 5 | 10 | 15) => Promise<boolean>;
+      onPassBreakDurationChosen?: (
+        cb: (p: { minutes: 5 | 10 | 15 }) => void
+      ) => () => void;
+      onPassBreakFlowDone?: (
+        cb: (p: { action: 'advance-queue' } | { action: 'cancelled' }) => void
+      ) => () => void;
     };
   }
 }

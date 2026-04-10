@@ -1,11 +1,14 @@
+import { NotificationService } from '@/core/services/notification.service';
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
+import { NotificationsComponent } from '@/shared/components/notifications/notifications';
 import { UiButtonComponent } from '@/shared/components/ui';
 import {
   ChangeDetectorRef,
   Component,
   computed,
   inject,
+  NgZone,
   OnDestroy,
   OnInit,
   signal,
@@ -15,7 +18,7 @@ import TimerPomodoro, { TimerState } from 'timer-for-pomodoro';
 
 @Component({
   selector: 'app-timer',
-  imports: [UiButtonComponent],
+  imports: [UiButtonComponent, NotificationsComponent],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
 })
@@ -23,12 +26,23 @@ export default class Timer implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
   private readonly store = inject(Store);
+  private readonly notificationService = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly ngZone = inject(NgZone);
 
   private audio: HTMLAudioElement | null = null;
   private audioContext: AudioContext | null = null;
   private audioBuffer: AudioBuffer | null = null;
   statusTimer = signal<string>('init');
+
+  private passBreakUnsub: (() => void) | undefined;
+  private passBreakDurationUnsub: (() => void) | undefined;
+
+  /** Descanso tras “pasar tarea”, contado en esta ventana (tamaño flotante). */
+  postPassManualBreak = signal(false);
+  manualBreakSecondsLeft = signal(0);
+  manualBreakTotalSeconds = signal(0);
+  private manualBreakIntervalId: ReturnType<typeof setInterval> | null = null;
 
   task = computed(() => {
     const task = this.store.getOneTaskForWork();
@@ -36,22 +50,180 @@ export default class Timer implements OnInit, OnDestroy {
     return task;
   });
 
-  // Optimización: Crear timer solo una vez
-  timer = new TimerPomodoro(60, 15, 999);
+  private static readonly DEFAULT_WORK_MIN = 60;
+  private static readonly DEFAULT_BREAK_MIN = 15;
+
+  readonly pomodoroDefaults = {
+    work: Timer.DEFAULT_WORK_MIN,
+    break: Timer.DEFAULT_BREAK_MIN,
+  } as const;
+
+  private readonly ringCircumference = 2 * Math.PI * 30;
+
+  timer = new TimerPomodoro(
+    Timer.DEFAULT_WORK_MIN,
+    Timer.DEFAULT_BREAK_MIN,
+    999
+  );
   timerState = signal<TimerState | undefined>(undefined);
   totalTime = signal<number>(0);
   status = signal<boolean>(false);
+
+  displayPhase = computed(() => {
+    if (this.postPassManualBreak()) return 'break';
+    return this.statusTimer();
+  });
+
+  phaseLabel = computed(() => {
+    if (this.postPassManualBreak()) return 'Descanso';
+    const phase = this.statusTimer();
+    if (phase === 'work') return 'Enfoque';
+    if (phase === 'break') return 'Descanso';
+    return 'Listo';
+  });
+
+  remainingSecondsDisplay = computed(() => {
+    if (this.postPassManualBreak()) {
+      return this.manualBreakSecondsLeft();
+    }
+    const st = this.timerState();
+    return (st?.minutes ?? 0) * 60 + (st?.seconds ?? 0);
+  });
+
+  progressFraction = computed(() => {
+    if (this.postPassManualBreak()) {
+      const total = this.manualBreakTotalSeconds();
+      const left = this.manualBreakSecondsLeft();
+      if (total <= 0) return 0;
+      return Math.max(0, Math.min(1, (total - left) / total));
+    }
+    const state = this.timerState();
+    if (!state?.status) return 0;
+    const remaining = state.minutes * 60 + state.seconds;
+    if (state.status === 'work') {
+      const total = state.settings.workTime * 60;
+      if (total <= 0) return 0;
+      return Math.max(0, Math.min(1, (total - remaining) / total));
+    }
+    if (state.status === 'break') {
+      const total = state.settings.breakTime * 60;
+      if (total <= 0) return 0;
+      return Math.max(0, Math.min(1, (total - remaining) / total));
+    }
+    return 0;
+  });
+
+  ringDash = computed(() => {
+    const p = this.progressFraction();
+    const c = this.ringCircumference;
+    const filled = p * c;
+    return `${filled} ${c}`;
+  });
 
   ngOnInit() {
     this.setFloatingWindow();
     this.toggleTitlebarAndMenu(false);
     this.initializeAudio();
+    this.checkPendingManualBreakFromWeb();
+
+    this.passBreakUnsub = window.desktopAPI?.onPassBreakFlowDone?.((p) => {
+      if (p.action === 'advance-queue') {
+        this.store.advanceToNextWorkTask();
+        void this.router.navigate(['/private/work']);
+      }
+      this.cdr.detectChanges();
+    });
+
+    this.passBreakDurationUnsub =
+      window.desktopAPI?.onPassBreakDurationChosen?.((payload) => {
+        this.ngZone.run(() => {
+          void this.applyPostPassManualBreak(payload.minutes);
+        });
+      });
   }
 
   ngOnDestroy() {
+    this.clearPostPassManualBreakInterval();
+    this.passBreakUnsub?.();
+    this.passBreakDurationUnsub?.();
     this.resetFloatingWindow();
     this.toggleTitlebarAndMenu(true);
     this.cleanupAudio();
+  }
+
+  private checkPendingManualBreakFromWeb(): void {
+    try {
+      const raw = sessionStorage.getItem('focus-loop-pending-manual-break');
+      if (!raw) return;
+      sessionStorage.removeItem('focus-loop-pending-manual-break');
+      const m = parseInt(raw, 10);
+      if (m === 5 || m === 10 || m === 15) {
+        queueMicrotask(() =>
+          void this.applyPostPassManualBreak(m as 5 | 10 | 15)
+        );
+      }
+    } catch {
+      /* ignorar */
+    }
+  }
+
+  private async applyPostPassManualBreak(minutes: 5 | 10 | 15): Promise<void> {
+    this.clearPostPassManualBreakInterval();
+    await this.setFloatingWindow();
+    this.toggleTitlebarAndMenu(false);
+
+    const totalSec = minutes * 60;
+    this.manualBreakTotalSeconds.set(totalSec);
+    this.manualBreakSecondsLeft.set(totalSec);
+    this.postPassManualBreak.set(true);
+
+    this.manualBreakIntervalId = setInterval(() => {
+      this.manualBreakSecondsLeft.update((s) => {
+        if (s <= 1) {
+          this.clearPostPassManualBreakInterval();
+          this.ngZone.run(() => this.finishPostPassAfterBreak(true));
+          return 0;
+        }
+        return s - 1;
+      });
+      this.cdr.detectChanges();
+    }, 1000);
+    this.pushTimerNotification(
+      'Descanso entre tareas',
+      `Tómate ${minutes} min. Luego pasamos a la siguiente tarea.`
+    );
+    this.cdr.detectChanges();
+  }
+
+  skipPostPassManualBreak(): void {
+    this.clearPostPassManualBreakInterval();
+    this.pushTimerNotification(
+      'Descanso omitido',
+      'Continuamos con la siguiente tarea en tu lista.'
+    );
+    this.finishPostPassAfterBreak(false);
+  }
+
+  private clearPostPassManualBreakInterval(): void {
+    if (this.manualBreakIntervalId !== null) {
+      clearInterval(this.manualBreakIntervalId);
+      this.manualBreakIntervalId = null;
+    }
+  }
+
+  private finishPostPassAfterBreak(notifyCompletion: boolean): void {
+    this.postPassManualBreak.set(false);
+    this.manualBreakSecondsLeft.set(0);
+    this.manualBreakTotalSeconds.set(0);
+    if (notifyCompletion) {
+      this.pushTimerNotification(
+        'Descanso terminado',
+        'Listo para la siguiente tarea en tu lista de trabajo.'
+      );
+    }
+    this.store.advanceToNextWorkTask();
+    void this.router.navigate(['/private/work']);
+    this.cdr.detectChanges();
   }
 
   private async setFloatingWindow() {
@@ -61,11 +233,10 @@ export default class Timer implements OnInit, OnDestroy {
 
       const { userAgent } = navigator;
       if (userAgent.includes('Windows') || userAgent.includes('Linux')) {
-        await window.desktopAPI.makeWindowFloating(380, 120, 0, 50);
+        await window.desktopAPI.makeWindowFloating(448, 196, 0, 50);
       } else if (userAgent.includes('Macintosh')) {
-        await window.desktopAPI.makeWindowFloating(306, 90, 0, 50);
+        await window.desktopAPI.makeWindowFloating(368, 196, 0, 50);
       }
-
     } catch (error) {
       console.error('Error making window floating:', error);
     }
@@ -94,7 +265,6 @@ export default class Timer implements OnInit, OnDestroy {
 
   private initializeAudio() {
     try {
-      // Crear AudioContext para mejor rendimiento
       this.audioContext = new (window.AudioContext ||
         (window as any).webkitAudioContext)();
     } catch (error) {
@@ -127,6 +297,18 @@ export default class Timer implements OnInit, OnDestroy {
     try {
       this.timer.pause();
       this.status.set(false);
+      const phase = this.statusTimer();
+      if (phase === 'break') {
+        this.pushTimerNotification(
+          'Descanso en pausa',
+          'El temporizador de descanso está pausado. Reanúdalo cuando quieras.'
+        );
+      } else if (phase === 'work') {
+        this.pushTimerNotification(
+          'Enfoque en pausa',
+          'El temporizador está pausado. Reanúdalo cuando quieras.'
+        );
+      }
     } catch (error) {
       console.error('Error pausing timer:', error);
     }
@@ -136,6 +318,18 @@ export default class Timer implements OnInit, OnDestroy {
     try {
       this.timer.start();
       this.status.set(true);
+      const phase = this.statusTimer();
+      if (phase === 'break') {
+        this.pushTimerNotification(
+          'Descanso reanudado',
+          'Sigue descansando. Aprovecha estos minutos.'
+        );
+      } else if (phase === 'work') {
+        this.pushTimerNotification(
+          'Enfoque reanudado',
+          'Retomas la sesión de trabajo. ¡Buen ritmo!'
+        );
+      }
     } catch (error) {
       console.error('Error resuming timer:', error);
     }
@@ -145,15 +339,16 @@ export default class Timer implements OnInit, OnDestroy {
     try {
       this.timer.subscribe((timerState) => {
         this.timerState.set(timerState);
-        if (this.statusTimer() !== timerState.status) {
-          this.statusTimer.set(timerState.status || 'init');
-          this.playAudioForStatus(timerState.status);
-          this.showDesktopNotificationForStatus(timerState.status);
+        const previous = this.statusTimer();
+        const next = timerState.status?.trim() || 'init';
+        if (previous !== next) {
+          this.notifyPhaseTransition(previous, next, timerState);
+          this.statusTimer.set(next);
+          this.playAudioForStatus(next);
         }
         if (timerState.status === 'work') {
           this.totalTime.update((current) => current + 1);
         }
-        // Optimización: Detectar cambios solo cuando sea necesario
         this.cdr.detectChanges();
       });
     } catch (error) {
@@ -161,24 +356,42 @@ export default class Timer implements OnInit, OnDestroy {
     }
   }
 
-  private showDesktopNotificationForStatus(status: string | undefined) {
-    if (!status) return;
-    if (!window.desktopAPI?.showNotification) return;
+  /** Notificación en app (toast) y en escritorio (Electron), si está disponible. */
+  private pushTimerNotification(title: string, body: string): void {
+    this.notificationService.info(title, body, 4800);
+    void window.desktopAPI?.showNotification?.(title, body);
+  }
 
-    const messages: Record<string, { title: string; body: string }> = {
-      work: {
-        title: 'Focus Loop',
-        body: 'Descanso terminado. Volvamos al trabajo.',
-      },
-      break: {
-        title: 'Focus Loop',
-        body: 'Ciclo de trabajo terminado. Toma un descanso.',
-      },
-    };
+  private notifyPhaseTransition(
+    previous: string,
+    next: string,
+    state: TimerState
+  ): void {
+    const taskTitle = this.task()?.title?.trim();
+    const taskBit = taskTitle ? ` · ${taskTitle}` : '';
 
-    const msg = messages[status];
-    if (msg) {
-      void window.desktopAPI.showNotification(msg.title, msg.body);
+    if ((previous === 'init' || !previous) && next === 'work') {
+      const mins = state.settings.workTime;
+      this.pushTimerNotification(
+        'Enfoque iniciado',
+        `Sesión de trabajo${taskBit}. Objetivo: ${mins} min.`
+      );
+      return;
+    }
+    if (previous === 'break' && next === 'work') {
+      this.pushTimerNotification(
+        'Volviste al trabajo',
+        `El descanso terminó. Retoma el enfoque${taskBit}.`
+      );
+      return;
+    }
+    if (previous === 'work' && next === 'break') {
+      const br = state.settings.breakTime;
+      this.pushTimerNotification(
+        'Hora de descansar',
+        `Buen bloque de trabajo. Descansa ${br} min y recarga energía.`
+      );
+      return;
     }
   }
 
@@ -197,7 +410,6 @@ export default class Timer implements OnInit, OnDestroy {
       }
 
       if (this.audioContext) {
-        // Use AudioContext for better performance
         const response = await fetch(audioFile);
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await this.audioContext.decodeAudioData(
@@ -209,7 +421,6 @@ export default class Timer implements OnInit, OnDestroy {
         source.connect(this.audioContext.destination);
         source.start(0);
       } else {
-        // Fallback to HTML5 Audio
         this.audio = new Audio(audioFile);
         this.audio.volume = 0.5;
         await this.audio.play();
@@ -227,15 +438,6 @@ export default class Timer implements OnInit, OnDestroy {
       .padStart(2, '0')}`;
   }
 
-  getProgressAngle(): number {
-    const state = this.timerState();
-    if (!state) return 0;
-    const totalSeconds = state.minutes * 60 + state.seconds;
-    const workTimeSeconds = state.settings.workTime * 60;
-    const progress = (workTimeSeconds - totalSeconds) / workTimeSeconds;
-    return Math.max(0, Math.min(360, progress * 360));
-  }
-
   formatTotalTime(): string {
     const totalMinutes = Math.floor(this.totalTime() / 60);
     const totalHours = Math.floor(totalMinutes / 60);
@@ -249,12 +451,20 @@ export default class Timer implements OnInit, OnDestroy {
   goToNextTask() {
     try {
       this.timer.stop();
+      const completedTitle = this.task()?.title?.trim();
       this.taskService
         .updateTask(this.task()?.task_id || 0, {
           status_task_id: 3,
         })
         .subscribe({
           next: () => {
+            const title = completedTitle;
+            this.pushTimerNotification(
+              'Tarea completada',
+              title
+                ? `«${title}» marcada como hecha.`
+                : 'La tarea quedó marcada como hecha.'
+            );
             this.router.navigate(['/private/work']);
           },
           error: (error) => {
@@ -264,6 +474,29 @@ export default class Timer implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error going to next task:', error);
     }
+  }
+
+  openPassTaskFlow(): void {
+    const t = this.task();
+    if (!t) return;
+    try {
+      this.timer.stop();
+      this.status.set(false);
+    } catch (error) {
+      console.error('Error stopping timer for pass flow:', error);
+    }
+
+    if (window.desktopAPI?.openPassBreakWindow) {
+      void window.desktopAPI.openPassBreakWindow({ taskTitle: t.title });
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('focus-loop-pass-break-title', t.title);
+    } catch {
+      /* ignorar */
+    }
+    void this.router.navigate(['/private/timer-pass-break']);
   }
 
   backToWork() {

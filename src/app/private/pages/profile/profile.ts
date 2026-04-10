@@ -1,4 +1,5 @@
 import { StorageService } from '@/core/services/storage.service';
+import { ThemeService } from '@/core/services/theme.service';
 import { Header } from '@/shared/components/header/header';
 import { UiButtonComponent, UiCardComponent } from '@/shared/components/ui';
 import { Component, computed, inject, signal } from '@angular/core';
@@ -34,6 +35,7 @@ interface UserPreferences {
 export default class Profile {
   private readonly router = inject(Router);
   private readonly storage = inject(StorageService);
+  private readonly theme = inject(ThemeService);
 
   // Signals para el estado del formulario
   profileForm = signal<ProfileForm>({
@@ -95,10 +97,31 @@ export default class Profile {
         subscription_plan_id:
           user.subscriptionPlan?.name ?? user.subscription_plan_id ?? 'free',
       });
+      if (user.preferences && typeof user.preferences === 'object') {
+        const p = user.preferences as Partial<UserPreferences>;
+        this.preferences.update((cur) => ({
+          email_notifications:
+            typeof p.email_notifications === 'boolean'
+              ? p.email_notifications
+              : cur.email_notifications,
+          dark_mode:
+            typeof p.dark_mode === 'boolean' ? p.dark_mode : cur.dark_mode,
+          task_reminders:
+            typeof p.task_reminders === 'boolean'
+              ? p.task_reminders
+              : cur.task_reminders,
+        }));
+      }
+      this.theme.syncFromStorage();
     } catch (error) {
       console.error('Error loading user profile:', error);
       this.showMessage('Error loading user profile', 'error');
     }
+  }
+
+  onDarkModeChange(checked: boolean): void {
+    this.preferences.update((p) => ({ ...p, dark_mode: checked }));
+    this.theme.setDarkPersist(checked);
   }
 
   // Seleccionar imagen de perfil
@@ -145,6 +168,7 @@ export default class Profile {
           preferences: this.preferences(),
         };
         this.storage.setUserData(userData);
+        this.theme.syncFromStorage();
 
         this.showMessage('Profile updated successfully', 'success');
         this.isLoading.set(false);

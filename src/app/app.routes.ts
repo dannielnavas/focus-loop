@@ -40,6 +40,11 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () => import('./private/pages/profile/profile'),
       },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./private/pages/settings/settings').then((m) => m.Settings),
+      },
     ],
   },
 ];

@@ -17,6 +17,22 @@
       </app-ui-button>
     </div>
 
+    <app-ui-card variant="default" padding="md" class="mb-6 border border-orange-200/80 dark:border-orange-900/40 bg-orange-50/40 dark:bg-orange-950/20">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="min-w-0">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text">
+            Música e integraciones
+          </h2>
+          <p class="text-sm text-gray-600 dark:text-dark-text-muted mt-1">
+            Conecta tu cuenta de Spotify para ver en el temporizador qué está sonando, o abre YouTube Music desde aquí.
+          </p>
+        </div>
+        <app-ui-button variant="primary" size="sm" class="shrink-0" (click)="goToIntegrations()">
+          Abrir integraciones
+        </app-ui-button>
+      </div>
+    </app-ui-card>
+
     <app-ui-card variant="default" padding="lg" class="mb-6">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-dark-text mb-6">
         Personal Information

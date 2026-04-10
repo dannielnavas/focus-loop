@@ -1,9 +1,81 @@
 <div class="min-h-screen w-full bg-white dark:bg-dark py-6 sm:py-8">
   <app-header />
-  <app-ui-container class="mt-6">
+  <app-ui-container class="mt-6 flex flex-col gap-6">
     <app-ui-card variant="default" padding="lg">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-dark-text mb-2">Settings</h1>
-      <p class="text-gray-500 dark:text-dark-text-muted">Application settings will be available here.</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-dark-text mb-2">Ajustes</h1>
+      <p class="text-gray-500 dark:text-dark-text-muted text-sm">
+        Preferencias de la aplicación y música de fondo.
+      </p>
+    </app-ui-card>
+
+    <app-ui-card variant="default" padding="lg">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text mb-1">Spotify</h2>
+      <p class="text-sm text-gray-600 dark:text-dark-text-muted mb-4">
+        Conecta tu cuenta para ver en el temporizador qué está sonando (solo lectura; la reproducción sigue en Spotify).
+        Necesitas crear una app gratuita en
+        <a
+          class="text-orange-600 dark:text-orange-400 underline underline-offset-2"
+          href="https://developer.spotify.com/dashboard"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Spotify for Developers</a
+        >
+        y añadir las Redirect URIs indicadas en <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">.env.example</code>.
+      </p>
+
+      @if (!isDesktop()) {
+        <p class="text-sm text-amber-700 dark:text-amber-300/90 mb-3">
+          La conexión con Spotify solo está disponible en la aplicación de escritorio (Electron), no en el navegador.
+        </p>
+      } @else if (!spotifyHasClientId()) {
+        <p class="text-sm text-amber-700 dark:text-amber-300/90 mb-3">
+          Configura <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">SPOTIFY_CLIENT_ID</code> en un archivo
+          <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">.env</code> en la raíz del proyecto y vuelve a
+          arrancar <code class="text-xs">npm run electron:dev</code>.
+        </p>
+      }
+
+      <div class="flex flex-wrap gap-2 items-center">
+        @if (isDesktop() && spotifyHasClientId()) {
+          @if (spotifyConnected()) {
+            <app-ui-button
+              variant="secondary"
+              size="sm"
+              [disabled]="spotifyBusy()"
+              (click)="disconnectSpotify()"
+            >
+              Desconectar Spotify
+            </app-ui-button>
+            <app-ui-button variant="ghost" size="sm" (click)="openSpotifyWeb()">
+              Abrir Spotify en el navegador
+            </app-ui-button>
+          } @else {
+            <app-ui-button
+              variant="primary"
+              size="sm"
+              [disabled]="spotifyBusy()"
+              (click)="connectSpotify()"
+            >
+              Conectar Spotify
+            </app-ui-button>
+          }
+        }
+      </div>
+
+      @if (spotifyMessage(); as msg) {
+        <p class="mt-3 text-sm text-gray-700 dark:text-dark-text-muted" role="status">{{ msg }}</p>
+      }
+    </app-ui-card>
+
+    <app-ui-card variant="default" padding="lg">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text mb-1">YouTube Music</h2>
+      <p class="text-sm text-gray-600 dark:text-dark-text-muted mb-3">
+        YouTube Music no ofrece una API pública para saber qué suena en tu cuenta, así que Focus Loop no puede mostrar
+        “now playing” como con Spotify. Puedes abrir la web para escuchar con tu sesión habitual.
+      </p>
+      <app-ui-button variant="secondary" size="sm" (click)="openYouTubeMusic()">
+        Abrir YouTube Music
+      </app-ui-button>
     </app-ui-card>
   </app-ui-container>
 </div>

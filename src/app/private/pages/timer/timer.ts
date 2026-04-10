@@ -1,4 +1,6 @@
+import { SpotifyNowPlayingDto } from '@/core/models/spotify-playback.model';
 import { NotificationService } from '@/core/services/notification.service';
+import { SpotifyPlaybackService } from '@/core/services/spotify-playback.service';
 import { Task as TaskService } from '@/core/services/task';
 import { Store } from '@/core/store/store';
 import { NotificationsComponent } from '@/shared/components/notifications/notifications';
@@ -27,6 +29,7 @@ export default class Timer implements OnInit, OnDestroy {
   private readonly taskService = inject(TaskService);
   private readonly store = inject(Store);
   private readonly notificationService = inject(NotificationService);
+  private readonly spotifyPlayback = inject(SpotifyPlaybackService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly ngZone = inject(NgZone);
 
@@ -37,6 +40,14 @@ export default class Timer implements OnInit, OnDestroy {
 
   private passBreakUnsub: (() => void) | undefined;
   private passBreakDurationUnsub: (() => void) | undefined;
+  private spotifyAuthUnsub: (() => void) | undefined;
+  private spotifyPollId: ReturnType<typeof setInterval> | null = null;
+
+  /** Spotify en escritorio: mostrar bloque solo si hay Client ID empaquetado. */
+  readonly desktopSpotify = signal(false);
+  readonly spotifyHasClientId = signal(false);
+  readonly spotifyLinked = signal(false);
+  readonly spotifyNow = signal<SpotifyNowPlayingDto | null>(null);
 
   /** Descanso tras “pasar tarea”, contado en esta ventana (tamaño flotante). */
   postPassManualBreak = signal(false);
@@ -140,15 +151,52 @@ export default class Timer implements OnInit, OnDestroy {
           void this.applyPostPassManualBreak(payload.minutes);
         });
       });
+
+    this.desktopSpotify.set(this.spotifyPlayback.isDesktopSpotifyAvailable());
+    this.spotifyAuthUnsub = this.spotifyPlayback.onAuthResult?.((r) => {
+      if (r.ok) {
+        this.ngZone.run(() => void this.refreshSpotifyPlayback());
+      }
+    });
+    if (this.desktopSpotify()) {
+      void this.refreshSpotifyPlayback();
+      this.spotifyPollId = setInterval(() => {
+        this.ngZone.run(() => void this.refreshSpotifyPlayback());
+      }, 10_000);
+    }
   }
 
   ngOnDestroy() {
     this.clearPostPassManualBreakInterval();
     this.passBreakUnsub?.();
     this.passBreakDurationUnsub?.();
+    this.spotifyAuthUnsub?.();
+    if (this.spotifyPollId !== null) {
+      clearInterval(this.spotifyPollId);
+      this.spotifyPollId = null;
+    }
     this.resetFloatingWindow();
     this.toggleTitlebarAndMenu(true);
     this.cleanupAudio();
+  }
+
+  private async refreshSpotifyPlayback(): Promise<void> {
+    if (!this.spotifyPlayback.isDesktopSpotifyAvailable()) return;
+    const s = await this.spotifyPlayback.getStatus();
+    this.spotifyHasClientId.set(s.hasClientId);
+    this.spotifyLinked.set(s.connected);
+    if (!s.connected) {
+      this.spotifyNow.set(null);
+      this.cdr.markForCheck();
+      return;
+    }
+    const playing = await this.spotifyPlayback.fetchNowPlaying();
+    this.spotifyNow.set(playing);
+    this.cdr.markForCheck();
+  }
+
+  openSpotifyTrack(url: string): void {
+    void window.desktopAPI?.openExternalUrl?.(url);
   }
 
   private checkPendingManualBreakFromWeb(): void {

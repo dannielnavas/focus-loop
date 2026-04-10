@@ -1,3 +1,5 @@
+import type { SpotifyNowPlayingIpcPayload } from './spotify-playback.model';
+
 declare global {
   interface Window {
     desktopAPI?: {
@@ -30,6 +32,17 @@ declare global {
       ) => () => void;
       onPassBreakFlowDone?: (
         cb: (p: { action: 'advance-queue' } | { action: 'cancelled' }) => void
+      ) => () => void;
+      spotifyConnect?: () => Promise<{ ok: boolean; error?: string }>;
+      spotifyDisconnect?: () => Promise<{ ok: boolean; error?: string }>;
+      spotifyGetStatus?: () => Promise<
+        | { ok: true; connected: boolean; hasClientId: boolean }
+        | { ok: false; error: string }
+      >;
+      spotifyGetNowPlaying?: () => Promise<SpotifyNowPlayingIpcPayload>;
+      openExternalUrl?: (url: string) => Promise<boolean>;
+      onSpotifyAuthResult?: (
+        cb: (r: { ok: boolean; error?: string }) => void
       ) => () => void;
     };
   }

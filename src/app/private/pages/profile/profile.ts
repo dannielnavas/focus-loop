@@ -37,6 +37,10 @@ export default class Profile {
   private readonly storage = inject(StorageService);
   private readonly theme = inject(ThemeService);
 
+  goToIntegrations(): void {
+    void this.router.navigate(['/private/settings']);
+  }
+
   // Signals para el estado del formulario
   profileForm = signal<ProfileForm>({
     full_name: '',

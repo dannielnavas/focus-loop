@@ -51,6 +51,18 @@ const desktopAPI = {
       ipcRenderer.removeListener('pass-break-flow-done', fn);
     };
   },
+  spotifyConnect: () => ipcRenderer.invoke('spotify_connect'),
+  spotifyDisconnect: () => ipcRenderer.invoke('spotify_disconnect'),
+  spotifyGetStatus: () => ipcRenderer.invoke('spotify_status'),
+  spotifyGetNowPlaying: () => ipcRenderer.invoke('spotify_now_playing'),
+  openExternalUrl: (url: string) => ipcRenderer.invoke('open_external_url', url),
+  onSpotifyAuthResult: (cb: (r: { ok: boolean; error?: string }) => void) => {
+    const fn = (_: unknown, payload: { ok: boolean; error?: string }) => cb(payload);
+    ipcRenderer.on('spotify-auth-result', fn);
+    return () => {
+      ipcRenderer.removeListener('spotify-auth-result', fn);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld('desktopAPI', desktopAPI);

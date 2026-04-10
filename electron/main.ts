@@ -1,5 +1,12 @@
-import { app, BrowserWindow, ipcMain, Menu, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, dialog, shell } from 'electron';
 import * as path from 'path';
+import {
+  spotifyDisconnect,
+  spotifyGetNowPlaying,
+  spotifyGetStatus,
+  spotifyInitPersistence,
+  spotifyStartAuth,
+} from './spotify';
 
 const ADMIN_SUBSCRIPTION_PLAN_ID = '2';
 const ROLE_ADMIN = 'admin';
@@ -157,6 +164,7 @@ function applyMenu(): void {
 }
 
 app.whenReady().then(() => {
+  spotifyInitPersistence();
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -445,6 +453,38 @@ ipcMain.handle('pass_break_flow_cancel', async () => {
       passBreakContext = null;
     }
     notifyMainPassBreakResult({ action: 'cancelled' });
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+ipcMain.handle('spotify_connect', async () => {
+  const result = await spotifyStartAuth();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('spotify-auth-result', result);
+  }
+  return result;
+});
+
+ipcMain.handle('spotify_disconnect', async () => spotifyDisconnect());
+
+ipcMain.handle('spotify_status', async () => spotifyGetStatus());
+
+ipcMain.handle('spotify_now_playing', async () => spotifyGetNowPlaying());
+
+ipcMain.handle('open_external_url', async (_, rawUrl: string) => {
+  try {
+    if (typeof rawUrl !== 'string' || !rawUrl.startsWith('https://')) {
+      return false;
+    }
+    const u = new URL(rawUrl);
+    if (u.protocol !== 'https:') return false;
+    const host = u.hostname.toLowerCase();
+    if (host !== 'music.youtube.com' && host !== 'open.spotify.com') {
+      return false;
+    }
+    await shell.openExternal(rawUrl);
     return true;
   } catch {
     return false;

@@ -44,6 +44,18 @@ const desktopAPI = {
     return () => {
       electron.ipcRenderer.removeListener("pass-break-flow-done", fn);
     };
+  },
+  spotifyConnect: () => electron.ipcRenderer.invoke("spotify_connect"),
+  spotifyDisconnect: () => electron.ipcRenderer.invoke("spotify_disconnect"),
+  spotifyGetStatus: () => electron.ipcRenderer.invoke("spotify_status"),
+  spotifyGetNowPlaying: () => electron.ipcRenderer.invoke("spotify_now_playing"),
+  openExternalUrl: (url) => electron.ipcRenderer.invoke("open_external_url", url),
+  onSpotifyAuthResult: (cb) => {
+    const fn = (_, payload) => cb(payload);
+    electron.ipcRenderer.on("spotify-auth-result", fn);
+    return () => {
+      electron.ipcRenderer.removeListener("spotify-auth-result", fn);
+    };
   }
 };
 electron.contextBridge.exposeInMainWorld("desktopAPI", desktopAPI);

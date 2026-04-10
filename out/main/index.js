@@ -23,6 +23,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 const electron = require("electron");
 const path = require("path");
+const crypto = require("crypto");
+const fs = require("fs");
+const http = require("http");
 function _interopNamespaceDefault(e) {
   const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
   if (e) {
@@ -40,6 +43,336 @@ function _interopNamespaceDefault(e) {
   return Object.freeze(n);
 }
 const path__namespace = /* @__PURE__ */ _interopNamespaceDefault(path);
+const crypto__namespace = /* @__PURE__ */ _interopNamespaceDefault(crypto);
+const fs__namespace = /* @__PURE__ */ _interopNamespaceDefault(fs);
+const http__namespace = /* @__PURE__ */ _interopNamespaceDefault(http);
+const SPOTIFY_AUTH_BASE = "https://accounts.spotify.com/authorize";
+const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
+const SPOTIFY_API = "https://api.spotify.com/v1";
+const SPOTIFY_SCOPES = "user-read-currently-playing user-read-playback-state";
+const OAUTH_HOST = "127.0.0.1";
+const OAUTH_PATH = "/spotify-callback";
+const OAUTH_PORTS = [45251, 45252, 45253, 45254, 45255];
+function getClientId() {
+  try {
+    if ("60f39cc7c7344014a6d751144426ba9c".trim()) {
+      return "60f39cc7c7344014a6d751144426ba9c".trim();
+    }
+  } catch {
+  }
+  return (process.env.SPOTIFY_CLIENT_ID ?? "").trim();
+}
+function tokenFilePath() {
+  return path__namespace.join(electron.app.getPath("userData"), "spotify-refresh.enc");
+}
+let accessTokenMem = null;
+let accessExpiresAt = 0;
+let refreshTokenMem = null;
+function loadRefreshFromDisk() {
+  refreshTokenMem = null;
+  try {
+    const p = tokenFilePath();
+    if (!fs__namespace.existsSync(p)) return;
+    const buf = fs__namespace.readFileSync(p);
+    if (electron.safeStorage.isEncryptionAvailable()) {
+      refreshTokenMem = electron.safeStorage.decryptString(buf);
+    } else {
+      refreshTokenMem = buf.toString("utf8");
+      console.warn("[spotify] safeStorage no disponible; token en texto plano (solo desarrollo).");
+    }
+  } catch (e) {
+    console.error("[spotify] no se pudo leer el token guardado", e);
+  }
+}
+function saveRefreshToDisk(token) {
+  const p = tokenFilePath();
+  if (!token) {
+    try {
+      if (fs__namespace.existsSync(p)) fs__namespace.unlinkSync(p);
+    } catch {
+    }
+    return;
+  }
+  try {
+    const data = electron.safeStorage.isEncryptionAvailable() ? electron.safeStorage.encryptString(token) : Buffer.from(token, "utf8");
+    fs__namespace.writeFileSync(p, data);
+  } catch (e) {
+    console.error("[spotify] no se pudo guardar el token", e);
+  }
+}
+function base64url(buf) {
+  return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function randomVerifier() {
+  return base64url(crypto__namespace.randomBytes(32));
+}
+function challengeFromVerifier(verifier) {
+  const hash = crypto__namespace.createHash("sha256").update(verifier).digest();
+  return base64url(hash);
+}
+function randomState() {
+  return base64url(crypto__namespace.randomBytes(16));
+}
+async function postForm(url, body) {
+  const form = new URLSearchParams(body);
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: form.toString()
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    return { ok: false, status: res.status, text };
+  }
+  try {
+    return { ok: true, json: JSON.parse(text) };
+  } catch {
+    return { ok: false, status: res.status, text };
+  }
+}
+function applyTokenPayload(data) {
+  accessTokenMem = data.access_token;
+  accessExpiresAt = Date.now() + Math.max(0, (data.expires_in ?? 3600) - 60) * 1e3;
+  if (data.refresh_token) {
+    refreshTokenMem = data.refresh_token;
+    saveRefreshToDisk(refreshTokenMem);
+  }
+}
+async function refreshAccessToken() {
+  const clientId = getClientId();
+  if (!clientId || !refreshTokenMem) return false;
+  const res = await postForm(SPOTIFY_TOKEN_URL, {
+    grant_type: "refresh_token",
+    refresh_token: refreshTokenMem,
+    client_id: clientId
+  });
+  if (!res.ok) {
+    console.error("[spotify] refresh falló", res.status, res.text);
+    if (res.status === 400 || res.status === 401) {
+      refreshTokenMem = null;
+      saveRefreshToDisk(null);
+      accessTokenMem = null;
+    }
+    return false;
+  }
+  const j = res.json;
+  if (!j.access_token) return false;
+  applyTokenPayload(j);
+  return true;
+}
+async function ensureAccessToken() {
+  const clientId = getClientId();
+  if (!clientId) return null;
+  if (!refreshTokenMem) loadRefreshFromDisk();
+  if (!refreshTokenMem) return null;
+  if (accessTokenMem && Date.now() < accessExpiresAt) {
+    return accessTokenMem;
+  }
+  const ok = await refreshAccessToken();
+  return ok ? accessTokenMem : null;
+}
+let pending = null;
+function clearPending(result) {
+  if (!pending) return;
+  clearTimeout(pending.timeoutId);
+  try {
+    pending.server.close();
+  } catch {
+  }
+  pending.resolve(result);
+  pending = null;
+}
+function tryListenPort(port) {
+  return new Promise((resolve, reject) => {
+    const server = http__namespace.createServer();
+    server.once("error", reject);
+    server.listen(port, OAUTH_HOST, () => {
+      server.removeAllListeners("error");
+      resolve(server);
+    });
+  });
+}
+async function startOAuthListener(onHit) {
+  let lastErr;
+  for (const port of OAUTH_PORTS) {
+    try {
+      const server = await tryListenPort(port);
+      const redirectUri = `http://${OAUTH_HOST}:${port}${OAUTH_PATH}`;
+      server.on("request", (req, res) => {
+        const url = new URL(req.url ?? "/", `http://${OAUTH_HOST}:${port}`);
+        if (url.pathname !== OAUTH_PATH) {
+          res.writeHead(404);
+          res.end();
+          return;
+        }
+        const code = url.searchParams.get("code");
+        const state = url.searchParams.get("state");
+        const error = url.searchParams.get("error");
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(
+          '<!DOCTYPE html><html><body style="font-family:system-ui;padding:1.5rem"><p>Autorización recibida. Puedes cerrar esta ventana y volver a Focus Loop.</p></body></html>'
+        );
+        onHit(code ?? "", state ?? "", error);
+      });
+      return { server, redirectUri };
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw new Error(
+    `No se pudo abrir un puerto local para Spotify (${OAUTH_PORTS.join(", ")}): ${String(lastErr)}`
+  );
+}
+async function spotifyStartAuth() {
+  const clientId = getClientId();
+  if (!clientId) {
+    return { ok: false, error: "missing_client_id" };
+  }
+  if (pending) {
+    return { ok: false, error: "auth_in_progress" };
+  }
+  return new Promise((resolve) => {
+    const verifier = randomVerifier();
+    const state = randomState();
+    const challenge = challengeFromVerifier(verifier);
+    void startOAuthListener((code, st, oauthError) => {
+      if (!pending) return;
+      if (oauthError) {
+        clearPending({ ok: false, error: oauthError });
+        return;
+      }
+      if (!code || st !== pending.state) {
+        clearPending({ ok: false, error: "invalid_callback" });
+        return;
+      }
+      void (async () => {
+        const p = pending;
+        if (!p) return;
+        const exchange = await postForm(SPOTIFY_TOKEN_URL, {
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: p.redirectUri,
+          client_id: clientId,
+          code_verifier: p.verifier
+        });
+        if (!exchange.ok) {
+          console.error("[spotify] intercambio de código falló", exchange.status, exchange.text);
+          clearPending({ ok: false, error: "token_exchange_failed" });
+          return;
+        }
+        const j = exchange.json;
+        if (!j.access_token || !j.refresh_token) {
+          clearPending({ ok: false, error: "invalid_token_response" });
+          return;
+        }
+        applyTokenPayload(j);
+        clearPending({ ok: true });
+      })();
+    }).then(({ server, redirectUri }) => {
+      const timeoutId = setTimeout(() => {
+        clearPending({ ok: false, error: "timeout" });
+      }, 6e5);
+      pending = {
+        state,
+        verifier,
+        redirectUri,
+        resolve,
+        timeoutId,
+        server
+      };
+      const params = new URLSearchParams({
+        client_id: clientId,
+        response_type: "code",
+        redirect_uri: redirectUri,
+        scope: SPOTIFY_SCOPES,
+        code_challenge_method: "S256",
+        code_challenge: challenge,
+        state
+      });
+      const authUrl = `${SPOTIFY_AUTH_BASE}?${params.toString()}`;
+      void electron.shell.openExternal(authUrl);
+    }).catch((err) => {
+      console.error("[spotify] startAuth", err);
+      resolve({ ok: false, error: "server_failed" });
+    });
+  });
+}
+function spotifyDisconnect() {
+  refreshTokenMem = null;
+  accessTokenMem = null;
+  accessExpiresAt = 0;
+  saveRefreshToDisk(null);
+  if (pending) {
+    clearPending({ ok: false, error: "cancelled" });
+  }
+  return { ok: true };
+}
+function spotifyGetStatus() {
+  try {
+    if (!refreshTokenMem) loadRefreshFromDisk();
+    const hasClientId = Boolean(getClientId());
+    const connected = Boolean(refreshTokenMem);
+    return { ok: true, connected, hasClientId };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+async function spotifyGetNowPlaying() {
+  const status = spotifyGetStatus();
+  if (!status.ok) return { ok: false, error: "status_failed" };
+  if (!status.connected) {
+    return { ok: true, connected: false, playing: null };
+  }
+  const token = await ensureAccessToken();
+  if (!token) {
+    return { ok: true, connected: false, playing: null };
+  }
+  const res = await fetch(`${SPOTIFY_API}/me/player/currently-playing`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (res.status === 204) {
+    return {
+      ok: true,
+      connected: true,
+      playing: null
+    };
+  }
+  if (res.status === 401) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed && accessTokenMem) {
+      return spotifyGetNowPlaying();
+    }
+    return { ok: true, connected: false, playing: null };
+  }
+  if (!res.ok) {
+    if (res.status === 429) {
+      return { ok: false, error: "rate_limited" };
+    }
+    return { ok: false, error: `http_${res.status}` };
+  }
+  const data = await res.json();
+  const item = data.item;
+  if (!item) {
+    return { ok: true, connected: true, playing: null };
+  }
+  const artists = (item.artists ?? []).map((a) => a.name ?? "").filter(Boolean).join(", ");
+  const images = item.album?.images ?? [];
+  const imageUrl = images.length ? images[0]?.url ?? null : null;
+  return {
+    ok: true,
+    connected: true,
+    playing: {
+      isPlaying: Boolean(data.is_playing),
+      name: item.name ?? "—",
+      artists: artists || "—",
+      imageUrl,
+      externalUrl: item.external_urls?.spotify ?? null
+    }
+  };
+}
+function spotifyInitPersistence() {
+  loadRefreshFromDisk();
+}
 const ADMIN_SUBSCRIPTION_PLAN_ID = "2";
 const ROLE_ADMIN = "admin";
 const DEFAULT_WIDTH = 1200;
@@ -173,6 +506,7 @@ function applyMenu() {
   electron.Menu.setApplicationMenu(menu);
 }
 electron.app.whenReady().then(() => {
+  spotifyInitPersistence();
   createWindow();
   electron.app.on("activate", () => {
     if (electron.BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -434,6 +768,33 @@ electron.ipcMain.handle("pass_break_flow_cancel", async () => {
       passBreakContext = null;
     }
     notifyMainPassBreakResult({ action: "cancelled" });
+    return true;
+  } catch {
+    return false;
+  }
+});
+electron.ipcMain.handle("spotify_connect", async () => {
+  const result = await spotifyStartAuth();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("spotify-auth-result", result);
+  }
+  return result;
+});
+electron.ipcMain.handle("spotify_disconnect", async () => spotifyDisconnect());
+electron.ipcMain.handle("spotify_status", async () => spotifyGetStatus());
+electron.ipcMain.handle("spotify_now_playing", async () => spotifyGetNowPlaying());
+electron.ipcMain.handle("open_external_url", async (_, rawUrl) => {
+  try {
+    if (typeof rawUrl !== "string" || !rawUrl.startsWith("https://")) {
+      return false;
+    }
+    const u = new URL(rawUrl);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (host !== "music.youtube.com" && host !== "open.spotify.com") {
+      return false;
+    }
+    await electron.shell.openExternal(rawUrl);
     return true;
   } catch {
     return false;

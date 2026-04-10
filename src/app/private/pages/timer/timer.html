@@ -65,6 +65,51 @@
         {{ task()?.title ?? 'Sin tarea vinculada' }}
       </p>
 
+      @if (desktopSpotify() && spotifyHasClientId()) {
+        <div class="timer-spotify" aria-label="Spotify">
+          @if (!spotifyLinked()) {
+            <p class="timer-spotify-hint">
+              Conecta Spotify en Ajustes para ver lo que suena.
+            </p>
+          } @else if (spotifyNow()) {
+            <div class="timer-spotify-row">
+              @if (spotifyNow()!.imageUrl) {
+                <img
+                  class="timer-spotify-art"
+                  [src]="spotifyNow()!.imageUrl"
+                  width="36"
+                  height="36"
+                  alt=""
+                  loading="lazy"
+                />
+              } @else {
+                <div class="timer-spotify-art timer-spotify-art--placeholder" aria-hidden="true"></div>
+              }
+              <div class="timer-spotify-text">
+                <span class="timer-spotify-status">
+                  {{ spotifyNow()!.isPlaying ? 'Reproduciendo' : 'En pausa' }}
+                </span>
+                @if (spotifyNow()!.externalUrl) {
+                  <button
+                    type="button"
+                    class="timer-spotify-title"
+                    (click)="openSpotifyTrack(spotifyNow()!.externalUrl!)"
+                    [title]="'Abrir en Spotify: ' + spotifyNow()!.name"
+                  >
+                    {{ spotifyNow()!.name }}
+                  </button>
+                } @else {
+                  <span class="timer-spotify-title timer-spotify-title--plain">{{ spotifyNow()!.name }}</span>
+                }
+                <span class="timer-spotify-artists">{{ spotifyNow()!.artists }}</span>
+              </div>
+            </div>
+          } @else {
+            <p class="timer-spotify-hint">Spotify: sin reproducción activa.</p>
+          }
+        </div>
+      }
+
       @if (postPassManualBreak()) {
         <p class="timer-rounds">Descanso antes de la siguiente tarea</p>
       } @else {

@@ -12,11 +12,18 @@ import {
   UiBadgeComponent,
   UiButtonComponent,
   UiCardComponent,
-  UiContainerComponent,
   UiSkeletonComponent,
 } from '@/shared/components/ui';
 import type { BadgeVariant } from '@/shared/components/ui';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -31,13 +38,12 @@ import { Router } from '@angular/router';
     UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
-    UiContainerComponent,
     UiSkeletonComponent,
   ],
   templateUrl: './principal.html',
   styleUrl: './principal.css',
 })
-export default class Principal {
+export default class Principal implements OnInit, OnDestroy {
   showCreateForm = signal(false);
   newSprint = signal({
     name: '',
@@ -74,22 +80,53 @@ export default class Principal {
     });
   }
 
+  ngOnInit() {
+    this.setPrincipalWindowLayout();
+  }
+
+  ngOnDestroy() {
+    this.resetWindowLayout();
+  }
+
+  private async setPrincipalWindowLayout() {
+    if (!window.desktopAPI) return;
+    try {
+      const aw = window.screen.availWidth || window.screen.width;
+      const ah = window.screen.availHeight || window.screen.height;
+      /** Ventana amplia para que varias tarjetas de sprint no queden comprimidas. */
+      const targetWidth = Math.max(1080, Math.min(1360, Math.floor(aw * 0.78)));
+      const targetHeight = Math.max(680, Math.min(900, Math.floor(ah * 0.86)));
+      await window.desktopAPI.resizeWindow(targetWidth, targetHeight);
+    } catch (error) {
+      console.error('Error configuring principal window:', error);
+    }
+  }
+
+  private async resetWindowLayout() {
+    if (!window.desktopAPI) return;
+    try {
+      await window.desktopAPI.resetWindowSize();
+    } catch (error) {
+      console.error('Error restoring window size:', error);
+    }
+  }
+
   createSprint() {
     const sprintData = this.newSprint();
     if (!sprintData.name.trim()) {
-      alert('Title is required');
+      alert('El nombre es obligatorio');
       return;
     }
     if (!sprintData.start_date) {
-      alert('Start date is required');
+      alert('La fecha de inicio es obligatoria');
       return;
     }
     if (!sprintData.end_date) {
-      alert('End date is required');
+      alert('La fecha de fin es obligatoria');
       return;
     }
     if (new Date(sprintData.start_date) >= new Date(sprintData.end_date)) {
-      alert('End date must be after start date');
+      alert('La fecha de fin debe ser posterior a la de inicio');
       return;
     }
 
@@ -117,7 +154,7 @@ export default class Principal {
         },
         error: (err) => {
           console.error('Error creating sprint:', err);
-          alert('Error creating sprint. Please try again.');
+          alert('No se pudo crear el sprint. Inténtalo de nuevo.');
         },
       });
   }
@@ -135,7 +172,7 @@ export default class Principal {
         next: () => this.resourcesSprints.reload(),
         error: (err) => {
           console.error('Error updating sprint:', err);
-          alert('Error updating sprint. Please try again.');
+          alert('No se pudo actualizar el sprint. Inténtalo de nuevo.');
         },
       });
   }
@@ -163,14 +200,20 @@ export default class Principal {
     this.showCreateForm.set(false);
   }
 
+  /** Tarjeta «Añadir sprint»: clic o teclado (accesibilidad). */
+  openCreateSprintForm(event?: Event) {
+    event?.preventDefault();
+    this.showCreateForm.set(true);
+  }
+
   getStatusText(status: string): string {
     switch (status) {
       case 'active':
-        return 'Active';
+        return 'Activo';
       case 'completed':
-        return 'Completed';
+        return 'Completado';
       case 'planned':
-        return 'Planned';
+        return 'Planificado';
       default:
         return status;
     }
@@ -245,7 +288,7 @@ export default class Principal {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('es', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

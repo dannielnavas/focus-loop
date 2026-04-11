@@ -59,7 +59,6 @@ let accessExpiresAt = 0;
 let refreshTokenMem: string | null = null;
 
 function loadRefreshFromDisk(): void {
-  refreshTokenMem = null;
   try {
     const p = tokenFilePath();
     if (!fs.existsSync(p)) return;
@@ -300,11 +299,23 @@ export async function spotifyStartAuth(): Promise<SpotifyAuthResult> {
           return;
         }
         const j = exchange.json as TokenResponse;
-        if (!j.access_token || !j.refresh_token) {
+        if (!j.access_token) {
           clearPending({ ok: false, error: 'invalid_token_response' });
           return;
         }
-        applyTokenPayload(j);
+        // Spotify solo devuelve refresh_token en la primera concesión; en re-autorizaciones suele omitirlo.
+        if (j.refresh_token) {
+          applyTokenPayload(j);
+        } else {
+          if (!refreshTokenMem) loadRefreshFromDisk();
+          if (!refreshTokenMem) {
+            clearPending({ ok: false, error: 'invalid_token_response' });
+            return;
+          }
+          accessTokenMem = j.access_token;
+          accessExpiresAt =
+            Date.now() + Math.max(0, (j.expires_in ?? 3600) - 60) * 1000;
+        }
         clearPending({ ok: true });
       })();
     })

@@ -469,7 +469,13 @@ ipcMain.handle('spotify_connect', async () => {
 
 ipcMain.handle('spotify_disconnect', async () => spotifyDisconnect());
 
-ipcMain.handle('spotify_status', async () => spotifyGetStatus());
+ipcMain.handle('spotify_status', async () => {
+  const s = spotifyGetStatus();
+  if (s.ok) {
+    return { ...s, isPackaged: app.isPackaged };
+  }
+  return s;
+});
 
 ipcMain.handle('spotify_now_playing', async () => spotifyGetNowPlaying());
 

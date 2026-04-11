@@ -20,15 +20,20 @@ export class SpotifyPlaybackService {
   async getStatus(): Promise<{
     connected: boolean;
     hasClientId: boolean;
+    isPackaged: boolean;
   }> {
     if (!window.desktopAPI?.spotifyGetStatus) {
-      return { connected: false, hasClientId: false };
+      return { connected: false, hasClientId: false, isPackaged: false };
     }
     const r = await window.desktopAPI.spotifyGetStatus();
     if (!r.ok) {
-      return { connected: false, hasClientId: false };
+      return { connected: false, hasClientId: false, isPackaged: false };
     }
-    return { connected: r.connected, hasClientId: r.hasClientId };
+    return {
+      connected: r.connected,
+      hasClientId: r.hasClientId,
+      isPackaged: Boolean(r.isPackaged),
+    };
   }
 
   async connect(): Promise<{ ok: boolean; error?: string }> {

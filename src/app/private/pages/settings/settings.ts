@@ -15,6 +15,8 @@ export class Settings implements OnInit {
   readonly isDesktop = signal(false);
   readonly spotifyConnected = signal(false);
   readonly spotifyHasClientId = signal(false);
+  /** true = app instalada (.dmg, etc.); el usuario no debe ver instrucciones de .env */
+  readonly spotifyIsPackaged = signal(false);
   readonly spotifyBusy = signal(false);
   readonly spotifyMessage = signal<string | null>(null);
 
@@ -26,7 +28,7 @@ export class Settings implements OnInit {
   private mapSpotifyError(code?: string): string {
     const m: Record<string, string> = {
       missing_client_id:
-        'Falta SPOTIFY_CLIENT_ID. Copia .env.example a .env y añade el Client ID de tu app en Spotify for Developers.',
+        'Esta compilación no incluye la clave de Spotify. Si eres usuario final, necesitas una versión de la app ya configurada; si desarrollas, define SPOTIFY_CLIENT_ID al construir el instalador.',
       auth_in_progress: 'Ya hay un inicio de sesión en curso.',
       timeout: 'Se agotó el tiempo. Vuelve a intentar conectar.',
       cancelled: 'Conexión cancelada.',
@@ -44,6 +46,7 @@ export class Settings implements OnInit {
     const s = await this.spotify.getStatus();
     this.spotifyConnected.set(s.connected);
     this.spotifyHasClientId.set(s.hasClientId);
+    this.spotifyIsPackaged.set(s.isPackaged);
   }
 
   async connectSpotify(): Promise<void> {

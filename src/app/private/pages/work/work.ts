@@ -6,6 +6,7 @@ import { UiButtonComponent } from '@/shared/components/ui';
 import {
   CdkDrag,
   CdkDragDrop,
+  CdkDragHandle,
   CdkDropList,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
@@ -14,7 +15,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-work',
-  imports: [CdkDropList, CdkDrag, Header, UiButtonComponent],
+  imports: [CdkDropList, CdkDrag, CdkDragHandle, Header, UiButtonComponent],
   templateUrl: './work.html',
   styleUrl: './work.css',
 })

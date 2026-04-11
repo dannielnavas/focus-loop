@@ -35,8 +35,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # SPOTIFY_CLIENT_ID: Repository secret (Settings → Secrets and variables → Actions).
+      # Público en el cliente con PKCE; no uses client_secret aquí.
       - name: Build Angular + Electron
         run: npm run electron:build
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
 
       - name: Build installers (electron-builder)
         run: npm run dist

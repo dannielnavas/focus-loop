@@ -20,7 +20,9 @@
           rel="noopener noreferrer"
           >Spotify for Developers</a
         >
-        y añadir las Redirect URIs indicadas en <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">.env.example</code>.
+        y registrar en el dashboard las Redirect URIs locales
+        <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">http://127.0.0.1:45251/spotify-callback</code> …
+        <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">45255</code> (misma ruta).
       </p>
 
       @if (!isDesktop()) {
@@ -28,11 +30,22 @@
           La conexión con Spotify solo está disponible en la aplicación de escritorio (Electron), no en el navegador.
         </p>
       } @else if (!spotifyHasClientId()) {
-        <p class="text-sm text-amber-700 dark:text-amber-300/90 mb-3">
-          Configura <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">SPOTIFY_CLIENT_ID</code> en un archivo
-          <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">.env</code> en la raíz del proyecto y vuelve a
-          arrancar <code class="text-xs">npm run electron:dev</code>.
-        </p>
+        @if (spotifyIsPackaged()) {
+          <p class="text-sm text-amber-700 dark:text-amber-300/90 mb-3">
+            Esta versión instalada no trae la integración con Spotify configurada. El Client ID se incluye al construir la
+            aplicación; contacta a quien publica Focus Loop o instala una build que ya lo incluya.
+          </p>
+        } @else {
+          <p class="text-sm text-amber-700 dark:text-amber-300/90 mb-3">
+            Para desarrollo: define
+            <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">SPOTIFY_CLIENT_ID</code> en
+            <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">.env</code> (ver
+            <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">.env.example</code>) y vuelve a ejecutar
+            <code class="text-xs">npm run electron:dev</code>. Para publicar al usuario final, usa la misma variable en el
+            entorno al ejecutar <code class="text-xs">npm run electron:build</code> o tu CI; el ID queda embebido en la
+            app (no es secreto en flujos PKCE).
+          </p>
+        }
       }
 
       <div class="flex flex-wrap gap-2 items-center">

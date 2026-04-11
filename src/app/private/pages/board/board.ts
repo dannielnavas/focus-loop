@@ -17,7 +17,7 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import { Component, computed, inject, input, OnDestroy, OnInit } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -38,7 +38,7 @@ import { take } from 'rxjs';
   templateUrl: './board.html',
   styleUrl: './board.css',
 })
-export default class Board implements OnInit {
+export default class Board implements OnInit, OnDestroy {
   newTodoTask = '';
   showTodoInput = false;
   user_id = computed(() => this.storage.getUserId());
@@ -66,8 +66,49 @@ export default class Board implements OnInit {
   today = computed(() => this.filterAndSortTasks(2));
   done = computed(() => this.filterAndSortTasks(3, true));
 
+  /** Nombre del sprint para el encabezado (si está en el store). */
+  readonly sprintHeading = computed(() => {
+    const rawId = this.sprint_id();
+    const id = Number(rawId);
+    if (!Number.isFinite(id)) return 'Tablero';
+    const sprint = this.store
+      .getSprints()()
+      .find((s) => s.sprint_id === id);
+    const name = sprint?.name?.trim();
+    return name || `Sprint ${id}`;
+  });
+
   ngOnInit() {
     this.store.setSprintId(Number(this.sprint_id()));
+    this.setBoardWindowLayout();
+  }
+
+  ngOnDestroy() {
+    this.resetWindowLayout();
+  }
+
+  private async setBoardWindowLayout() {
+    if (!window.desktopAPI) return;
+
+    try {
+      const aw = window.screen.availWidth || window.screen.width;
+      const ah = window.screen.availHeight || window.screen.height;
+      /** Tablero: ventana moderada, no pantalla completa; el IPC ya centra tras resize. */
+      const targetWidth = Math.max(960, Math.min(1120, Math.floor(aw * 0.68)));
+      const targetHeight = Math.max(600, Math.min(760, Math.floor(ah * 0.78)));
+      await window.desktopAPI.resizeWindow(targetWidth, targetHeight);
+    } catch (error) {
+      console.error('Error configuring board window:', error);
+    }
+  }
+
+  private async resetWindowLayout() {
+    if (!window.desktopAPI) return;
+    try {
+      await window.desktopAPI.resetWindowSize();
+    } catch (error) {
+      console.error('Error restoring window size:', error);
+    }
   }
 
   drop(event: CdkDragDrop<any[]>) {

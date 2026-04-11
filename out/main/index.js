@@ -69,7 +69,6 @@ let accessTokenMem = null;
 let accessExpiresAt = 0;
 let refreshTokenMem = null;
 function loadRefreshFromDisk() {
-  refreshTokenMem = null;
   try {
     const p = tokenFilePath();
     if (!fs__namespace.existsSync(p)) return;
@@ -261,11 +260,21 @@ async function spotifyStartAuth() {
           return;
         }
         const j = exchange.json;
-        if (!j.access_token || !j.refresh_token) {
+        if (!j.access_token) {
           clearPending({ ok: false, error: "invalid_token_response" });
           return;
         }
-        applyTokenPayload(j);
+        if (j.refresh_token) {
+          applyTokenPayload(j);
+        } else {
+          if (!refreshTokenMem) loadRefreshFromDisk();
+          if (!refreshTokenMem) {
+            clearPending({ ok: false, error: "invalid_token_response" });
+            return;
+          }
+          accessTokenMem = j.access_token;
+          accessExpiresAt = Date.now() + Math.max(0, (j.expires_in ?? 3600) - 60) * 1e3;
+        }
         clearPending({ ok: true });
       })();
     }).then(({ server, redirectUri }) => {
@@ -781,7 +790,13 @@ electron.ipcMain.handle("spotify_connect", async () => {
   return result;
 });
 electron.ipcMain.handle("spotify_disconnect", async () => spotifyDisconnect());
-electron.ipcMain.handle("spotify_status", async () => spotifyGetStatus());
+electron.ipcMain.handle("spotify_status", async () => {
+  const s = spotifyGetStatus();
+  if (s.ok) {
+    return { ...s, isPackaged: electron.app.isPackaged };
+  }
+  return s;
+});
 electron.ipcMain.handle("spotify_now_playing", async () => spotifyGetNowPlaying());
 electron.ipcMain.handle("open_external_url", async (_, rawUrl) => {
   try {

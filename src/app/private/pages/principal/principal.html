@@ -1,305 +1,284 @@
 <app-optimistic-status />
 <app-notifications />
-<div class="min-h-screen w-full bg-white dark:bg-dark py-6 sm:py-8">
+
+<div class="principal-page">
+  <div class="principal-atmosphere" aria-hidden="true"></div>
   <app-header />
-  <app-ui-container class="mt-6">
-    @if (showCreateForm()) {
-      <app-ui-card variant="default" padding="md" class="mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-dark-text mb-4">
-          Create New Sprint
-        </h2>
-        <form (ngSubmit)="createSprint()" class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2"
-                >Title</label
-              >
-              <input
-                type="text"
-                [(ngModel)]="newSprint().name"
-                name="name"
-                placeholder="Sprint name"
-                class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
-                required
-              />
+
+  <div class="principal-inner">
+    <header class="principal-hero">
+      <p class="principal-kicker">Inicio</p>
+      <h1 class="principal-title">Sprints</h1>
+      <p class="principal-sub">
+        Organiza el trabajo por iteraciones. Abre un sprint para ir al tablero.
+      </p>
+    </header>
+
+    <div class="principal-scroll">
+      @if (showCreateForm()) {
+        <app-ui-card variant="default" padding="md" class="principal-form-card mb-6 form-enter">
+          <h2 class="principal-form-title">Nuevo sprint</h2>
+          <form (ngSubmit)="createSprint()" class="principal-form space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="principal-label" for="sprint-name">Nombre</label>
+                <input
+                  id="sprint-name"
+                  type="text"
+                  [(ngModel)]="newSprint().name"
+                  name="name"
+                  placeholder="Nombre del sprint"
+                  class="principal-field"
+                  required
+                />
+              </div>
+              <div>
+                <label class="principal-label" for="sprint-status">Estado</label>
+                <select
+                  id="sprint-status"
+                  [(ngModel)]="newSprint().status"
+                  name="status"
+                  class="principal-field"
+                >
+                  <option value="planned">Planificado</option>
+                  <option value="active">Activo</option>
+                  <option value="completed">Completado</option>
+                </select>
+              </div>
             </div>
             <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2"
-                >Status</label
-              >
-              <select
-                [(ngModel)]="newSprint().status"
-                name="status"
-                class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
-              >
-                <option value="planned">Planned</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-              </select>
+              <label class="principal-label" for="sprint-desc">Descripción</label>
+              <textarea
+                id="sprint-desc"
+                [(ngModel)]="newSprint().description"
+                name="description"
+                placeholder="Descripción breve"
+                rows="3"
+                class="principal-field principal-field-textarea resize-none"
+              ></textarea>
             </div>
-          </div>
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2"
-              >Description</label
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="principal-label" for="sprint-start">Fecha inicio</label>
+                <input
+                  id="sprint-start"
+                  type="date"
+                  [(ngModel)]="newSprint().start_date"
+                  name="start_date"
+                  class="principal-field"
+                  required
+                />
+              </div>
+              <div>
+                <label class="principal-label" for="sprint-end">Fecha fin</label>
+                <input
+                  id="sprint-end"
+                  type="date"
+                  [(ngModel)]="newSprint().end_date"
+                  name="end_date"
+                  class="principal-field"
+                  required
+                />
+              </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+              <app-ui-button variant="outline" type="button" (click)="resetForm()">
+                Cancelar
+              </app-ui-button>
+              <app-ui-button variant="primary" type="submit">
+                Crear sprint
+              </app-ui-button>
+            </div>
+          </form>
+        </app-ui-card>
+      }
+
+      <div class="principal-grid">
+        @if (isLoadingSprints()) {
+          @for (item of [1, 2, 3]; track item) {
+            <app-ui-card variant="default" padding="md" class="principal-skeleton-card overflow-hidden">
+              <div class="border-b border-gray-200 dark:border-dark-border pb-4 mb-4">
+                <div class="flex justify-between items-start gap-2 mb-3">
+                  <app-ui-skeleton width="w-3/4" height="h-6" />
+                  <app-ui-skeleton variant="circular" width="w-16" height="h-6" />
+                </div>
+                <div class="space-y-2 mb-4">
+                  <app-ui-skeleton />
+                  <app-ui-skeleton width="w-5/6" />
+                  <app-ui-skeleton width="w-4/6" />
+                </div>
+                <app-ui-skeleton width="w-32" height="h-4" />
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                  <app-ui-skeleton width="w-16" />
+                  <app-ui-skeleton width="w-8" />
+                </div>
+                <app-ui-skeleton height="h-2" />
+                <div class="space-y-2">
+                  @for (r of [1, 2, 3]; track r) {
+                    <div class="flex justify-between">
+                      <app-ui-skeleton width="w-16" height="h-3" />
+                      <app-ui-skeleton width="w-6" height="h-3" />
+                    </div>
+                  }
+                </div>
+                <app-ui-skeleton width="w-20" height="h-8" />
+              </div>
+            </app-ui-card>
+          }
+        } @else {
+          @for (sprint of resourcesSprints.value(); track sprint.sprint_id) {
+            <app-ui-card
+              variant="default"
+              padding="lg"
+              class="principal-sprint-card overflow-hidden cursor-pointer"
+              (click)="viewSprintDetails(sprint)"
             >
-            <textarea
-              [(ngModel)]="newSprint().description"
-              name="description"
-              placeholder="Sprint description"
-              rows="3"
-              class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all resize-none"
-            ></textarea>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2"
-                >Start Date</label
-              >
-              <input
-                type="date"
-                [(ngModel)]="newSprint().start_date"
-                name="start_date"
-                class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
-                required
-              />
-            </div>
-            <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2"
-                >End Date</label
-              >
-              <input
-                type="date"
-                [(ngModel)]="newSprint().end_date"
-                name="end_date"
-                class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
-                required
-              />
-            </div>
-          </div>
-          <div class="flex justify-end gap-3 pt-4">
-            <app-ui-button variant="outline" type="button" (click)="resetForm()">
-              Cancel
-            </app-ui-button>
-            <app-ui-button variant="primary" type="submit">
-              Create Sprint
-            </app-ui-button>
-          </div>
-        </form>
-      </app-ui-card>
-    }
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @if (isLoadingSprints()) {
-        @for (item of [1,2,3]; track item) {
-          <app-ui-card variant="default" padding="md" class="overflow-hidden">
-            <div class="border-b border-gray-200 dark:border-dark-border pb-4 mb-4">
-              <div class="flex justify-between items-start gap-2 mb-3">
-                <app-ui-skeleton width="w-3/4" height="h-6" />
-                <app-ui-skeleton variant="circular" width="w-16" height="h-6" />
+              <div class="principal-sprint-top">
+                <div class="flex justify-between items-start gap-2 mb-3">
+                  <h3 class="principal-sprint-name truncate">
+                    {{ sprint.name }}
+                  </h3>
+                  <app-ui-badge [variant]="getStatusBadgeVariant(sprint.status)">
+                    {{ getStatusText(sprint.status) }}
+                  </app-ui-badge>
+                </div>
+                <p class="principal-sprint-desc line-clamp-2">
+                  {{ sprint.description }}
+                </p>
+                <div class="principal-sprint-dates">
+                  <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  {{ formatDate(sprint.start_date) }} – {{ formatDate(sprint.end_date) }}
+                </div>
               </div>
-              <div class="space-y-2 mb-4">
-                <app-ui-skeleton />
-                <app-ui-skeleton width="w-5/6" />
-                <app-ui-skeleton width="w-4/6" />
-              </div>
-              <app-ui-skeleton width="w-32" height="h-4" />
-            </div>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center">
-                <app-ui-skeleton width="w-16" />
-                <app-ui-skeleton width="w-8" />
-              </div>
-              <app-ui-skeleton height="h-2" />
-              <div class="space-y-2">
-                @for (r of [1,2,3]; track r) {
-                  <div class="flex justify-between">
-                    <app-ui-skeleton width="w-16" height="h-3" />
-                    <app-ui-skeleton width="w-6" height="h-3" />
+              <div class="principal-sprint-body">
+                <div class="principal-progress-row">
+                  <span class="principal-meta">Progreso</span>
+                  <span class="principal-stat-strong">
+                    {{ getProgressPercentage(sprint) }}%
+                  </span>
+                </div>
+                <div class="principal-progress-track">
+                  <div
+                    class="principal-progress-fill"
+                    [style.width.%]="getProgressPercentage(sprint)"
+                  ></div>
+                </div>
+                <div class="principal-sprint-stats">
+                  <div class="principal-stat-line">
+                    <span class="principal-meta">Pendientes</span>
+                    <span class="principal-stat">{{ sprint.countTaskPending }}</span>
                   </div>
-                }
-              </div>
-              <app-ui-skeleton width="w-20" height="h-8" />
-            </div>
-          </app-ui-card>
-        }
-      } @else {
-        @for (sprint of resourcesSprints.value(); track sprint.sprint_id) {
-          <app-ui-card
-            variant="default"
-            padding="md"
-            class="overflow-hidden cursor-pointer hover:shadow-md transition-all duration-200 "
-            (click)="viewSprintDetails(sprint)"
-          >
-            <div class="border-b border-gray-200 dark:border-dark-border pb-4 mb-4">
-              <div class="flex justify-between items-start gap-2 mb-3">
-                <h3
-                  class="text-lg font-semibold text-gray-900 dark:text-dark-text truncate"
-                >
-                  {{ sprint.name }}
-                </h3>
-                <app-ui-badge [variant]="getStatusBadgeVariant(sprint.status)">
-                  {{ getStatusText(sprint.status) }}
-                </app-ui-badge>
-              </div>
-              <p class="text-sm text-gray-600 dark:text-dark-text-muted mb-4 line-clamp-2">
-                {{ sprint.description }}
-              </p>
-              <div
-                class="flex items-center gap-2 text-xs text-gray-500 dark:text-dark-text-muted"
-              >
-                <svg
-                  class="w-4 h-4 shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                {{ formatDate(sprint.start_date) }} – {{ formatDate(sprint.end_date) }}
-              </div>
-            </div>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-gray-600 dark:text-dark-text-muted">Progress</span>
-                <span class="text-gray-900 dark:text-dark-text font-medium">
-                  {{ getProgressPercentage(sprint) }}%
-                </span>
-              </div>
-              <div
-                class="w-full h-2 rounded-full bg-gray-200 dark:bg-dark-border overflow-hidden"
-              >
-                <div
-                  class="h-2 rounded-full transition-all duration-300 bg-gray-900 dark:bg-dark-text"
-                  [style.width.%]="getProgressPercentage(sprint)"
-                ></div>
-              </div>
-              <div class="space-y-2 text-xs">
-                <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-dark-text-muted">Pending</span>
-                  <span class="text-gray-900 dark:text-dark-text">{{
-                    sprint.countTaskPending
-                  }}</span>
+                  <div class="principal-stat-line">
+                    <span class="principal-meta">En curso</span>
+                    <span class="principal-stat">{{ sprint.countTaskInProgress }}</span>
+                  </div>
+                  <div class="principal-stat-line">
+                    <span class="principal-meta">Hechas</span>
+                    <span class="principal-stat">{{ sprint.countTaskCompleted }}</span>
+                  </div>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-dark-text-muted">In Progress</span>
-                  <span class="text-gray-900 dark:text-dark-text">{{
-                    sprint.countTaskInProgress
-                  }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-500 dark:text-dark-text-muted">Completed</span>
-                  <span class="text-gray-900 dark:text-dark-text">{{
-                    sprint.countTaskCompleted
-                  }}</span>
+                <div class="flex justify-end gap-2 pt-2">
+                  @if (sprint.status === 'planned') {
+                    <app-ui-button
+                      variant="primary"
+                      size="md"
+                      (click)="updateSprintStatus(sprint, 'active'); $event.stopPropagation()"
+                    >
+                      Activar
+                    </app-ui-button>
+                  }
+                  @if (sprint.status === 'active') {
+                    <app-ui-button
+                      variant="secondary"
+                      size="md"
+                      (click)="updateSprintStatus(sprint, 'completed'); $event.stopPropagation()"
+                    >
+                      Completar
+                    </app-ui-button>
+                  }
                 </div>
               </div>
-              <div class="flex justify-end gap-2 pt-2">
-                @if (sprint.status === 'planned') {
-                  <app-ui-button
-                    variant="primary"
-                    size="sm"
-                    (click)="updateSprintStatus(sprint, 'active'); $event.stopPropagation()"
-                  >
-                    Activate
-                  </app-ui-button>
-                }
-                @if (sprint.status === 'active') {
-                  <app-ui-button
-                    variant="secondary"
-                    size="sm"
-                    (click)="updateSprintStatus(sprint, 'completed'); $event.stopPropagation()"
-                  >
-                    Complete
-                  </app-ui-button>
-                }
-              </div>
-            </div>
-          </app-ui-card>
-        }
+            </app-ui-card>
+          }
 
-        @if (
-          !isLoadingSprints() &&
-          resourcesSprints.value() &&
-          resourcesSprints.value().length > 0
-        ) {
-          <app-ui-card
-            variant="bordered"
-            padding="md"
-            class="min-h-[300px] flex items-center justify-center  dark:hover:border-dark-border-hover cursor-pointer transition-colors"
-            (click)="showCreateForm.set(true)"
-          >
-            <div class="text-center">
-              <div
-                class="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-dark-border flex items-center justify-center mx-auto mb-4 text-gray-400 dark:text-dark-text-muted"
-              >
-                <svg
-                  class="w-7 h-7"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
+          @if (
+            !isLoadingSprints() &&
+            resourcesSprints.value() &&
+            resourcesSprints.value().length > 0
+          ) {
+            <app-ui-card
+              variant="bordered"
+              padding="none"
+              class="principal-add-card cursor-pointer"
+              role="button"
+              tabindex="0"
+              (click)="openCreateSprintForm()"
+              (keydown.enter)="openCreateSprintForm()"
+              (keydown.space)="openCreateSprintForm($event)"
+            >
+              <div class="principal-add-inner">
+                <div class="principal-add-glow" aria-hidden="true"></div>
+                <div class="principal-add-visual">
+                  <div class="principal-add-icon-ring">
+                    <svg class="principal-add-plus" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.25"
+                        d="M12 5v14M5 12h14"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div class="principal-add-copy">
+                  <span class="principal-add-kicker">Nuevo</span>
+                  <h3 class="principal-add-title">Añadir sprint</h3>
+                  <p class="principal-add-text">
+                    Define fechas y prioriza el trabajo del equipo en el tablero Kanban.
+                  </p>
+                </div>
+                <div class="principal-add-cta" aria-hidden="true">
+                  <span class="principal-add-cta-label">Crear</span>
+                  <svg class="principal-add-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </div>
               </div>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-dark-text">
-                Add New Sprint
-              </h3>
-              <p class="text-sm text-gray-500 dark:text-dark-text-muted mt-2">
-                Create a new sprint to organize your tasks
-              </p>
-            </div>
-          </app-ui-card>
+            </app-ui-card>
+          }
         }
+      </div>
+
+      @if (!isLoadingSprints() && resourcesSprints.value().length === 0) {
+        <div class="principal-empty">
+          <div class="principal-empty-icon-wrap">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+              />
+            </svg>
+          </div>
+          <h3 class="principal-empty-title">Aún no hay sprints</h3>
+          <p class="principal-empty-text">
+            Crea el primero para organizar tus tareas en el tablero.
+          </p>
+          <app-ui-button variant="primary" (click)="showCreateForm.set(true)">
+            Crear primer sprint
+          </app-ui-button>
+        </div>
       }
     </div>
-
-    @if (
-      !isLoadingSprints() &&
-      resourcesSprints.value().length === 0
-    ) {
-      <div class="text-center py-16">
-        <div
-          class="w-20 h-20 mx-auto mb-6 rounded-full border-2 border-gray-200 dark:border-dark-border flex items-center justify-center text-gray-400 dark:text-dark-text-muted"
-        >
-          <svg
-            class="w-10 h-10"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-            />
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-dark-text mb-2">
-          No sprints yet
-        </h3>
-        <p class="text-gray-500 dark:text-dark-text-muted mb-6 max-w-sm mx-auto">
-          Create your first sprint to organize your tasks
-        </p>
-        <app-ui-button variant="primary" (click)="showCreateForm.set(true)">
-          Create First Sprint
-        </app-ui-button>
-      </div>
-    }
-  </app-ui-container>
+  </div>
 </div>

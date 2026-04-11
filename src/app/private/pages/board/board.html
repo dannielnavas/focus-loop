@@ -1,187 +1,179 @@
 <app-optimistic-status />
 <app-notifications />
-<div
-  class="min-h-screen w-full bg-white dark:bg-dark p-4 sm:p-6"
->
+
+<div class="board-page">
+  <div class="board-atmosphere" aria-hidden="true"></div>
   <app-header />
-  <div class="max-w-7xl mx-auto mt-4">
-    <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-[calc(100vh-56px)] min-h-0"
-    >
-      <!-- Pending -->
-      <div
-        class="rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-elevated flex flex-col h-full min-h-0 overflow-hidden shadow-sm"
-      >
-        <div class="px-4 py-3 sm:px-5 sm:py-4 border-b border-gray-200 dark:border-dark-border shrink-0">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+  <div class="board-inner">
+    <header class="board-hero">
+      <p class="board-kicker">Kanban</p>
+      <h1 class="board-title">{{ sprintHeading() }}</h1>
+      <p class="board-sub">Arrastra tarjetas entre columnas para cambiar el estado.</p>
+    </header>
+
+    <div class="board-grid">
+      <!-- Pendientes -->
+      <section class="board-column board-column--pending" aria-labelledby="board-col-pending-title">
+        <div class="board-column-head">
+          <div class="board-column-icon board-column-icon--pending" aria-hidden="true">
+            <svg class="board-col-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Pending
-          </h2>
-          <p class="text-sm text-gray-500 dark:text-dark-text-muted mt-1">{{ todo().length }} tasks</p>
+          </div>
+          <div class="board-column-titles">
+            <h2 id="board-col-pending-title" class="board-column-title">Pendientes</h2>
+            <p class="board-column-meta">{{ todo().length }} tareas</p>
+          </div>
         </div>
+
         <div
           cdkDropList
           #todoList="cdkDropList"
           [cdkDropListData]="todo()"
           [cdkDropListConnectedTo]="[todayList, doneList]"
-          class="p-3 sm:p-4 min-h-0 overflow-auto flex-1"
+          class="board-drop-list"
           (cdkDropListDropped)="drop($event)"
         >
           @if (showTodoInput) {
-            <div class="rounded-lg border border-gray-200 dark:border-dark-border p-3 sm:p-4 mb-3 bg-gray-50 dark:bg-dark-elevated/50">
+            <div class="board-compose">
+              <label class="sr-only" for="board-new-task">Nueva tarea</label>
               <input
+                id="board-new-task"
                 type="text"
                 [(ngModel)]="newTodoTask"
                 (keydown)="onKeyPress($event)"
-                placeholder="Write your task…"
-                class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all mb-3"
+                placeholder="Escribe una tarea…"
+                class="board-input"
                 autofocus
               />
-              <div class="flex justify-end gap-2">
+              <div class="board-compose-actions">
                 <app-ui-button variant="ghost" size="sm" (click)="cancelInput()">
-                  Cancel
+                  Cancelar
                 </app-ui-button>
                 <app-ui-button variant="primary" size="sm" (click)="addTodoTask()">
-                  Add
+                  Añadir
                 </app-ui-button>
               </div>
             </div>
           }
           @for (item of todo(); track item.task_id) {
-            <div
-              class="rounded-lg border border-gray-200 dark:border-dark-border p-3 sm:p-4 mb-3 cursor-move hover:border-gray-300 dark:hover:border-dark-border-hover transition-all duration-200 bg-white dark:bg-dark-elevated"
-              cdkDrag
-            >
-              <div class="flex items-start justify-between gap-2">
-                <p class="text-gray-900 dark:text-dark-text font-medium">{{ item.title }}</p>
-                <span class="w-2 h-2 rounded-full bg-gray-400 dark:bg-dark-text-muted shrink-0 mt-1.5"></span>
-              </div>
+            <div class="board-card" cdkDrag>
+              <div class="board-card-gutter board-card-gutter--pending" aria-hidden="true"></div>
+              <p class="board-card-title">{{ item.title }}</p>
             </div>
           }
           @if (todo().length === 0 && !showTodoInput) {
-            <div class="text-center text-gray-500 dark:text-dark-text-muted py-8">
-              <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <p class="text-sm">No pending tasks</p>
+            <div class="board-empty" role="status">
+              <p class="board-empty-title">Sin pendientes</p>
+              <p class="board-empty-text">Añade la primera tarea abajo.</p>
             </div>
           }
         </div>
+
         @if (!showTodoInput) {
-          <div class="p-3 sm:p-4 pt-0 shrink-0">
-            <app-ui-button
-              variant="outline"
-              class="w-full justify-center"
-              (click)="showTodoInput = true"
-            >
+          <div class="board-column-footer">
+            <app-ui-button variant="outline" class="w-full justify-center" (click)="showTodoInput = true">
               <span class="flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Add task
+                Añadir tarea
               </span>
             </app-ui-button>
           </div>
         }
-      </div>
+      </section>
 
-      <!-- Today -->
-      <div
-        class="rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-elevated flex flex-col h-full min-h-0 overflow-hidden shadow-sm"
-      >
-        <div class="px-4 py-3 sm:px-5 sm:py-4 border-b border-gray-200 dark:border-dark-border shrink-0">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Hoy -->
+      <section class="board-column board-column--today" aria-labelledby="board-col-today-title">
+        <div class="board-column-head">
+          <div class="board-column-icon board-column-icon--today" aria-hidden="true">
+            <svg class="board-col-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Today
-          </h2>
-          <p class="text-sm text-gray-500 dark:text-dark-text-muted mt-1">{{ today().length }} tasks</p>
+          </div>
+          <div class="board-column-titles">
+            <h2 id="board-col-today-title" class="board-column-title">Hoy</h2>
+            <p class="board-column-meta">{{ today().length }} en curso</p>
+          </div>
         </div>
+
         <div
           cdkDropList
           #todayList="cdkDropList"
           [cdkDropListData]="today()"
           [cdkDropListConnectedTo]="[todoList, doneList]"
-          class="p-3 sm:p-4 min-h-0 overflow-auto flex-1"
+          class="board-drop-list"
           (cdkDropListDropped)="drop($event)"
         >
           @for (item of today(); track item.task_id) {
-            <div
-              class="rounded-lg border border-gray-200 dark:border-dark-border p-3 sm:p-4 mb-3 cursor-move hover:border-gray-300 dark:hover:border-dark-border-hover transition-all duration-200 bg-white dark:bg-dark-elevated"
-              cdkDrag
-            >
-              <div class="flex items-start justify-between gap-2">
-                <p class="text-gray-900 dark:text-dark-text font-medium">{{ item.title }}</p>
-                <span class="w-2 h-2 rounded-full bg-gray-400 dark:bg-dark-text-muted shrink-0 mt-1.5"></span>
-              </div>
+            <div class="board-card" cdkDrag>
+              <div class="board-card-gutter board-card-gutter--today" aria-hidden="true"></div>
+              <p class="board-card-title">{{ item.title }}</p>
             </div>
           }
           @if (today().length === 0) {
-            <div class="text-center text-gray-500 dark:text-dark-text-muted py-8">
-              <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p class="text-sm">No tasks for today</p>
+            <div class="board-empty" role="status">
+              <p class="board-empty-title">Nada en curso</p>
+              <p class="board-empty-text">Arrastra aquí lo que quieras hacer hoy.</p>
             </div>
           }
         </div>
-        <div class="p-3 sm:p-4 pt-0 shrink-0">
-          <app-ui-button variant="primary" class="w-full justify-center" (click)="startTasks()">
+
+        <div class="board-column-footer">
+          <app-ui-button
+            variant="primary"
+            class="board-cta-today w-full justify-center"
+            [disabled]="today().length === 0"
+            (click)="startTasks()"
+          >
             <span class="flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Start Work
+              Modo zen
             </span>
           </app-ui-button>
         </div>
-      </div>
+      </section>
 
-      <!-- Done -->
-      <div
-        class="rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-elevated flex flex-col h-full min-h-0 overflow-hidden shadow-sm"
-      >
-        <div class="px-4 py-3 sm:px-5 sm:py-4 border-b border-gray-200 dark:border-dark-border shrink-0">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Hechas -->
+      <section class="board-column board-column--done" aria-labelledby="board-col-done-title">
+        <div class="board-column-head">
+          <div class="board-column-icon board-column-icon--done" aria-hidden="true">
+            <svg class="board-col-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Done
-          </h2>
-          <p class="text-sm text-gray-500 dark:text-dark-text-muted mt-1">{{ done().length }} tasks</p>
+          </div>
+          <div class="board-column-titles">
+            <h2 id="board-col-done-title" class="board-column-title">Hechas</h2>
+            <p class="board-column-meta">{{ done().length }} completadas</p>
+          </div>
         </div>
+
         <div
           cdkDropList
           #doneList="cdkDropList"
           [cdkDropListData]="done()"
           [cdkDropListConnectedTo]="[todoList, todayList]"
-          class="p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] overflow-auto flex-1"
+          class="board-drop-list board-drop-list--done"
           (cdkDropListDropped)="drop($event)"
         >
           @for (item of done(); track item.task_id) {
-            <div
-              class="rounded-lg border border-gray-200 dark:border-dark-border p-3 sm:p-4 mb-3 cursor-move hover:border-gray-300 dark:hover:border-dark-border-hover transition-all duration-200 bg-white dark:bg-dark-elevated opacity-90"
-              cdkDrag
-            >
-              <div class="flex items-start justify-between gap-2">
-                <p class="text-gray-500 dark:text-dark-text-muted font-medium line-through">{{ item.title }}</p>
-                <span class="w-2 h-2 rounded-full bg-gray-400 dark:bg-dark-text-muted shrink-0 mt-1.5"></span>
-              </div>
+            <div class="board-card board-card--done" cdkDrag>
+              <div class="board-card-gutter board-card-gutter--done" aria-hidden="true"></div>
+              <p class="board-card-title board-card-title--done">{{ item.title }}</p>
             </div>
           }
           @if (done().length === 0) {
-            <div class="text-center text-gray-500 dark:text-dark-text-muted py-8">
-              <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p class="text-sm">No completed tasks</p>
+            <div class="board-empty" role="status">
+              <p class="board-empty-title">Aún no hay cierres</p>
+              <p class="board-empty-text">Las tareas completadas aparecerán aquí.</p>
             </div>
           }
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </div>

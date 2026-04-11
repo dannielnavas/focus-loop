@@ -17,6 +17,8 @@ export class UiButtonComponent {
   size = input<ButtonSize>('md');
   disabled = input<boolean>(false);
   type = input<'button' | 'submit' | 'reset'>('button');
+  /** Accesibilidad: anunciado por lectores de pantalla (p. ej. botón solo icono) */
+  ariaLabel = input<string | undefined>(undefined);
   /** Clases adicionales */
   class = input<string>('');
 

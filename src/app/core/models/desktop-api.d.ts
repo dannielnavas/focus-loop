@@ -36,7 +36,7 @@ declare global {
       spotifyConnect?: () => Promise<{ ok: boolean; error?: string }>;
       spotifyDisconnect?: () => Promise<{ ok: boolean; error?: string }>;
       spotifyGetStatus?: () => Promise<
-        | { ok: true; connected: boolean; hasClientId: boolean }
+        | { ok: true; connected: boolean; hasClientId: boolean; isPackaged?: boolean }
         | { ok: false; error: string }
       >;
       spotifyGetNowPlaying?: () => Promise<SpotifyNowPlayingIpcPayload>;

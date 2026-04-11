@@ -1,12 +1,13 @@
 <header
-  class="w-full dark:border-dark-border bg-transparent transition-colors duration-200 fixed top-0 left-0 right-0 z-50"
+  class="w-full border-b border-gray-200/80 dark:border-dark-border bg-white/95 dark:bg-dark/98 backdrop-blur-sm transition-colors duration-200 fixed top-0 left-0 right-0 z-50 pt-[env(safe-area-inset-top,0px)]"
 >
-  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 flex justify-between items-center py-1">
-    <div class="flex items-center gap-2 min-w-0">
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 flex justify-between items-center py-2 min-h-[2.75rem]">
+    <div class="flex items-center gap-2 min-w-0 flex-1">
       <app-ui-button
         variant="ghost"
         size="sm"
         class="!p-1.5 shrink-0"
+        [ariaLabel]="'Volver'"
         (click)="goToBack()"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

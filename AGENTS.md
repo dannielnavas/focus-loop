@@ -25,6 +25,8 @@ npm run electron:build:minor  # Increment minor version and build
 npm run electron:build:major  # Increment major version and build
 ```
 
+**Spotify (releases):** set `SPOTIFY_CLIENT_ID` before `npm run electron:build` so it is embedded in the main process; end users do not use `.env`. See `.env.example` for redirect URIs. In GitHub: **Settings → Secrets and variables → Actions → New repository secret** → name `SPOTIFY_CLIENT_ID`, value your Spotify app Client ID. The workflow [`.github/workflows/electron-release.yml`](.github/workflows/electron-release.yml) passes it into the build step.
+
 ### Testing
 ```bash
 npm run test                              # Run unit tests

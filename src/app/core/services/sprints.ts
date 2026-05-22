@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { format, subDays } from 'date-fns';
 import { Observable, retry } from 'rxjs';
 import { Sprint, SprintResponse } from '../models/sprint.model';
@@ -14,28 +14,18 @@ export class Sprints {
   private readonly optimisticUI = inject(OptimisticUIService);
   private readonly storage = inject(StorageService);
 
-  private readonly session = computed(() => this.storage.getToken());
+
 
   getSprints(userId: string | number) {
     return this.http.get<SprintResponse[]>(
-      `https://focus-loop-api.danniel.dev/sprint/user/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      `https://focus-loop-api.danniel.dev/sprint/user/${userId}`
     ).pipe(retry({count: 3, delay: 1000}));
   }
 
   createSprint(sprint: Sprint) {
     return this.http.post<Sprint>(
       'https://focus-loop-api.danniel.dev/sprint',
-      sprint,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      sprint
     );
   }
 
@@ -61,12 +51,7 @@ export class Sprints {
   updateSprint(id: number, sprint: Partial<Sprint>) {
     return this.http.patch<Sprint>(
       `https://focus-loop-api.danniel.dev/sprint/${id}`,
-      sprint,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      sprint
     );
   }
 
@@ -101,12 +86,7 @@ export class Sprints {
 
   deleteSprint(id: number) {
     return this.http.delete(
-      `https://focus-loop-api.danniel.dev/sprints/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      `https://focus-loop-api.danniel.dev/sprints/${id}`
     );
   }
 
@@ -124,11 +104,6 @@ export class Sprints {
       {
         sprint_id,
         dateReport,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
       }
     );
   }

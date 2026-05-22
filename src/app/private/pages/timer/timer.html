@@ -10,7 +10,11 @@
 
   <div class="timer-body">
     <div class="timer-ring-column">
-      <div class="timer-ring-host">
+      <div
+        class="timer-ring-host"
+        [class.timer-ring-host--running]="status()"
+        [attr.data-phase]="displayPhase()"
+      >
         <svg
           class="timer-svg"
           viewBox="0 0 72 72"

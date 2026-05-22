@@ -17,8 +17,18 @@ function isAuthRequest(url: string): boolean {
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const storage = inject(StorageService);
+  const token = storage.getToken();
 
-  return next(req).pipe(
+  let authReq = req;
+  if (token && !isAuthRequest(req.url)) {
+    authReq = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (
         error.status === HttpStatusCode.Unauthorized &&

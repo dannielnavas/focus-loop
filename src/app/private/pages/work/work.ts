@@ -65,13 +65,17 @@ export default class Work implements OnInit, OnDestroy {
 
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousIndex !== event.currentIndex) {
-      moveItemInArray(this.today(), event.previousIndex, event.currentIndex);
+      const todayTasks = [...this.today()];
+      moveItemInArray(todayTasks, event.previousIndex, event.currentIndex);
+      this.store.setTaskForWork(todayTasks);
     }
   }
 
   deleteTask(index: number) {
-    if (index >= 0 && index < this.today().length) {
-      this.today().splice(index, 1);
+    const todayTasks = [...this.today()];
+    if (index >= 0 && index < todayTasks.length) {
+      todayTasks.splice(index, 1);
+      this.store.setTaskForWork(todayTasks);
     }
   }
 

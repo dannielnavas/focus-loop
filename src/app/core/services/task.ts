@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Task as TaskModel, TaskResponse } from '../models/task.model';
 import { OptimisticUIService } from './optimistic-ui';
@@ -13,28 +13,18 @@ export class Task {
   private readonly optimisticUI = inject(OptimisticUIService);
   private readonly storage = inject(StorageService);
 
-  private readonly session = computed(() => this.storage.getToken());
+
 
   getTasks(sprint_id: string | number) {
     return this.http.get<TaskResponse[]>(
-      `https://focus-loop-api.danniel.dev/tasks?sprint_id=${sprint_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      `https://focus-loop-api.danniel.dev/tasks?sprint_id=${sprint_id}`
     );
   }
 
   createTask(task: TaskModel) {
     return this.http.post<TaskModel>(
       'https://focus-loop-api.danniel.dev/tasks',
-      task,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      task
     );
   }
 
@@ -60,12 +50,7 @@ export class Task {
   updateTask(id: number, task: Partial<TaskModel>) {
     return this.http.patch<TaskModel>(
       `https://focus-loop-api.danniel.dev/tasks/${id}`,
-      task,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      task
     );
   }
 
@@ -100,34 +85,19 @@ export class Task {
 
   getCountPendingTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `https://focus-loop-api.danniel.dev/tasks/count-task-pending/${sprint_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      `https://focus-loop-api.danniel.dev/tasks/count-task-pending/${sprint_id}`
     );
   }
 
   getCountInProgressTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `https://focus-loop-api.danniel.dev/tasks/count-task-in-progress/${sprint_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      `https://focus-loop-api.danniel.dev/tasks/count-task-in-progress/${sprint_id}`
     );
   }
 
   getCountCompletedTasks(sprint_id: string | number) {
     return this.http.get<number>(
-      `https://focus-loop-api.danniel.dev/tasks/count-task-completed/${sprint_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this.session()}`,
-        },
-      }
+      `https://focus-loop-api.danniel.dev/tasks/count-task-completed/${sprint_id}`
     );
   }
 }

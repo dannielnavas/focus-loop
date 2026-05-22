@@ -16,6 +16,8 @@ import {
   NgZone,
   OnDestroy,
   signal,
+  HostListener,
+  ElementRef,
 } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -31,6 +33,11 @@ import { Router } from '@angular/router';
   styleUrl: './header.css',
 })
 export class Header implements OnDestroy {
+  // Variable estática para controlar si ya se registraron los listeners
+  private static listenersRegistered = false;
+  // Referencia estática a la instancia actual para manejar los callbacks
+  private static currentInstance: Header | null = null;
+
   countTasks = input(0);
 
 
@@ -41,21 +48,53 @@ export class Header implements OnDestroy {
 
   user_id = computed(() => this.storage.getUserId());
   user = computed(() => this.storage.getAll());
-  private readonly router = inject(Router);
-  private readonly location = inject(Location);
+  protected readonly router = inject(Router);
+  protected readonly location = inject(Location);
   private readonly sprintService = inject(Sprints);
   private readonly ngZone = inject(NgZone);
   private readonly store = inject(Store);
   private readonly storage = inject(StorageService);
+  private readonly elementRef = inject(ElementRef);
 
-  // Variable estática para controlar si ya se registraron los listeners
-  private static listenersRegistered = false;
-  // Referencia estática a la instancia actual para manejar los callbacks
-  private static currentInstance: Header | null = null;
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.showMenu() && !this.elementRef.nativeElement.contains(event.target)) {
+      this.closeMenu();
+    }
+  }
+
+  public $name = computed(() => {
+    try {
+      const userDataStr = this.user().user_data;
+      if (!userDataStr) return 'Usuario';
+      const user = typeof userDataStr === 'string' ? JSON.parse(userDataStr) : userDataStr;
+      return user?.full_name || 'Usuario';
+    } catch (e) {
+      return 'Usuario';
+    }
+  });
+
+  public $email = computed(() => {
+    try {
+      const userDataStr = this.user().user_data;
+      if (!userDataStr) return '';
+      const user = typeof userDataStr === 'string' ? JSON.parse(userDataStr) : userDataStr;
+      return user?.email || '';
+    } catch (e) {
+      return '';
+    }
+  });
 
   public $image = computed(() => {
-    const user = JSON.parse(this.user().user_data || '');
-    return user?.profile_image;
+    try {
+      const userDataStr = this.user().user_data;
+      if (!userDataStr) return null;
+      const user = typeof userDataStr === 'string' ? JSON.parse(userDataStr) : userDataStr;
+      return user?.profile_image;
+    } catch (e) {
+      console.error('Error parsing user_data in Header:', e);
+      return null;
+    }
   });
 
   goToProfile() {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 export interface StorageData {
   token?: string;
@@ -15,17 +15,31 @@ export interface StorageData {
 })
 export class StorageService {
   private readonly storageKey = 'focus_loop_data';
+  private readonly storageData = signal<StorageData>({});
 
-  constructor() {}
+  constructor() {
+    this.storageData.set(this.getAllFromStorage());
+  }
+
+  private getAllFromStorage(): StorageData {
+    try {
+      const data = localStorage.getItem(this.storageKey);
+      return data ? JSON.parse(data) : {};
+    } catch (error) {
+      console.error('Error al obtener todos los datos del storage:', error);
+      return {};
+    }
+  }
 
   /**
    * Guarda un valor en el almacenamiento local
    */
   set(key: string, value: any): void {
     try {
-      const data = this.getAll();
+      const data = this.getAllFromStorage();
       data[key] = value;
       localStorage.setItem(this.storageKey, JSON.stringify(data));
+      this.storageData.set(data);
     } catch (error) {
       console.error('Error al guardar en storage:', error);
     }
@@ -48,13 +62,7 @@ export class StorageService {
    * Obtiene todos los datos del almacenamiento
    */
   getAll(): StorageData {
-    try {
-      const data = localStorage.getItem(this.storageKey);
-      return data ? JSON.parse(data) : {};
-    } catch (error) {
-      console.error('Error al obtener todos los datos del storage:', error);
-      return {};
-    }
+    return this.storageData();
   }
 
   /**
@@ -62,9 +70,10 @@ export class StorageService {
    */
   delete(key: string): void {
     try {
-      const data = this.getAll();
+      const data = this.getAllFromStorage();
       delete data[key];
       localStorage.setItem(this.storageKey, JSON.stringify(data));
+      this.storageData.set(data);
     } catch (error) {
       console.error('Error al eliminar del storage:', error);
     }
@@ -76,6 +85,7 @@ export class StorageService {
   clear(): void {
     try {
       localStorage.removeItem(this.storageKey);
+      this.storageData.set({});
     } catch (error) {
       console.error('Error al limpiar el storage:', error);
     }

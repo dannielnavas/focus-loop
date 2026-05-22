@@ -4,36 +4,33 @@
 /* Modo oscuro por clase en <html> (sincronizado vía ThemeService; ventanas Electron comparten localStorage). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Paleta y tipografía alineada a PRD (estilo Vercel) */
+/* Paleta y tipografía alineada a PRD (estilo Vercel) y extras de UX */
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Syne', 'Outfit', sans-serif;
 
   /* ─── Dark mode (base: slate #0f172a) ─────────────────────────────────────
    * Fondos:
    *   dark           #0f172a  fondo principal (slate-900)
    *   dark-elevated  #1e293b  cards, modales (slate-800)
    * Texto:
-   *   dark-text         #f1f5f9  texto principal (slate-100) → use dark:text-dark-text
-   *   dark-text-muted   #94a3b8  texto secundario (slate-400) → use dark:text-dark-text-muted
+   *   dark-text         #f1f5f9  texto principal (slate-100)
+   *   dark-text-muted   #94a3b8  texto secundario (slate-400)
    * Bordes:
-   *   dark-border       #334155  bordes (slate-700) → use dark:border-dark-border
-   *   dark-border-hover #475569  bordes hover (slate-600) → use dark:border-dark-border-hover
-   * Acento (links, botones secundarios, iconos activos):
+   *   dark-border       #334155  bordes (slate-700)
+   *   dark-border-hover #475569  bordes hover (slate-600)
+   * Acento:
    *   dark-accent       #818cf8  indigo-400
    *   dark-accent-hover #6366f1  indigo-500
-   * Semánticos (suave sobre fondo oscuro):
-   *   dark-success      #34d399  emerald-400
-   *   dark-warning      #fbbf24  amber-400
-   *   dark-error        #f87171  red-400
    */
-  --color-dark: #0f172a;
-  --color-dark-elevated: #1e293b;
-  --color-dark-text: #f1f5f9;
+  --color-dark: #070913;
+  --color-dark-elevated: #0f132a;
+  --color-dark-text: #f8fafc;
   --color-dark-text-muted: #94a3b8;
-  --color-dark-border: #334155;
-  --color-dark-border-hover: #475569;
-  --color-dark-accent: #818cf8;
-  --color-dark-accent-hover: #6366f1;
+  --color-dark-border: rgba(255, 255, 255, 0.08);
+  --color-dark-border-hover: rgba(255, 255, 255, 0.16);
+  --color-dark-accent: #c084fc;
+  --color-dark-accent-hover: #a855f7;
   --color-dark-success: #34d399;
   --color-dark-warning: #fbbf24;
   --color-dark-error: #f87171;
@@ -53,9 +50,10 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  background-color: #fff;
-  color: #111827;
+  background-color: #fbfbfd;
+  color: #0f172a;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 html.dark body {
@@ -67,6 +65,34 @@ html.dark body {
   box-sizing: border-box;
 }
 
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float-reverse {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(15px) rotate(-3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(1.05); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 28px rgba(194, 65, 12, 0.2); }
+  50% { transform: scale(1.02); box-shadow: 0 12px 36px rgba(194, 65, 12, 0.4); }
+}
+
+@keyframes breathe-dark {
+  0%, 100% { transform: scale(1); box-shadow: 0 10px 32px rgba(192, 132, 252, 0.2); }
+  50% { transform: scale(1.02); box-shadow: 0 14px 44px rgba(192, 132, 252, 0.45); }
+}
+
 /* Scrollbar sutil (light y dark) - PRD: escala de grises */
 ::-webkit-scrollbar {
   width: 6px;
@@ -74,26 +100,23 @@ html.dark body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f3f4f6;
-}
-
-html.dark ::-webkit-scrollbar-track {
-  background: var(--color-dark);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: rgba(15, 23, 42, 0.12);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: rgba(15, 23, 42, 0.24);
 }
 
 html.dark ::-webkit-scrollbar-thumb {
-  background: var(--color-dark-border);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-dark-border-hover);
+  background: rgba(255, 255, 255, 0.2);
 }
+

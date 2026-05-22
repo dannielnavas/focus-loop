@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Profile } from './profile';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import Profile from './profile';
 
 describe('Profile', () => {
   let component: Profile;
@@ -13,7 +15,11 @@ describe('Profile', () => {
 
     await TestBed.configureTestingModule({
       imports: [Profile, FormsModule],
-      providers: [{ provide: Router, useValue: mockRouter }],
+      providers: [
+        { provide: Router, useValue: mockRouter },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Profile);

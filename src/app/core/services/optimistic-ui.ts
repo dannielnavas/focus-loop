@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { NotificationService } from './notification.service';
@@ -19,7 +19,7 @@ export interface OptimisticOperation<T> {
 export class OptimisticUIService {
   private operations = signal<Map<string, OptimisticOperation<any>>>(new Map());
   private isProcessing = signal(false);
-  private readonly notificationService = new NotificationService();
+  private readonly notificationService = inject(NotificationService);
 
   /**
    * Ejecuta una operación de manera optimista

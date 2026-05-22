@@ -80,25 +80,49 @@
 
 .timer-glow {
   position: absolute;
-  width: 10rem;
-  height: 10rem;
+  width: 14rem;
+  height: 14rem;
   border-radius: 50%;
-  top: -3.5rem;
-  right: -2.5rem;
-  filter: blur(56px);
-  opacity: 0.18;
-  transition: background 0.6s ease, opacity 0.6s ease;
+  top: -5rem;
+  right: -4rem;
+  filter: blur(65px);
+  opacity: 0.2;
+  transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease;
   background: radial-gradient(circle, var(--timer-idle) 0%, transparent 72%);
 }
 
 .timer-glow[data-phase='work'] {
   background: radial-gradient(circle, var(--timer-work) 0%, transparent 72%);
-  opacity: 0.22;
+  opacity: 0.28;
+  animation: glow-pulse-work 6s infinite alternate ease-in-out;
 }
 
 .timer-glow[data-phase='break'] {
   background: radial-gradient(circle, var(--timer-break) 0%, transparent 72%);
-  opacity: 0.22;
+  opacity: 0.28;
+  animation: glow-pulse-break 6s infinite alternate ease-in-out;
+}
+
+@keyframes glow-pulse-work {
+  0% {
+    transform: scale(0.9) translate(0, 0);
+    opacity: 0.22;
+  }
+  100% {
+    transform: scale(1.15) translate(-10px, 10px);
+    opacity: 0.38;
+  }
+}
+
+@keyframes glow-pulse-break {
+  0% {
+    transform: scale(0.9) translate(0, 0);
+    opacity: 0.22;
+  }
+  100% {
+    transform: scale(1.15) translate(-10px, 10px);
+    opacity: 0.38;
+  }
 }
 
 .timer-body {
@@ -121,8 +145,42 @@
 
 .timer-ring-host {
   position: relative;
-  width: 4.25rem;
-  height: 4.25rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  transition: transform 0.3s ease;
+}
+
+.timer-ring-host:hover {
+  transform: scale(1.04);
+}
+
+/* Rotating dashed outline when timer runs */
+.timer-ring-host--running::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--timer-work);
+  opacity: 0.35;
+  animation: rotate-ring-halo 16s linear infinite;
+}
+
+.timer-ring-host--running[data-phase='break']::before {
+  border-color: var(--timer-break);
+}
+
+.timer-ring-host--running[data-phase='idle']::before,
+.timer-ring-host--running:not([data-phase])::before {
+  border-color: var(--timer-idle);
+}
+
+@keyframes rotate-ring-halo {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .timer-svg {
@@ -134,22 +192,32 @@
 .timer-ring-track {
   fill: none;
   stroke: var(--timer-track);
-  stroke-width: 4;
+  stroke-width: 3.5;
 }
 
 .timer-ring-fill {
   fill: none;
-  stroke-width: 4;
+  stroke-width: 3.5;
   stroke-linecap: round;
   transition: stroke-dasharray 0.4s cubic-bezier(0.33, 1, 0.68, 1), stroke 0.35s ease;
 }
 
 .timer-ring-fill--work {
   stroke: var(--timer-work);
+  filter: drop-shadow(0 0 4px rgba(194, 65, 12, 0.45));
+}
+
+:host-context(html.dark) .timer-ring-fill--work {
+  filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.65));
 }
 
 .timer-ring-fill--break {
   stroke: var(--timer-break);
+  filter: drop-shadow(0 0 4px rgba(13, 148, 136, 0.45));
+}
+
+:host-context(html.dark) .timer-ring-fill--break {
+  filter: drop-shadow(0 0 6px rgba(45, 212, 191, 0.65));
 }
 
 .timer-ring-fill--idle {
@@ -167,9 +235,9 @@
 
 .timer-digits {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--timer-text);
   line-height: 1;
 }
@@ -241,9 +309,32 @@
 }
 
 .timer-spotify {
-  margin-top: 0.15rem;
-  padding-top: 0.35rem;
-  border-top: 1px solid var(--timer-divider);
+  margin-top: 0.25rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.015);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:host-context(html.dark) .timer-spotify {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.timer-spotify:hover {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+:host-context(html.dark) .timer-spotify:hover {
+  background: rgba(30, 41, 59, 0.55);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .timer-spotify-hint {
@@ -264,9 +355,10 @@
   flex-shrink: 0;
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.25rem;
+  border-radius: 0.35rem;
   object-fit: cover;
   background: var(--timer-pill-bg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .timer-spotify-art--placeholder {

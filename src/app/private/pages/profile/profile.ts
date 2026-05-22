@@ -92,7 +92,16 @@ export default class Profile {
   loadUserProfile() {
     try {
       const user = this.storage.getUserData();
-      if (!user) return;
+      if (!user) {
+        this.profileForm.set({
+          full_name: '',
+          email: '',
+          profile_image: '',
+          role: 'user',
+          subscription_plan_id: 'free',
+        });
+        return;
+      }
       this.profileForm.set({
         full_name: user.full_name || '',
         email: user.email || '',
@@ -126,6 +135,18 @@ export default class Profile {
   onDarkModeChange(checked: boolean): void {
     this.preferences.update((p) => ({ ...p, dark_mode: checked }));
     this.theme.setDarkPersist(checked);
+  }
+
+  updateProfileField(field: keyof ProfileForm, value: string): void {
+    this.profileForm.update((form) => ({ ...form, [field]: value }));
+  }
+
+  updatePasswordField(field: keyof PasswordForm, value: string): void {
+    this.passwordForm.update((form) => ({ ...form, [field]: value }));
+  }
+
+  updatePreferenceField(field: keyof UserPreferences, value: boolean): void {
+    this.preferences.update((prefs) => ({ ...prefs, [field]: value }));
   }
 
   // Seleccionar imagen de perfil

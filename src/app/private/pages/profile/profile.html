@@ -1,4 +1,4 @@
-<div class="min-h-screen w-full bg-white dark:bg-dark py-6 sm:py-8">
+<div class="min-h-screen w-full bg-[#faf7f2] dark:bg-dark py-6 sm:py-8">
   <app-header />
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
     <div class="flex justify-between items-center mb-8">
@@ -121,11 +121,11 @@
               [ngModel]="profileForm().role"
               (ngModelChange)="updateProfileField('role', $event)"
               name="role"
-              class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+              class="w-full bg-white dark:bg-dark-elevated border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
             >
-              <option value="user">User</option>
-              <option value="admin">Administrator</option>
-              <option value="manager">Manager</option>
+              <option value="user" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">User</option>
+              <option value="admin" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Administrator</option>
+              <option value="manager" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Manager</option>
             </select>
           </div>
           <div>
@@ -134,11 +134,11 @@
               [ngModel]="profileForm().subscription_plan_id"
               (ngModelChange)="updateProfileField('subscription_plan_id', $event)"
               name="subscription_plan_id"
-              class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+              class="w-full bg-white dark:bg-dark-elevated border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
             >
-              <option value="free">Gratuito</option>
-              <option value="premium">Premium</option>
-              <option value="enterprise">Empresarial</option>
+              <option value="free" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Gratuito</option>
+              <option value="premium" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Premium</option>
+              <option value="enterprise" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Empresarial</option>
             </select>
           </div>
         </div>

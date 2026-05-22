@@ -10,7 +10,7 @@
   min-height: 0;
   overflow: hidden;
   /* Misma base que el cuerpo de la app: una sola superficie */
-  background-color: #ffffff;
+  background-color: #faf7f2;
   color: #111827;
 
   --timer-text: #0f172a;

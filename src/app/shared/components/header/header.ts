@@ -6,7 +6,7 @@ import {
   UiCardComponent,
   UiSkeletonComponent,
 } from '@/shared/components/ui';
-import { Location, NgOptimizedImage } from '@angular/common';
+import { Location } from '@angular/common';
 import {
   Component,
   computed,
@@ -24,7 +24,6 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-header',
   imports: [
-    NgOptimizedImage,
     UiButtonComponent,
     UiCardComponent,
     UiSkeletonComponent,

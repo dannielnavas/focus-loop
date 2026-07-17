@@ -1,5 +1,6 @@
 <div class="work-page">
   <div class="work-atmosphere" aria-hidden="true"></div>
+  <app-header [countTasks]="today().length" />
 
   <div class="work-inner">
     <!-- La banda va debajo del header fijo (.work-inner tiene padding-top) -->
@@ -9,7 +10,6 @@
     </div>
 
     <div class="work-shell rounded-2xl overflow-hidden flex flex-col shadow-sm work-shell-edge">
-      <app-header [countTasks]="today().length" />
       <div
         cdkDropList
         (cdkDropListDropped)="drop($event)"

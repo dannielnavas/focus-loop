@@ -18,7 +18,7 @@ export class UiBadgeComponent {
     const base = 'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium';
     const variants: Record<BadgeVariant, string> = {
       neutral:
-        'bg-gray-100 text-gray-700 dark:bg-dark-elevated dark:text-dark-text-muted border border-gray-200 dark:border-dark-border',
+        'bg-cream-elevated text-ink-muted dark:bg-dark-elevated dark:text-dark-text-muted border border-line dark:border-dark-border',
       success:
         'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800',
       warning:

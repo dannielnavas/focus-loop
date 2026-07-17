@@ -16,7 +16,8 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import TimerPomodoro, { TimerState } from 'timer-for-pomodoro';
+
+type PomodoroPhase = 'idle' | 'work' | 'break';
 
 @Component({
   selector: 'app-timer',
@@ -35,8 +36,6 @@ export default class Timer implements OnInit, OnDestroy {
 
   private audio: HTMLAudioElement | null = null;
   private audioContext: AudioContext | null = null;
-  private audioBuffer: AudioBuffer | null = null;
-  statusTimer = signal<string>('init');
 
   private passBreakUnsub: (() => void) | undefined;
   private passBreakDurationUnsub: (() => void) | undefined;
@@ -55,11 +54,7 @@ export default class Timer implements OnInit, OnDestroy {
   manualBreakTotalSeconds = signal(0);
   private manualBreakIntervalId: ReturnType<typeof setInterval> | null = null;
 
-  task = computed(() => {
-    const task = this.store.getOneTaskForWork();
-    if (!task) return undefined;
-    return task;
-  });
+  task = computed(() => this.store.getOneTaskForWork() ?? undefined);
 
   private static readonly DEFAULT_WORK_MIN = 60;
   private static readonly DEFAULT_BREAK_MIN = 15;
@@ -71,34 +66,62 @@ export default class Timer implements OnInit, OnDestroy {
 
   private readonly ringCircumference = 2 * Math.PI * 30;
 
-  timer = new TimerPomodoro(
-    Timer.DEFAULT_WORK_MIN,
-    Timer.DEFAULT_BREAK_MIN,
-    999
-  );
-  timerState = signal<TimerState | undefined>(undefined);
-  totalTime = signal<number>(0);
+  // ─── Motor del contador ────────────────────────────────────────────────
+  // Propio, sin dependencias externas. En vez de "restar 1" cada segundo con
+  // setInterval (lo que acumula desvío y puede duplicarse si algo dispara un
+  // segundo intervalo), guardamos el instante exacto en el que debe terminar
+  // la fase actual (phaseEndAt) y en cada tick recalculamos cuánto falta
+  // comparando contra Date.now(). El conteo nunca se desincroniza ni se
+  // "traba", sin importar pausas del hilo principal o el propio setInterval.
+  phase = signal<PomodoroPhase>('idle');
+  private phaseEndAt = signal<number | null>(null);
+  private pausedRemainingMs = signal<number | null>(null);
+  completedWorkRounds = signal(0);
+  /** Pulso decorativo breve al completar una fase (ver advancePhase()). */
+  celebrate = signal(false);
   status = signal<boolean>(false);
+  /** true en cuanto se pulsa "Iniciar", de forma síncrona (evita doble clic). */
+  hasStarted = signal<boolean>(false);
+  totalTime = signal<number>(0);
+  /** Se incrementa en cada tick solo para forzar el recálculo de los computed de tiempo. */
+  private readonly clockTick = signal(0);
+  private tickIntervalId: ReturnType<typeof setInterval> | null = null;
 
   displayPhase = computed(() => {
     if (this.postPassManualBreak()) return 'break';
-    return this.statusTimer();
+    return this.phase();
   });
 
   phaseLabel = computed(() => {
     if (this.postPassManualBreak()) return 'Descanso';
-    const phase = this.statusTimer();
+    const phase = this.phase();
     if (phase === 'work') return 'Enfoque';
     if (phase === 'break') return 'Descanso';
     return 'Listo';
   });
 
+  private phaseDurationSeconds(phase: PomodoroPhase): number {
+    if (phase === 'work') return this.pomodoroDefaults.work * 60;
+    if (phase === 'break') return this.pomodoroDefaults.break * 60;
+    return 0;
+  }
+
   remainingSecondsDisplay = computed(() => {
     if (this.postPassManualBreak()) {
       return this.manualBreakSecondsLeft();
     }
-    const st = this.timerState();
-    return (st?.minutes ?? 0) * 60 + (st?.seconds ?? 0);
+    const phase = this.phase();
+    if (phase === 'idle') {
+      return this.pomodoroDefaults.work * 60;
+    }
+    const paused = this.pausedRemainingMs();
+    if (paused !== null) {
+      return Math.max(0, Math.ceil(paused / 1000));
+    }
+    const endAt = this.phaseEndAt();
+    if (endAt === null) return 0;
+    this.clockTick(); // dependencia: fuerza recalcular en cada tick del reloj
+    return Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
   });
 
   progressFraction = computed(() => {
@@ -108,20 +131,12 @@ export default class Timer implements OnInit, OnDestroy {
       if (total <= 0) return 0;
       return Math.max(0, Math.min(1, (total - left) / total));
     }
-    const state = this.timerState();
-    if (!state?.status) return 0;
-    const remaining = state.minutes * 60 + state.seconds;
-    if (state.status === 'work') {
-      const total = state.settings.workTime * 60;
-      if (total <= 0) return 0;
-      return Math.max(0, Math.min(1, (total - remaining) / total));
-    }
-    if (state.status === 'break') {
-      const total = state.settings.breakTime * 60;
-      if (total <= 0) return 0;
-      return Math.max(0, Math.min(1, (total - remaining) / total));
-    }
-    return 0;
+    const phase = this.phase();
+    if (phase === 'idle') return 0;
+    const total = this.phaseDurationSeconds(phase);
+    if (total <= 0) return 0;
+    const remaining = this.remainingSecondsDisplay();
+    return Math.max(0, Math.min(1, (total - remaining) / total));
   });
 
   ringDash = computed(() => {
@@ -129,6 +144,35 @@ export default class Timer implements OnInit, OnDestroy {
     const c = this.ringCircumference;
     const filled = p * c;
     return `${filled} ${c}`;
+  });
+
+  /** Sube la intensidad del "wash" ambiental en el último 20% de la fase. */
+  washIntensity = computed(() => {
+    const phase = this.displayPhase();
+    if (phase !== 'work' && phase !== 'break') return 0;
+    const p = this.progressFraction();
+    return Math.max(0, Math.min(1, (p - 0.8) / 0.2));
+  });
+
+  private static readonly PIPS_PER_CYCLE = 4;
+  /** Índices fijos para pintar los puntos de rondas completadas. */
+  pipIndices = computed(() =>
+    Array.from({ length: Timer.PIPS_PER_CYCLE }, (_, i) => i)
+  );
+  /** Cuántos puntos del ciclo visual actual están llenos (rueda cada 4 rondas). */
+  filledPipCount = computed(() => {
+    const rounds = this.completedWorkRounds();
+    const mod = rounds % Timer.PIPS_PER_CYCLE;
+    return rounds > 0 && mod === 0 ? Timer.PIPS_PER_CYCLE : mod;
+  });
+
+  /** Segundos de enfoque acumulados: fases de trabajo completas + la que está en curso. */
+  liveTotalSeconds = computed(() => {
+    const base = this.totalTime();
+    if (this.phase() !== 'work' || this.postPassManualBreak()) return base;
+    const total = this.phaseDurationSeconds('work');
+    const elapsed = total - this.remainingSecondsDisplay();
+    return base + Math.max(0, elapsed);
   });
 
   ngOnInit() {
@@ -167,6 +211,7 @@ export default class Timer implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.stopTicking();
     this.clearPostPassManualBreakInterval();
     this.passBreakUnsub?.();
     this.passBreakDurationUnsub?.();
@@ -331,21 +376,77 @@ export default class Timer implements OnInit, OnDestroy {
     }
   }
 
+  // ─── Motor del contador: arranque / pausa / reanudación ────────────────
+
+  private beginTicking(): void {
+    // Siempre limpiar cualquier intervalo previo antes de crear uno nuevo:
+    // esto es justo lo que causaba el bug de "doble velocidad" antes.
+    this.stopTicking();
+    this.tickIntervalId = setInterval(() => {
+      this.ngZone.run(() => this.onClockTick());
+    }, 250);
+  }
+
+  private stopTicking(): void {
+    if (this.tickIntervalId !== null) {
+      clearInterval(this.tickIntervalId);
+      this.tickIntervalId = null;
+    }
+  }
+
+  private onClockTick(): void {
+    const endAt = this.phaseEndAt();
+    if (endAt !== null && Date.now() >= endAt) {
+      this.advancePhase();
+    }
+    this.clockTick.update((n) => n + 1);
+    this.cdr.detectChanges();
+  }
+
+  private advancePhase(): void {
+    const finishedPhase = this.phase();
+    if (finishedPhase === 'work') {
+      this.totalTime.update((t) => t + this.phaseDurationSeconds('work'));
+      this.completedWorkRounds.update((r) => r + 1);
+    }
+    const nextPhase: PomodoroPhase = finishedPhase === 'work' ? 'break' : 'work';
+    this.phase.set(nextPhase);
+    this.phaseEndAt.set(
+      Date.now() + this.phaseDurationSeconds(nextPhase) * 1000
+    );
+    this.notifyPhaseTransition(finishedPhase, nextPhase);
+    void this.playAudioForStatus(nextPhase);
+    this.celebrate.set(true);
+    setTimeout(() => this.celebrate.set(false), 900);
+  }
+
   start() {
+    if (this.phase() !== 'idle') return;
     try {
-      this.timer.start();
+      this.hasStarted.set(true);
       this.status.set(true);
-      this.listenTimer();
+      this.phase.set('work');
+      this.phaseEndAt.set(
+        Date.now() + this.phaseDurationSeconds('work') * 1000
+      );
+      this.beginTicking();
+      this.notifyPhaseTransition('idle', 'work');
+      void this.playAudioForStatus('work');
     } catch (error) {
       console.error('Error starting timer:', error);
     }
   }
 
   pause() {
+    if (!this.status()) return;
     try {
-      this.timer.pause();
+      const endAt = this.phaseEndAt();
+      if (endAt !== null) {
+        this.pausedRemainingMs.set(Math.max(0, endAt - Date.now()));
+      }
+      this.stopTicking();
       this.status.set(false);
-      const phase = this.statusTimer();
+      const phase = this.phase();
       if (phase === 'break') {
         this.pushTimerNotification(
           'Descanso en pausa',
@@ -363,10 +464,16 @@ export default class Timer implements OnInit, OnDestroy {
   }
 
   play() {
+    if (this.status()) return;
     try {
-      this.timer.start();
+      const remaining = this.pausedRemainingMs();
+      if (remaining !== null) {
+        this.phaseEndAt.set(Date.now() + remaining);
+        this.pausedRemainingMs.set(null);
+      }
       this.status.set(true);
-      const phase = this.statusTimer();
+      this.beginTicking();
+      const phase = this.phase();
       if (phase === 'break') {
         this.pushTimerNotification(
           'Descanso reanudado',
@@ -383,27 +490,6 @@ export default class Timer implements OnInit, OnDestroy {
     }
   }
 
-  listenTimer() {
-    try {
-      this.timer.subscribe((timerState) => {
-        this.timerState.set(timerState);
-        const previous = this.statusTimer();
-        const next = timerState.status?.trim() || 'init';
-        if (previous !== next) {
-          this.notifyPhaseTransition(previous, next, timerState);
-          this.statusTimer.set(next);
-          this.playAudioForStatus(next);
-        }
-        if (timerState.status === 'work') {
-          this.totalTime.update((current) => current + 1);
-        }
-        this.cdr.detectChanges();
-      });
-    } catch (error) {
-      console.error('Error listening to timer:', error);
-    }
-  }
-
   /** Notificación en app (toast) y en escritorio (Electron), si está disponible. */
   private pushTimerNotification(title: string, body: string): void {
     this.notificationService.info(title, body, 4800);
@@ -411,18 +497,16 @@ export default class Timer implements OnInit, OnDestroy {
   }
 
   private notifyPhaseTransition(
-    previous: string,
-    next: string,
-    state: TimerState
+    previous: PomodoroPhase,
+    next: PomodoroPhase
   ): void {
     const taskTitle = this.task()?.title?.trim();
     const taskBit = taskTitle ? ` · ${taskTitle}` : '';
 
-    if ((previous === 'init' || !previous) && next === 'work') {
-      const mins = state.settings.workTime;
+    if (previous === 'idle' && next === 'work') {
       this.pushTimerNotification(
         'Enfoque iniciado',
-        `Sesión de trabajo${taskBit}. Objetivo: ${mins} min.`
+        `Sesión de trabajo${taskBit}. Objetivo: ${this.pomodoroDefaults.work} min.`
       );
       return;
     }
@@ -434,18 +518,15 @@ export default class Timer implements OnInit, OnDestroy {
       return;
     }
     if (previous === 'work' && next === 'break') {
-      const br = state.settings.breakTime;
       this.pushTimerNotification(
         'Hora de descansar',
-        `Buen bloque de trabajo. Descansa ${br} min y recarga energía.`
+        `Buen bloque de trabajo. Descansa ${this.pomodoroDefaults.break} min y recarga energía.`
       );
       return;
     }
   }
 
-  private async playAudioForStatus(status: string | undefined) {
-    if (!status) return;
-
+  private async playAudioForStatus(status: PomodoroPhase) {
     let audioFile = '';
     if (status === 'work') audioFile = 'assets/start.mp3';
     if (status === 'break') audioFile = 'assets/break.mp3';
@@ -487,7 +568,7 @@ export default class Timer implements OnInit, OnDestroy {
   }
 
   formatTotalTime(): string {
-    const totalMinutes = Math.floor(this.totalTime() / 60);
+    const totalMinutes = Math.floor(this.liveTotalSeconds() / 60);
     const totalHours = Math.floor(totalMinutes / 60);
     const remainingMinutes = totalMinutes % 60;
     if (totalHours > 0) {
@@ -498,7 +579,7 @@ export default class Timer implements OnInit, OnDestroy {
 
   goToNextTask() {
     try {
-      this.timer.stop();
+      this.stopTicking();
       const completedTitle = this.task()?.title?.trim();
       this.taskService
         .updateTask(this.task()?.task_id || 0, {
@@ -528,7 +609,7 @@ export default class Timer implements OnInit, OnDestroy {
     const t = this.task();
     if (!t) return;
     try {
-      this.timer.stop();
+      this.stopTicking();
       this.status.set(false);
     } catch (error) {
       console.error('Error stopping timer for pass flow:', error);
@@ -549,7 +630,7 @@ export default class Timer implements OnInit, OnDestroy {
 
   backToWork() {
     try {
-      this.timer.stop();
+      this.stopTicking();
       this.router.navigate(['/private/work']);
     } catch (error) {
       console.error('Error returning to work:', error);

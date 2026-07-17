@@ -1,5 +1,5 @@
 <main
-  class="min-h-screen w-full flex items-center justify-center px-4 py-12 bg-[#faf7f2] dark:bg-dark relative overflow-hidden login-page-bg"
+  class="min-h-screen w-full flex items-center justify-center px-4 py-12 bg-cream dark:bg-dark relative overflow-hidden login-page-bg"
 >
   <!-- Background Glow Orbs -->
   <div class="login-atmosphere" aria-hidden="true">
@@ -11,18 +11,18 @@
   <app-ui-card
     variant="default"
     padding="lg"
-    class="w-full max-w-md border border-gray-200/50 dark:border-dark-border/40 bg-white/70 dark:bg-dark-elevated/65 backdrop-blur-xl shadow-2xl relative z-10 rounded-2xl transition-all duration-300 hover:shadow-purple-500/5 dark:hover:shadow-purple-400/5"
+    class="w-full max-w-md border border-line dark:border-dark-border/60 bg-cream-elevated/85 dark:bg-dark-elevated/75 backdrop-blur-xl shadow-2xl relative z-10 rounded-2xl transition-all duration-300 hover:shadow-accent/5 dark:hover:shadow-dark-accent/10"
   >
     <div class="flex flex-col items-center mb-8">
-      <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-purple-500/20 mb-3 rotate-3 hover:rotate-12 transition-transform duration-300">
+      <div class="w-12 h-12 rounded-xl bg-accent dark:bg-dark-accent flex items-center justify-center text-white font-bold text-xl shadow-md shadow-accent/20 dark:shadow-dark-accent/20 mb-3 rotate-3 hover:rotate-6 transition-transform duration-300">
         FL
       </div>
       <h1
-        class="text-center text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-dark-text font-heading"
+        class="text-center text-2xl sm:text-3xl font-extrabold tracking-tight text-ink dark:text-dark-text font-heading"
       >
         Focus Loop
       </h1>
-      <p class="text-xs text-gray-500 dark:text-dark-text-muted mt-1">Inicia sesión para continuar enfocado</p>
+      <p class="text-xs text-ink-muted dark:text-dark-text-muted mt-1">Inicia sesión para continuar enfocado</p>
     </div>
 
     <form
@@ -51,7 +51,7 @@
         <div class="flex justify-end">
           <button
             type="button"
-            class="text-xs font-semibold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors duration-200"
+            class="text-xs font-semibold text-accent hover:text-accent-hover dark:text-dark-accent dark:hover:text-dark-accent-hover transition-colors duration-200"
             (click)="togglePasswordVisibility()"
           >
             @if (showPassword()) { Ocultar contraseña } @else { Mostrar contraseña }
@@ -74,7 +74,7 @@
         type="submit"
         variant="primary"
         [disabled]="isLoading"
-        class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-500 dark:to-indigo-500 text-white border-0 py-2.5 hover:from-purple-700 hover:to-indigo-700 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 shadow-md shadow-purple-500/10 dark:shadow-purple-400/10"
+        class="w-full py-2.5"
       >
         @if (isLoading) {
           <span class="inline-flex items-center gap-2 text-sm">

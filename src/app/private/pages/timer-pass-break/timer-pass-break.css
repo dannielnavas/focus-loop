@@ -2,21 +2,21 @@
   display: block;
   min-height: 100dvh;
   box-sizing: border-box;
-  --pass-bg: linear-gradient(160deg, #eef2f0 0%, #e8ecf5 50%, #f0ebe6 100%);
-  --pass-text: #0f172a;
-  --pass-muted: #64748b;
-  --pass-faint: #94a3b8;
-  --pass-track: rgba(15, 23, 42, 0.12);
-  --pass-accent: #0d9488;
+  --pass-bg: linear-gradient(160deg, #f4f6f4 0%, #eef2f0 55%, #e9eef2 100%);
+  --pass-text: var(--color-ink);
+  --pass-muted: var(--color-ink-muted);
+  --pass-faint: color-mix(in srgb, var(--color-ink-muted) 75%, transparent);
+  --pass-track: var(--color-line);
+  --pass-accent: var(--color-accent);
 }
 
 :host-context(html.dark) {
-  --pass-bg: linear-gradient(165deg, #0c1220 0%, #121a2e 50%, #0f1729 100%);
-  --pass-text: #f1f5f9;
-  --pass-muted: #94a3b8;
-  --pass-faint: #64748b;
-  --pass-track: rgba(148, 163, 184, 0.2);
-  --pass-accent: #2dd4bf;
+  --pass-bg: linear-gradient(165deg, #101316 0%, #14181d 50%, #0f1215 100%);
+  --pass-text: var(--color-dark-text);
+  --pass-muted: var(--color-dark-text-muted);
+  --pass-faint: color-mix(in srgb, var(--color-dark-text-muted) 80%, transparent);
+  --pass-track: var(--color-dark-border);
+  --pass-accent: var(--color-dark-accent);
 }
 
 .pass-root {
@@ -25,7 +25,7 @@
   padding: 1.5rem 1.25rem 2rem;
   box-sizing: border-box;
   background: var(--pass-bg);
-  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-heading);
   color: var(--pass-text);
 }
 
@@ -52,7 +52,7 @@
   margin: 0.75rem 0 0;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  background: rgba(15, 23, 42, 0.06);
+  background: color-mix(in srgb, var(--pass-text) 6%, transparent);
   font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.35;
@@ -62,28 +62,19 @@
   overflow: hidden;
 }
 
-:host-context(html.dark) .pass-task-name {
-  background: rgba(148, 163, 184, 0.1);
-}
-
 .pass-panel {
   max-width: 26rem;
   margin: 0 auto;
   padding: 1.25rem 1.35rem;
   border-radius: 1rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow: 0 16px 40px -20px rgba(15, 23, 42, 0.25);
+  border: 1px solid var(--pass-track);
+  background: color-mix(in srgb, var(--color-cream-elevated) 85%, transparent);
+  box-shadow: 0 16px 36px -20px rgba(30, 41, 48, 0.25);
 }
 
 :host-context(html.dark) .pass-panel {
-  border-color: rgba(148, 163, 184, 0.15);
-  background: rgba(30, 41, 59, 0.85);
-  box-shadow: 0 20px 50px -18px rgba(0, 0, 0, 0.5);
-}
-
-.pass-panel--break {
-  text-align: center;
+  background: color-mix(in srgb, var(--color-dark-elevated) 88%, transparent);
+  box-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.5);
 }
 
 .pass-panel-title {
@@ -100,10 +91,6 @@
   line-height: 1.5;
 }
 
-.pass-panel-text--center {
-  text-align: center;
-}
-
 .pass-actions {
   display: flex;
   gap: 0.5rem;
@@ -111,11 +98,6 @@
 
 .pass-actions--stack {
   flex-direction: column;
-}
-
-.pass-actions app-ui-button {
-  display: block;
-  width: 100%;
 }
 
 .pass-break-row {
@@ -149,51 +131,4 @@
 
 .pass-link:hover {
   color: var(--pass-muted);
-}
-
-.pass-ring-wrap {
-  position: relative;
-  width: 10rem;
-  height: 10rem;
-  margin: 0 auto 1rem;
-}
-
-.pass-svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.pass-ring-track {
-  fill: none;
-  stroke: var(--pass-track);
-  stroke-width: 5;
-}
-
-.pass-ring-fill {
-  fill: none;
-  stroke: var(--pass-accent);
-  stroke-width: 5;
-  stroke-linecap: round;
-  transition: stroke-dasharray 0.35s ease;
-}
-
-.pass-time-wrap {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pass-time {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  color: var(--pass-text);
-}
-
-.w-full {
-  width: 100%;
 }

@@ -6,94 +6,119 @@ import { Component, computed, inject } from '@angular/core';
   standalone: true,
   template: `
     @if (hasPendingOperations() || hasErrorOperations()) {
-    <div class="optimistic-status">
-      <!-- Indicador de operaciones pendientes -->
-      @if (hasPendingOperations()) {
-      <div class="pending-operations">
-        <div class="spinner"></div>
-        <span>{{ pendingCount() }} pending operation(s)</span>
+      <div class="optimistic-status">
+        <!-- Indicador de operaciones pendientes -->
+        @if (hasPendingOperations()) {
+          <div class="pending-operations">
+            <div class="spinner"></div>
+            <span>{{ pendingCount() }} pending operation(s)</span>
+          </div>
+        }
+        <!-- Indicador de errores -->
+        @if (hasErrorOperations()) {
+          <div class="error-operations">
+            <svg
+              class="error-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 9v4m0 4h.01M10.29 3.86l-8.18 14.18A2 2 0 004 21h16a2 2 0 001.89-2.96L13.71 3.86a2 2 0 00-3.42 0z"
+              />
+            </svg>
+            <span>{{ errorCount() }} error(s) - Retrying...</span>
+            <button (click)="retryFailedOperations()" class="retry-btn">
+              Retry
+            </button>
+          </div>
+        }
       </div>
-      }
-      <!-- Indicador de errores -->
-      @if (hasErrorOperations()) {
-      <div class="error-operations">
-        <div class="error-icon">⚠️</div>
-        <span>{{ errorCount() }} error(s) - Retrying...</span>
-        <button (click)="retryFailedOperations()" class="retry-btn">
-          Retry
-        </button>
-      </div>
-      }
-    </div>
     }
   `,
   styles: [
     `
       .optimistic-status {
         position: fixed;
-        top: 20px;
-        right: 20px;
+        bottom: 1rem;
+        right: 1rem;
         z-index: 1000;
-        max-width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
       }
 
       .pending-operations,
       .error-operations {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        font-size: 14px;
+        gap: 0.5rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: 9999px;
+        font-size: 0.8125rem;
         font-weight: 500;
+        box-shadow: 0 10px 26px rgba(30, 41, 48, 0.12);
       }
 
       .pending-operations {
-        background: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        color: #1e40af;
+        background: var(--color-cream-elevated);
+        color: var(--color-ink-muted);
+        border: 1px solid var(--color-line);
+      }
+
+      html.dark .pending-operations {
+        background: var(--color-dark-elevated);
+        color: var(--color-dark-text-muted);
+        border-color: var(--color-dark-border);
       }
 
       .error-operations {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        color: #dc2626;
+        background: color-mix(in srgb, #b3453a 10%, var(--color-cream-elevated));
+        color: #8a3327;
+        border: 1px solid rgba(179, 69, 58, 0.25);
+      }
+
+      html.dark .error-operations {
+        background: color-mix(in srgb, var(--color-dark-error) 16%, var(--color-dark-elevated));
+        color: var(--color-dark-error);
+        border-color: rgba(217, 138, 120, 0.3);
       }
 
       .spinner {
-        width: 16px;
-        height: 16px;
-        border: 2px solid transparent;
-        border-top: 2px solid currentColor;
+        width: 0.9rem;
+        height: 0.9rem;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        opacity: 0.6;
+        animation: optimistic-spin 0.7s linear infinite;
       }
 
       .error-icon {
-        font-size: 16px;
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
       }
 
       .retry-btn {
-        background: #dc2626;
-        color: white;
         border: none;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
+        background: transparent;
+        color: inherit;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-decoration: underline;
+        text-underline-offset: 2px;
         cursor: pointer;
-        margin-left: auto;
+        padding: 0;
       }
 
-      .retry-btn:hover {
-        background: #b91c1c;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
+      @keyframes optimistic-spin {
+        to {
           transform: rotate(360deg);
         }
       }
@@ -104,7 +129,7 @@ export class OptimisticStatusComponent {
   private readonly optimisticUI = inject(OptimisticUIService);
 
   pendingCount = computed(
-    () => this.optimisticUI.getPendingOperations().length
+    () => this.optimisticUI.getPendingOperations().length,
   );
   errorCount = computed(() => this.optimisticUI.getErrorOperations().length);
 

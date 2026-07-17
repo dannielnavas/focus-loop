@@ -5,14 +5,46 @@
   <app-notifications />
   <div class="timer-atmosphere" aria-hidden="true">
     <div class="timer-grain"></div>
-    <div class="timer-glow" [attr.data-phase]="displayPhase()"></div>
+    <div
+      class="timer-wash"
+      [attr.data-phase]="displayPhase()"
+      [style.--wash-intensity]="washIntensity()"
+    ></div>
   </div>
+
+  <header class="timer-topbar">
+    <button
+      type="button"
+      class="timer-nav-btn"
+      title="Volver al trabajo"
+      aria-label="Volver al trabajo"
+      (click)="backToWork()"
+    >
+      <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+    </button>
+
+    <div class="timer-phase-chip" [attr.data-phase]="displayPhase()">
+      <span class="timer-phase-dot" aria-hidden="true"></span>
+      <span>{{ phaseLabel() }}</span>
+    </div>
+
+    @if (liveTotalSeconds() > 0 && !postPassManualBreak()) {
+      <span class="timer-session-pill" title="Tiempo de enfoque en esta sesión">
+        {{ formatTotalTime() }}
+      </span>
+    } @else {
+      <span class="timer-topbar-spacer" aria-hidden="true"></span>
+    }
+  </header>
 
   <div class="timer-body">
     <div class="timer-ring-column">
       <div
         class="timer-ring-host"
         [class.timer-ring-host--running]="status()"
+        [class.timer-ring-host--celebrate]="celebrate()"
         [attr.data-phase]="displayPhase()"
       >
         <svg
@@ -20,6 +52,16 @@
           viewBox="0 0 72 72"
           aria-hidden="true"
         >
+          <defs>
+            <linearGradient id="ring-grad-work" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--timer-work)" />
+              <stop offset="100%" stop-color="color-mix(in srgb, var(--timer-work) 55%, white)" />
+            </linearGradient>
+            <linearGradient id="ring-grad-break" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--timer-break)" />
+              <stop offset="100%" stop-color="color-mix(in srgb, var(--timer-break) 55%, white)" />
+            </linearGradient>
+          </defs>
           <circle class="timer-ring-track" cx="36" cy="36" r="30" />
           <circle
             class="timer-ring-fill"
@@ -51,20 +93,6 @@
     </div>
 
     <div class="timer-meta">
-      <div class="timer-phase-row">
-        <span
-          class="timer-phase-dot"
-          [attr.data-phase]="displayPhase()"
-          aria-hidden="true"
-        ></span>
-        <span class="timer-phase-label">{{ phaseLabel() }}</span>
-        @if (totalTime() > 0 && !postPassManualBreak()) {
-          <span class="timer-session-pill" title="Tiempo de enfoque en esta sesión">
-            Sesión {{ formatTotalTime() }}
-          </span>
-        }
-      </div>
-
       <p class="timer-task-line" [attr.title]="task()?.title ?? ''">
         {{ task()?.title ?? 'Sin tarea vinculada' }}
       </p>
@@ -116,17 +144,20 @@
 
       @if (postPassManualBreak()) {
         <p class="timer-rounds">Descanso antes de la siguiente tarea</p>
+      } @else if (hasStarted()) {
+        <p class="timer-rounds" aria-label="Ciclos completados">
+          Ciclo {{ completedWorkRounds() + 1 }} · Objetivo {{ pomodoroDefaults.work }} min trabajo /
+          {{ pomodoroDefaults.break }} min pausa
+        </p>
+        <div class="timer-pips" aria-hidden="true">
+          @for (i of pipIndices(); track i) {
+            <span class="timer-pip" [class.timer-pip--done]="i < filledPipCount()"></span>
+          }
+        </div>
       } @else {
-        @if (timerState(); as pomodoroState) {
-          <p class="timer-rounds" aria-label="Rondas completadas">
-            Ciclo {{ pomodoroState.rounds }} · Objetivo {{ pomodoroState.settings.workTime }} min trabajo /
-            {{ pomodoroState.settings.breakTime }} min pausa
-          </p>
-        } @else {
-          <p class="timer-rounds">
-            Objetivo {{ pomodoroDefaults.work }} min trabajo / {{ pomodoroDefaults.break }} min pausa
-          </p>
-        }
+        <p class="timer-rounds">
+          Objetivo {{ pomodoroDefaults.work }} min trabajo / {{ pomodoroDefaults.break }} min pausa
+        </p>
       }
     </div>
   </div>
@@ -140,7 +171,7 @@
       <app-ui-button
         variant="secondary"
         size="sm"
-        class="timer-btn timer-btn--grow"
+        class="timer-btn timer-btn--grow !min-h-9"
         title="Saltar descanso e ir a la siguiente tarea"
         aria-label="Saltar descanso e ir a la siguiente tarea"
         (click)="skipPostPassManualBreak()"
@@ -153,58 +184,12 @@
       class="timer-toolbar timer-toolbar--unified"
       role="toolbar"
       aria-label="Controles del temporizador"
+      [attr.data-phase]="displayPhase()"
     >
       <app-ui-button
         variant="ghost"
         size="sm"
-        class="timer-btn"
-        title="Volver al trabajo"
-        aria-label="Volver al trabajo"
-        (click)="backToWork()"
-      >
-        <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-      </app-ui-button>
-
-      @if (!timerState()?.status) {
-        <app-ui-button
-          variant="primary"
-          size="sm"
-          class="timer-btn timer-btn--primary"
-          title="Iniciar"
-          aria-label="Iniciar temporizador"
-          (click)="start()"
-        >
-          <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
-          </svg>
-        </app-ui-button>
-      } @else {
-        <app-ui-button
-          variant="primary"
-          size="sm"
-          class="timer-btn timer-btn--primary"
-          [title]="status() ? 'Pausar' : 'Reanudar'"
-          [attr.aria-label]="status() ? 'Pausar temporizador' : 'Reanudar temporizador'"
-          (click)="status() ? pause() : play()"
-        >
-          @if (status()) {
-            <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" />
-            </svg>
-          } @else {
-            <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
-            </svg>
-          }
-        </app-ui-button>
-      }
-
-      <app-ui-button
-        variant="ghost"
-        size="sm"
-        class="timer-btn"
+        class="timer-btn !inline-flex !h-9 !w-9 !items-center !justify-center !rounded-full !p-0"
         title="Pasar a la siguiente tarea sin completar"
         aria-label="Pasar a la siguiente tarea sin completar"
         [disabled]="!task()"
@@ -215,10 +200,44 @@
         </svg>
       </app-ui-button>
 
+      @if (!hasStarted()) {
+        <app-ui-button
+          variant="primary"
+          size="sm"
+          class="timer-btn timer-btn--primary !inline-flex !h-12 !w-12 !items-center !justify-center !rounded-full !p-0"
+          title="Iniciar"
+          aria-label="Iniciar temporizador"
+          (click)="start()"
+        >
+          <svg class="timer-icon timer-icon--primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
+          </svg>
+        </app-ui-button>
+      } @else {
+        <app-ui-button
+          variant="primary"
+          size="sm"
+          class="timer-btn timer-btn--primary !inline-flex !h-12 !w-12 !items-center !justify-center !rounded-full !p-0"
+          [title]="status() ? 'Pausar' : 'Reanudar'"
+          [attr.aria-label]="status() ? 'Pausar temporizador' : 'Reanudar temporizador'"
+          (click)="status() ? pause() : play()"
+        >
+          @if (status()) {
+            <svg class="timer-icon timer-icon--primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" />
+            </svg>
+          } @else {
+            <svg class="timer-icon timer-icon--primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
+            </svg>
+          }
+        </app-ui-button>
+      }
+
       <app-ui-button
         variant="secondary"
         size="sm"
-        class="timer-btn"
+        class="timer-btn !inline-flex !h-9 !w-9 !items-center !justify-center !rounded-full !p-0"
         title="Marcar tarea como completada"
         aria-label="Marcar tarea como completada y volver"
         (click)="goToNextTask()"

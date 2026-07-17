@@ -1,5 +1,5 @@
 <header
-  class="w-full border-b border-gray-200/80 dark:border-dark-border bg-white/95 dark:bg-dark/98 backdrop-blur-sm transition-colors duration-200 fixed top-0 left-0 right-0 z-50 pt-[env(safe-area-inset-top,0px)]"
+  class="w-full border-b border-line dark:border-dark-border/40 bg-cream-elevated/80 dark:bg-dark-elevated/70 backdrop-blur-xl transition-colors duration-200 fixed top-0 left-0 right-0 z-50 pt-[env(safe-area-inset-top,0px)]"
 >
   <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 flex justify-between items-center py-2 min-h-[2.75rem]">
     <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -23,7 +23,7 @@
       @if (countTasks() > 0) {
         <div class="flex items-center gap-1.5 min-w-0">
           <h2
-            class="text-base font-semibold text-gray-900 dark:text-dark-text flex items-center gap-1.5 truncate"
+            class="text-base font-semibold text-ink dark:text-dark-text flex items-center gap-1.5 truncate"
           >
             <svg
               class="w-4 h-4 shrink-0"
@@ -40,7 +40,7 @@
             </svg>
             Today
           </h2>
-          <p class="text-xs text-gray-500 dark:text-dark-text-muted shrink-0">
+          <p class="text-xs text-ink-muted dark:text-dark-text-muted shrink-0">
             {{ countTasks() }} tasks
           </p>
         </div>
@@ -50,7 +50,7 @@
     <div class="flex items-center shrink-0 relative">
       @if ($image()) {
         <img
-          class="w-8 h-8 rounded-full cursor-pointer border border-gray-200 dark:border-dark-border object-cover transition-transform duration-200 hover:scale-105 active:scale-95"
+          class="w-8 h-8 rounded-full cursor-pointer border border-line dark:border-dark-border object-cover transition-transform duration-200 hover:scale-105 active:scale-95"
           [src]="$image()"
           width="32"
           height="32"
@@ -60,7 +60,7 @@
       } @else {
         <button
           type="button"
-          class="w-8 h-8 rounded-full border border-gray-200/80 dark:border-dark-border flex items-center justify-center bg-gray-100 dark:bg-dark-elevated text-gray-500 dark:text-dark-text-muted cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
+          class="w-8 h-8 rounded-full border border-line dark:border-dark-border flex items-center justify-center bg-cream-elevated dark:bg-dark-elevated text-ink-muted dark:text-dark-text-muted cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
           (click)="toggleMenu(); $event.stopPropagation()"
           aria-label="Profile"
         >
@@ -71,28 +71,28 @@
       }
 
       @if (showMenu()) {
-        <div class="profile-dropdown absolute right-0 top-full mt-2 w-64 rounded-xl border border-gray-200/50 dark:border-dark-border/40 bg-white/90 dark:bg-dark-elevated/80 backdrop-blur-xl shadow-2xl py-2 z-50 animate-[float_0.2s_ease-out]">
-          <div class="px-4 py-3 border-b border-gray-100 dark:border-dark-border/30 flex items-center gap-3">
+        <div class="profile-dropdown absolute right-0 top-full mt-2 w-64 rounded-2xl border border-line dark:border-dark-border/60 bg-cream-elevated/95 dark:bg-dark-elevated/90 backdrop-blur-xl shadow-2xl py-2 z-50">
+          <div class="px-4 py-3 border-b border-line dark:border-dark-border/30 flex items-center gap-3">
             @if ($image()) {
               <img
-                class="w-10 h-10 rounded-full border border-gray-100 dark:border-dark-border/50 object-cover"
+                class="w-10 h-10 rounded-full border border-line dark:border-dark-border/50 object-cover"
                 [src]="$image()"
                 width="40"
                 height="40"
                 alt="Profile Large"
               />
             } @else {
-              <div class="w-10 h-10 rounded-full border border-gray-200 dark:border-dark-border flex items-center justify-center bg-gray-100 dark:bg-dark-elevated text-gray-500 dark:text-dark-text-muted">
+              <div class="w-10 h-10 rounded-full border border-line dark:border-dark-border flex items-center justify-center bg-cream-elevated dark:bg-dark-elevated text-ink-muted dark:text-dark-text-muted">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
             }
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-semibold text-gray-900 dark:text-dark-text truncate leading-tight">
+              <p class="text-sm font-semibold text-ink dark:text-dark-text truncate leading-tight">
                 {{ $name() }}
               </p>
-              <p class="text-xs text-gray-500 dark:text-dark-text-muted truncate mt-0.5">
+              <p class="text-xs text-ink-muted dark:text-dark-text-muted truncate mt-0.5">
                 {{ $email() }}
               </p>
             </div>
@@ -102,9 +102,9 @@
             <button
               type="button"
               (click)="goToProfile(); closeMenu()"
-              class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 dark:text-dark-text-muted hover:bg-gray-100/70 dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer text-left"
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-ink-muted dark:text-dark-text-muted hover:bg-black/[0.04] dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer text-left"
             >
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-ink-muted/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <span>Mi Perfil</span>
@@ -113,27 +113,27 @@
             <button
               type="button"
               (click)="generateDailyAi(); closeMenu()"
-              class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 dark:text-dark-text-muted hover:bg-gray-100/70 dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer text-left"
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-ink-muted dark:text-dark-text-muted hover:bg-black/[0.04] dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer text-left"
             >
-              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-accent dark:text-dark-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span class="font-medium text-indigo-600 dark:text-indigo-400">Reporte Diario IA</span>
+              <span class="font-medium text-accent dark:text-dark-accent">Reporte Diario IA</span>
             </button>
 
             <button
               type="button"
               (click)="router.navigate(['/private/settings']); closeMenu()"
-              class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 dark:text-dark-text-muted hover:bg-gray-100/70 dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer text-left"
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-ink-muted dark:text-dark-text-muted hover:bg-black/[0.04] dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer text-left"
             >
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-ink-muted/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span>Ajustes</span>
             </button>
 
-            <div class="h-px bg-gray-100 dark:bg-dark-border/30 my-1"></div>
+            <div class="h-px bg-line dark:bg-dark-border/30 my-1"></div>
 
             <button
               type="button"
@@ -159,10 +159,10 @@
     <app-ui-card
       variant="elevated"
       padding="md"
-      class="max-w-2xl w-full max-h-[80vh] overflow-y-auto bg-white dark:bg-dark-elevated border border-gray-200 dark:border-dark-border shadow-md"
+      class="max-w-2xl w-full max-h-[80vh] overflow-y-auto"
     >
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-dark-text">
+        <h2 class="text-xl font-semibold font-heading text-ink dark:text-dark-text">
           Daily Report
         </h2>
         <app-ui-button variant="ghost" size="sm" (click)="closeDaily()">
@@ -177,7 +177,7 @@
         </app-ui-button>
       </div>
       <div
-        class="rounded-lg p-4 border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-elevated"
+        class="rounded-xl p-4 border border-line dark:border-dark-border bg-black/[0.02] dark:bg-white/[0.02]"
       >
         @if (isLoadingDaily()) {
           <div class="space-y-3">
@@ -186,7 +186,7 @@
                 [width]="i === 2 ? 'w-5/6' : i === 3 ? 'w-4/6' : 'w-full'"
               />
             }
-            <div class="flex items-center justify-center gap-2 pt-2 text-gray-500 dark:text-dark-text-muted text-sm">
+            <div class="flex items-center justify-center gap-2 pt-2 text-ink-muted dark:text-dark-text-muted text-sm">
               <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                 <circle
                   class="opacity-25"
@@ -207,7 +207,7 @@
           </div>
         } @else {
           <pre
-            class="text-gray-700 dark:text-dark-text-muted whitespace-pre-wrap font-mono text-sm"
+            class="text-ink-muted dark:text-dark-text-muted whitespace-pre-wrap font-mono text-sm"
           >{{ dailyContent() }}</pre
           >
         }

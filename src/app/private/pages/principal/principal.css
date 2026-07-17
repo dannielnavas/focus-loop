@@ -1,19 +1,19 @@
 :host {
   display: block;
-  font-family: 'Outfit', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   --principal-header-offset: calc(env(safe-area-inset-top, 0px) + 3.75rem);
 
-  --principal-bg: #faf7f2;
-  --principal-elevated: #ffffff;
-  --principal-text: #0f172a;
-  --principal-muted: #64748b;
-  --principal-border: rgba(15, 23, 42, 0.09);
-  --principal-border-hover: rgba(15, 23, 42, 0.16);
-  --principal-accent: #8b5cf6;
-  --principal-accent-soft: rgba(139, 92, 246, 0.08);
-  --principal-teal: #06b6d4;
-  --principal-teal-soft: rgba(6, 182, 212, 0.08);
-  --principal-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 14px 36px rgba(15, 23, 42, 0.07);
+  --principal-bg: var(--color-cream);
+  --principal-elevated: var(--color-cream-elevated);
+  --principal-text: var(--color-ink);
+  --principal-muted: var(--color-ink-muted);
+  --principal-border: var(--color-line);
+  --principal-border-hover: var(--color-line-hover);
+  --principal-accent: var(--color-accent);
+  --principal-accent-soft: rgba(79, 131, 104, 0.1);
+  --principal-blue: #6e8cae;
+  --principal-blue-soft: rgba(110, 140, 174, 0.1);
+  --principal-shadow: 0 1px 2px rgba(30, 41, 48, 0.04), 0 14px 32px rgba(30, 41, 48, 0.06);
 }
 
 :host-context(html.dark) {
@@ -21,13 +21,13 @@
   --principal-elevated: var(--color-dark-elevated);
   --principal-text: var(--color-dark-text);
   --principal-muted: var(--color-dark-text-muted);
-  --principal-border: rgba(148, 163, 184, 0.14);
-  --principal-border-hover: rgba(148, 163, 184, 0.28);
+  --principal-border: var(--color-dark-border);
+  --principal-border-hover: var(--color-dark-border-hover);
   --principal-accent: var(--color-dark-accent);
-  --principal-accent-soft: rgba(192, 132, 252, 0.12);
-  --principal-teal: #2dd4bf;
-  --principal-teal-soft: rgba(45, 212, 191, 0.1);
-  --principal-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 20px 44px rgba(0, 0, 0, 0.35);
+  --principal-accent-soft: rgba(98, 169, 138, 0.14);
+  --principal-blue: #8fb0d4;
+  --principal-blue-soft: rgba(143, 176, 212, 0.12);
+  --principal-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 .principal-page {
@@ -36,9 +36,7 @@
   overflow: hidden;
   background: var(--principal-bg);
   color: var(--principal-text);
-  transition:
-    background-color 0.35s ease,
-    color 0.35s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .principal-atmosphere {
@@ -52,29 +50,29 @@
 .principal-atmosphere::before {
   content: '';
   position: absolute;
-  width: 450px;
-  height: 450px;
+  width: 420px;
+  height: 420px;
   border-radius: 50%;
-  filter: blur(120px);
+  filter: blur(130px);
   background: radial-gradient(circle, var(--principal-accent-soft) 0%, transparent 70%);
-  top: -150px;
+  top: -140px;
   right: -100px;
-  animation: float 20s infinite alternate ease-in-out;
-  opacity: 0.85;
+  animation: float 28s infinite alternate ease-in-out;
+  opacity: 0.8;
 }
 
 .principal-atmosphere::after {
   content: '';
   position: absolute;
-  width: 550px;
-  height: 550px;
+  width: 520px;
+  height: 520px;
   border-radius: 50%;
-  filter: blur(140px);
-  background: radial-gradient(circle, var(--principal-teal-soft) 0%, transparent 70%);
+  filter: blur(150px);
+  background: radial-gradient(circle, var(--principal-blue-soft) 0%, transparent 70%);
   bottom: -200px;
   left: -150px;
-  animation: float-reverse 25s infinite alternate ease-in-out;
-  opacity: 0.75;
+  animation: float-reverse 32s infinite alternate ease-in-out;
+  opacity: 0.7;
 }
 
 .principal-inner {
@@ -95,7 +93,7 @@
 .principal-hero {
   flex-shrink: 0;
   margin-bottom: 1rem;
-  animation: principal-in 0.5s ease-out both;
+  animation: fade-up 0.4s ease-out both;
 }
 
 .principal-kicker {
@@ -109,19 +107,12 @@
 
 .principal-title {
   margin: 0;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: clamp(1.35rem, 2.4vw, 1.85rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.15;
   color: var(--principal-text);
-}
-
-:host-context(html.dark) .principal-title {
-  background: linear-gradient(115deg, #f8fafc 0%, #fb923c 40%, #5eead4 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 .principal-sub {
@@ -145,7 +136,7 @@
 .principal-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
-  gap: 1.35rem;
+  gap: 1.25rem;
   align-items: stretch;
 }
 
@@ -164,8 +155,8 @@
 
 .principal-form-title {
   margin: 0 0 1rem;
-  font-family: 'Syne', sans-serif;
-  font-size: 1.15rem;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--principal-text);
 }
@@ -189,9 +180,7 @@
   font-size: 0.875rem;
   font-family: inherit;
   outline: none;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .principal-field::placeholder {
@@ -209,7 +198,7 @@
 }
 
 .form-enter {
-  animation: principal-in 0.35s ease-out both;
+  animation: fade-up 0.3s ease-out both;
 }
 
 .principal-skeleton-card {
@@ -219,27 +208,18 @@
 .principal-sprint-card {
   border-radius: 1rem !important;
   border: 1px solid var(--principal-border) !important;
-  background: rgba(255, 255, 255, 0.7) !important;
+  background: color-mix(in srgb, var(--principal-elevated) 82%, transparent) !important;
   backdrop-filter: blur(12px);
   box-shadow: var(--principal-shadow) !important;
-  transition:
-    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-:host-context(html.dark) .principal-sprint-card {
-  background: rgba(15, 19, 42, 0.65) !important;
-}
-
 .principal-sprint-card:hover {
-  transform: translateY(-4px) scale(1.01);
+  transform: translateY(-3px);
   border-color: var(--principal-accent) !important;
-  box-shadow: var(--principal-shadow), 0 12px 30px rgba(139, 92, 246, 0.08) !important;
-}
-
-:host-context(html.dark) .principal-sprint-card:hover {
-  box-shadow: var(--principal-shadow), 0 16px 36px rgba(192, 132, 252, 0.12) !important;
+  box-shadow: var(--principal-shadow), 0 10px 26px var(--principal-accent-soft) !important;
 }
 
 .principal-sprint-top {
@@ -249,10 +229,10 @@
 }
 
 .principal-sprint-name {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.2rem;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   line-height: 1.25;
   color: var(--principal-text);
 }
@@ -298,6 +278,8 @@
 .principal-stat {
   color: var(--principal-text);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9375rem;
 }
 
 .principal-stat-strong {
@@ -321,27 +303,18 @@
   gap: 0.5rem;
 }
 
-.principal-stat {
-  font-variant-numeric: tabular-nums;
-  font-size: 0.9375rem;
-}
-
 .principal-progress-track {
   width: 100%;
-  height: 0.55rem;
+  height: 0.5rem;
   border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.08);
+  background: var(--principal-border);
   overflow: hidden;
-}
-
-:host-context(html.dark) .principal-progress-track {
-  background: rgba(148, 163, 184, 0.15);
 }
 
 .principal-progress-fill {
   height: 100%;
   border-radius: 9999px;
-  background: linear-gradient(90deg, var(--principal-accent), var(--principal-teal));
+  background: linear-gradient(90deg, var(--principal-accent), var(--principal-blue));
   transition: width 0.35s ease;
 }
 
@@ -352,40 +325,24 @@
   overflow: hidden;
   border-radius: 1rem !important;
   border: 2px dashed var(--principal-border) !important;
-  background: rgba(255, 255, 255, 0.45) !important;
+  background: color-mix(in srgb, var(--principal-elevated) 55%, transparent) !important;
   backdrop-filter: blur(8px);
-  transition:
-    border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.25s ease;
 }
 
-:host-context(html.dark) .principal-add-card {
-  background: rgba(15, 19, 42, 0.3) !important;
-}
-
 .principal-add-card:hover {
   border-color: var(--principal-accent) !important;
-  background: rgba(255, 255, 255, 0.6) !important;
-  box-shadow:
-    0 0 0 1px rgba(139, 92, 246, 0.1),
-    0 16px 40px rgba(139, 92, 246, 0.05) !important;
-  transform: translateY(-3px);
-}
-
-:host-context(html.dark) .principal-add-card:hover {
-  background: rgba(15, 19, 42, 0.45) !important;
-  box-shadow:
-    0 0 0 1px rgba(192, 132, 252, 0.15),
-    0 20px 48px rgba(0, 0, 0, 0.3) !important;
+  background: color-mix(in srgb, var(--principal-elevated) 75%, transparent) !important;
+  box-shadow: 0 0 0 1px var(--principal-accent-soft), 0 14px 34px var(--principal-accent-soft) !important;
+  transform: translateY(-2px);
 }
 
 .principal-add-card:focus-visible {
   outline: none;
-  box-shadow:
-    0 0 0 3px var(--principal-accent-soft),
-    0 0 0 1px var(--principal-accent) !important;
+  box-shadow: 0 0 0 3px var(--principal-accent-soft), 0 0 0 1px var(--principal-accent) !important;
 }
 
 .principal-add-inner {
@@ -404,11 +361,7 @@
   inset: auto -20% -40% auto;
   width: 55%;
   height: 120%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(139, 92, 246, 0.15) 0%,
-    transparent 65%
-  );
+  background: radial-gradient(ellipse at center, var(--principal-accent-soft) 0%, transparent 65%);
   pointer-events: none;
   opacity: 0.85;
   transition: opacity 0.3s ease;
@@ -416,14 +369,6 @@
 
 .principal-add-card:hover .principal-add-glow {
   opacity: 1;
-}
-
-:host-context(html.dark) .principal-add-glow {
-  background: radial-gradient(
-    ellipse at center,
-    rgba(192, 132, 252, 0.1) 0%,
-    transparent 65%
-  );
 }
 
 .principal-add-visual {
@@ -437,26 +382,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    145deg,
-    var(--principal-accent-soft),
-    var(--principal-teal-soft)
-  );
+  background: linear-gradient(145deg, var(--principal-accent-soft), var(--principal-blue-soft));
   border: 1px solid var(--principal-border);
   color: var(--principal-accent);
-  transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    color 0.25s ease;
-}
-
-:host-context(html.dark) .principal-add-icon-ring {
-  color: var(--principal-accent);
+  transition: transform 0.25s ease, border-color 0.25s ease;
 }
 
 .principal-add-card:hover .principal-add-icon-ring {
-  transform: scale(1.06) rotate(90deg);
-  border-color: rgba(139, 92, 246, 0.45);
+  transform: scale(1.05) rotate(45deg);
+  border-color: var(--principal-accent);
 }
 
 .principal-add-plus {
@@ -482,10 +416,10 @@
 
 .principal-add-title {
   margin: 0;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: clamp(1.2rem, 2vw, 1.4rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
   color: var(--principal-text);
 }
@@ -510,10 +444,7 @@
   color: var(--principal-text);
   font-size: 0.8125rem;
   font-weight: 600;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
 .principal-add-card:hover .principal-add-cta {
@@ -560,7 +491,7 @@
 .principal-empty {
   text-align: center;
   padding: 2.5rem 1rem 2rem;
-  animation: principal-in 0.55s ease-out both;
+  animation: fade-up 0.45s ease-out both;
 }
 
 .principal-empty-icon-wrap {
@@ -574,13 +505,13 @@
   align-items: center;
   justify-content: center;
   color: var(--principal-muted);
-  background: linear-gradient(145deg, var(--principal-accent-soft), var(--principal-teal-soft));
+  background: linear-gradient(145deg, var(--principal-accent-soft), var(--principal-blue-soft));
 }
 
 .principal-empty-title {
   margin: 0 0 0.5rem;
-  font-family: 'Syne', sans-serif;
-  font-size: 1.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--principal-text);
 }
@@ -591,15 +522,4 @@
   font-size: 0.875rem;
   line-height: 1.5;
   color: var(--principal-muted);
-}
-
-@keyframes principal-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }

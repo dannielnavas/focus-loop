@@ -1,8 +1,8 @@
-<div class="min-h-screen w-full bg-[#faf7f2] dark:bg-dark py-6 sm:py-8">
+<div class="min-h-screen w-full bg-cream dark:bg-dark py-6 sm:py-8">
   <app-header />
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-dark-text">Profile</h1>
+      <h1 class="text-2xl font-bold text-ink dark:text-dark-text">Profile</h1>
       <app-ui-button
         variant="primary"
         [disabled]="!isFormValid()"
@@ -20,10 +20,10 @@
     <app-ui-card variant="default" padding="md" class="mb-6 border border-orange-200/80 dark:border-orange-900/40 bg-orange-50/40 dark:bg-orange-950/20">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="min-w-0">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text">
+          <h2 class="text-lg font-semibold text-ink dark:text-dark-text">
             Música e integraciones
           </h2>
-          <p class="text-sm text-gray-600 dark:text-dark-text-muted mt-1">
+          <p class="text-sm text-ink-muted dark:text-dark-text-muted mt-1">
             Conecta tu cuenta de Spotify para ver en el temporizador qué está sonando, o abre YouTube Music desde aquí.
           </p>
         </div>
@@ -34,7 +34,7 @@
     </app-ui-card>
 
     <app-ui-card variant="default" padding="lg" class="mb-6">
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-dark-text mb-6">
+      <h2 class="text-xl font-semibold text-ink dark:text-dark-text mb-6">
         Personal Information
       </h2>
 
@@ -42,7 +42,7 @@
         <div class="flex items-center gap-6">
           <div class="relative shrink-0">
             <div
-              class="w-24 h-24 rounded-full border border-gray-200 dark:border-dark-border flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-dark-elevated"
+              class="w-24 h-24 rounded-full border border-line dark:border-dark-border flex items-center justify-center overflow-hidden bg-cream-elevated dark:bg-dark-elevated"
             >
               @if (profileForm().profile_image) {
                 <img
@@ -51,7 +51,7 @@
                   class="w-full h-full object-cover"
                 />
               } @else {
-                <svg class="w-12 h-12 text-gray-400 dark:text-dark-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-12 h-12 text-ink-muted/70 dark:text-dark-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               }
@@ -68,13 +68,13 @@
             </app-ui-button>
           </div>
           <div class="min-w-0">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-dark-text">
+            <h3 class="text-lg font-medium text-ink dark:text-dark-text">
               {{ profileForm().full_name || 'User' }}
             </h3>
-            <p class="text-gray-500 dark:text-dark-text-muted text-sm">{{ profileForm().email }}</p>
+            <p class="text-ink-muted dark:text-dark-text-muted text-sm">{{ profileForm().email }}</p>
             <button
               type="button"
-              class="text-sm text-gray-600 dark:text-dark-text-muted hover:text-gray-900 dark:hover:text-dark-text mt-1 transition-colors"
+              class="text-sm text-ink-muted dark:text-dark-text-muted hover:text-ink dark:hover:text-dark-text mt-1 transition-colors"
               (click)="fileInput.click()"
             >
               Change photo
@@ -91,92 +91,92 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2">Full Name</label>
+            <label class="block text-sm font-medium text-ink-muted dark:text-dark-text-muted mb-2">Full Name</label>
             <input
               type="text"
               [ngModel]="profileForm().full_name"
               (ngModelChange)="updateProfileField('full_name', $event)"
               name="full_name"
               placeholder="Your full name"
-              class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+              class="w-full bg-transparent border border-line dark:border-dark-border rounded-md px-3 py-2 text-sm text-ink dark:text-dark-text placeholder-ink-muted/70 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-dark-accent transition-all"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2">Email</label>
+            <label class="block text-sm font-medium text-ink-muted dark:text-dark-text-muted mb-2">Email</label>
             <input
               type="email"
               [ngModel]="profileForm().email"
               (ngModelChange)="updateProfileField('email', $event)"
               name="email"
               placeholder="your@email.com"
-              class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+              class="w-full bg-transparent border border-line dark:border-dark-border rounded-md px-3 py-2 text-sm text-ink dark:text-dark-text placeholder-ink-muted/70 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-dark-accent transition-all"
             />
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2">Role</label>
+            <label class="block text-sm font-medium text-ink-muted dark:text-dark-text-muted mb-2">Role</label>
             <select
               [ngModel]="profileForm().role"
               (ngModelChange)="updateProfileField('role', $event)"
               name="role"
-              class="w-full bg-white dark:bg-dark-elevated border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+              class="w-full bg-cream-elevated dark:bg-dark-elevated border border-line dark:border-dark-border rounded-md px-3 py-2 text-sm text-ink dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-dark-accent transition-all"
             >
-              <option value="user" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">User</option>
-              <option value="admin" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Administrator</option>
-              <option value="manager" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Manager</option>
+              <option value="user" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">User</option>
+              <option value="admin" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">Administrator</option>
+              <option value="manager" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">Manager</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2">Plan</label>
+            <label class="block text-sm font-medium text-ink-muted dark:text-dark-text-muted mb-2">Plan</label>
             <select
               [ngModel]="profileForm().subscription_plan_id"
               (ngModelChange)="updateProfileField('subscription_plan_id', $event)"
               name="subscription_plan_id"
-              class="w-full bg-white dark:bg-dark-elevated border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+              class="w-full bg-cream-elevated dark:bg-dark-elevated border border-line dark:border-dark-border rounded-md px-3 py-2 text-sm text-ink dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-dark-accent transition-all"
             >
-              <option value="free" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Gratuito</option>
-              <option value="premium" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Premium</option>
-              <option value="enterprise" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Empresarial</option>
+              <option value="free" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">Gratuito</option>
+              <option value="premium" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">Premium</option>
+              <option value="enterprise" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">Empresarial</option>
             </select>
           </div>
         </div>
 
-        <div class="border-t border-gray-200 dark:border-dark-border pt-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-dark-text mb-4">Change Password</h3>
+        <div class="border-t border-line dark:border-dark-border pt-6">
+          <h3 class="text-lg font-semibold text-ink dark:text-dark-text mb-4">Change Password</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2">Current</label>
+              <label class="block text-sm font-medium text-ink-muted dark:text-dark-text-muted mb-2">Current</label>
               <input
                 type="password"
                 [ngModel]="passwordForm().current_password"
                 (ngModelChange)="updatePasswordField('current_password', $event)"
                 name="current_password"
                 placeholder="••••••••"
-                class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+                class="w-full bg-transparent border border-line dark:border-dark-border rounded-md px-3 py-2 text-sm text-ink dark:text-dark-text placeholder-ink-muted/70 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-dark-accent transition-all"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2">New</label>
+              <label class="block text-sm font-medium text-ink-muted dark:text-dark-text-muted mb-2">New</label>
               <input
                 type="password"
                 [ngModel]="passwordForm().new_password"
                 (ngModelChange)="updatePasswordField('new_password', $event)"
                 name="new_password"
                 placeholder="••••••••"
-                class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+                class="w-full bg-transparent border border-line dark:border-dark-border rounded-md px-3 py-2 text-sm text-ink dark:text-dark-text placeholder-ink-muted/70 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-dark-accent transition-all"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-dark-text-muted mb-2">Confirm</label>
+              <label class="block text-sm font-medium text-ink-muted dark:text-dark-text-muted mb-2">Confirm</label>
               <input
                 type="password"
                 [ngModel]="passwordForm().confirm_password"
                 (ngModelChange)="updatePasswordField('confirm_password', $event)"
                 name="confirm_password"
                 placeholder="••••••••"
-                class="w-full bg-transparent border border-gray-300 dark:border-dark-border rounded-md px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent transition-all"
+                class="w-full bg-transparent border border-line dark:border-dark-border rounded-md px-3 py-2 text-sm text-ink dark:text-dark-text placeholder-ink-muted/70 dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-dark-accent transition-all"
               />
             </div>
           </div>
@@ -191,52 +191,52 @@
           </div>
         </div>
 
-        <div class="border-t border-gray-200 dark:border-dark-border pt-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-dark-text mb-4">Preferences</h3>
+        <div class="border-t border-line dark:border-dark-border pt-6">
+          <h3 class="text-lg font-semibold text-ink dark:text-dark-text mb-4">Preferences</h3>
           <div class="space-y-4">
             <label class="flex items-center justify-between cursor-pointer">
               <div>
-                <span class="text-sm font-medium text-gray-900 dark:text-dark-text">Email Notifications</span>
-                <p class="text-xs text-gray-500 dark:text-dark-text-muted">Updates and reminders</p>
+                <span class="text-sm font-medium text-ink dark:text-dark-text">Email Notifications</span>
+                <p class="text-xs text-ink-muted dark:text-dark-text-muted">Updates and reminders</p>
               </div>
               <input
                 type="checkbox"
                 [ngModel]="preferences().email_notifications"
                 (ngModelChange)="updatePreferenceField('email_notifications', $event)"
                 name="email_notifications"
-                class="rounded border-gray-300 dark:border-dark-border text-gray-900 focus:ring-black dark:focus:ring-dark-accent"
+                class="rounded border-line dark:border-dark-border text-accent focus:ring-accent dark:focus:ring-dark-accent"
               />
             </label>
             <label class="flex items-center justify-between cursor-pointer">
               <div>
-                <span class="text-sm font-medium text-gray-900 dark:text-dark-text">Dark Mode</span>
-                <p class="text-xs text-gray-500 dark:text-dark-text-muted">Use dark theme</p>
+                <span class="text-sm font-medium text-ink dark:text-dark-text">Dark Mode</span>
+                <p class="text-xs text-ink-muted dark:text-dark-text-muted">Use dark theme</p>
               </div>
               <input
                 type="checkbox"
                 [ngModel]="preferences().dark_mode"
                 (ngModelChange)="onDarkModeChange($event)"
                 name="dark_mode"
-                class="rounded border-gray-300 dark:border-dark-border text-gray-900 focus:ring-black dark:focus:ring-dark-accent"
+                class="rounded border-line dark:border-dark-border text-accent focus:ring-accent dark:focus:ring-dark-accent"
               />
             </label>
             <label class="flex items-center justify-between cursor-pointer">
               <div>
-                <span class="text-sm font-medium text-gray-900 dark:text-dark-text">Task Reminders</span>
-                <p class="text-xs text-gray-500 dark:text-dark-text-muted">Pending tasks</p>
+                <span class="text-sm font-medium text-ink dark:text-dark-text">Task Reminders</span>
+                <p class="text-xs text-ink-muted dark:text-dark-text-muted">Pending tasks</p>
               </div>
               <input
                 type="checkbox"
                 [ngModel]="preferences().task_reminders"
                 (ngModelChange)="updatePreferenceField('task_reminders', $event)"
                 name="task_reminders"
-                class="rounded border-gray-300 dark:border-dark-border text-gray-900 focus:ring-black dark:focus:ring-dark-accent"
+                class="rounded border-line dark:border-dark-border text-accent focus:ring-accent dark:focus:ring-dark-accent"
               />
             </label>
           </div>
         </div>
 
-        <div class="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-dark-border">
+        <div class="flex justify-end gap-3 pt-6 border-t border-line dark:border-dark-border">
           <app-ui-button variant="outline" type="button" (click)="resetForm()">
             Cancel
           </app-ui-button>

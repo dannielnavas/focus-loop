@@ -1,12 +1,12 @@
 .profile-dropdown {
   transform-origin: top right;
-  animation: dropdownFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: dropdownFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(-8px);
+    transform: scale(0.97) translateY(-6px);
   }
   to {
     opacity: 1;

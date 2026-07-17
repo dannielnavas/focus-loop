@@ -35,9 +35,9 @@ export class UiInputComponent implements ControlValueAccessor {
   private onChange: (value: string) => void = () => {};
 
   protected readonly inputClasses =
-    'w-full bg-transparent border rounded-md px-3 py-2 text-sm transition-all ' +
-    'border-gray-300 dark:border-dark-border text-gray-900 dark:text-dark-text placeholder-gray-500 dark:placeholder-dark-text-muted ' +
-    'focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-dark-accent focus:border-transparent ' +
+    'w-full bg-transparent border rounded-xl px-3 py-2 text-sm transition-all ' +
+    'border-line dark:border-dark-border text-ink dark:text-dark-text placeholder-ink-muted/70 dark:placeholder-dark-text-muted ' +
+    'focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-dark-accent focus:border-transparent ' +
     'disabled:opacity-50 disabled:cursor-not-allowed';
 
   writeValue(value: string): void {

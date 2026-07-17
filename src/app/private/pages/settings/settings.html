@@ -1,28 +1,18 @@
-<div class="min-h-screen w-full bg-[#faf7f2] dark:bg-dark py-6 sm:py-8">
+<div class="min-h-screen w-full bg-cream dark:bg-dark py-6 sm:py-8">
   <app-header />
   <app-ui-container class="mt-6 flex flex-col gap-6">
     <app-ui-card variant="default" padding="lg">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-dark-text mb-2">Ajustes</h1>
-      <p class="text-gray-500 dark:text-dark-text-muted text-sm">
+      <h1 class="text-2xl font-bold text-ink dark:text-dark-text mb-2">Ajustes</h1>
+      <p class="text-ink-muted dark:text-dark-text-muted text-sm">
         Preferencias de la aplicación y música de fondo.
       </p>
     </app-ui-card>
 
     <app-ui-card variant="default" padding="lg">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text mb-1">Spotify</h2>
-      <p class="text-sm text-gray-600 dark:text-dark-text-muted mb-4">
+      <h2 class="text-lg font-semibold text-ink dark:text-dark-text mb-1">Spotify</h2>
+      <p class="text-sm text-ink-muted dark:text-dark-text-muted mb-4">
         Conecta tu cuenta para ver en el temporizador qué está sonando (solo lectura; la reproducción sigue en Spotify).
-        Necesitas crear una app gratuita en
-        <a
-          class="text-orange-600 dark:text-orange-400 underline underline-offset-2"
-          href="https://developer.spotify.com/dashboard"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Spotify for Developers</a
-        >
-        y registrar en el dashboard las Redirect URIs locales
-        <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">http://127.0.0.1:45251/spotify-callback</code> …
-        <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">45255</code> (misma ruta).
+        Inicia sesión una vez y quedará asociada automáticamente.
       </p>
 
       @if (!isDesktop()) {
@@ -37,13 +27,24 @@
           </p>
         } @else {
           <p class="text-sm text-amber-700 dark:text-amber-300/90 mb-3">
-            Para desarrollo: define
-            <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">SPOTIFY_CLIENT_ID</code> en
-            <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">.env</code> (ver
-            <code class="text-xs bg-gray-100 dark:bg-dark/50 px-1 rounded">.env.example</code>) y vuelve a ejecutar
-            <code class="text-xs">npm run electron:dev</code>. Para publicar al usuario final, usa la misma variable en el
-            entorno al ejecutar <code class="text-xs">npm run electron:build</code> o tu CI; el ID queda embebido en la
-            app (no es secreto en flujos PKCE).
+            Para desarrollo local: define
+            <code class="text-xs bg-cream-elevated dark:bg-dark-elevated px-1 rounded">SPOTIFY_CLIENT_ID</code> en
+            <code class="text-xs bg-cream-elevated dark:bg-dark-elevated px-1 rounded">.env</code> (ver
+            <code class="text-xs bg-cream-elevated dark:bg-dark-elevated px-1 rounded">.env.example</code>), registra en
+            <a
+              class="text-accent dark:text-dark-accent underline underline-offset-2"
+              href="https://developer.spotify.com/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Spotify for Developers</a
+            >
+            las Redirect URIs
+            <code class="text-xs bg-cream-elevated dark:bg-dark-elevated px-1 rounded">http://127.0.0.1:45251/spotify-callback</code>
+            …
+            <code class="text-xs bg-cream-elevated dark:bg-dark-elevated px-1 rounded">45255</code> (misma ruta), y vuelve a ejecutar
+            <code class="text-xs">npm run electron:dev</code>. Al publicar (<code class="text-xs">npm run electron:build</code>
+            o CI), el mismo ID queda embebido en la app para todos los usuarios finales: ellos solo inician sesión, sin
+            crear nada (no es secreto en flujos PKCE).
           </p>
         }
       }
@@ -76,13 +77,13 @@
       </div>
 
       @if (spotifyMessage(); as msg) {
-        <p class="mt-3 text-sm text-gray-700 dark:text-dark-text-muted" role="status">{{ msg }}</p>
+        <p class="mt-3 text-sm text-ink-muted dark:text-dark-text-muted" role="status">{{ msg }}</p>
       }
     </app-ui-card>
 
     <app-ui-card variant="default" padding="lg">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-dark-text mb-1">YouTube Music</h2>
-      <p class="text-sm text-gray-600 dark:text-dark-text-muted mb-3">
+      <h2 class="text-lg font-semibold text-ink dark:text-dark-text mb-1">YouTube Music</h2>
+      <p class="text-sm text-ink-muted dark:text-dark-text-muted mb-3">
         YouTube Music no ofrece una API pública para saber qué suena en tu cuenta, así que Focus Loop no puede mostrar
         “now playing” como con Spotify. Puedes abrir la web para escuchar con tu sesión habitual.
       </p>

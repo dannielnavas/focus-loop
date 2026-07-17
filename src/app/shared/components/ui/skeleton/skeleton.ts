@@ -17,7 +17,7 @@ export class UiSkeletonComponent {
   class = input<string>('');
 
   protected get rootClasses(): string {
-    const base = 'animate-pulse bg-gray-200 dark:bg-dark-border rounded';
+    const base = 'animate-pulse bg-line dark:bg-dark-border rounded';
     const variants = {
       text: 'rounded',
       circular: 'rounded-full',

@@ -40,9 +40,9 @@
                   name="status"
                   class="principal-field"
                 >
-                  <option value="planned" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Planificado</option>
-                  <option value="active" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Activo</option>
-                  <option value="completed" class="bg-white dark:bg-dark-elevated text-gray-900 dark:text-dark-text">Completado</option>
+                  <option value="planned" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">Planificado</option>
+                  <option value="active" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">Activo</option>
+                  <option value="completed" class="bg-cream-elevated dark:bg-dark-elevated text-ink dark:text-dark-text">Completado</option>
                 </select>
               </div>
             </div>
@@ -97,7 +97,7 @@
         @if (isLoadingSprints()) {
           @for (item of [1, 2, 3]; track item) {
             <app-ui-card variant="default" padding="md" class="principal-skeleton-card overflow-hidden">
-              <div class="border-b border-gray-200 dark:border-dark-border pb-4 mb-4">
+              <div class="border-b border-line dark:border-dark-border pb-4 mb-4">
                 <div class="flex justify-between items-start gap-2 mb-3">
                   <app-ui-skeleton width="w-3/4" height="h-6" />
                   <app-ui-skeleton variant="circular" width="w-16" height="h-6" />

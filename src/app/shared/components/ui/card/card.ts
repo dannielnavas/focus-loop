@@ -19,11 +19,11 @@ export class UiCardComponent {
 
   protected get rootClasses(): string {
     const base =
-      'rounded-xl bg-white dark:bg-dark-elevated border border-gray-200 dark:border-dark-border';
+      'rounded-2xl bg-cream-elevated/80 dark:bg-dark-elevated/70 backdrop-blur-xl border border-line dark:border-dark-border/60 transition-all duration-300';
     const variants: Record<CardVariant, string> = {
-      default: 'shadow-sm',
-      elevated: 'shadow-md',
-      bordered: '',
+      default: 'shadow-sm hover:shadow-lg',
+      elevated: 'shadow-2xl',
+      bordered: 'shadow-none border-2',
     };
     const paddings: Record<string, string> = {
       none: 'p-0',

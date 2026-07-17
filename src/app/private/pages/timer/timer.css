@@ -9,40 +9,33 @@
   max-height: 100dvh;
   min-height: 0;
   overflow: hidden;
-  /* Misma base que el cuerpo de la app: una sola superficie */
-  background-color: #faf7f2;
-  color: #111827;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
 
-  --timer-text: #0f172a;
-  --timer-muted: #64748b;
-  --timer-faint: #94a3b8;
-  --timer-track: rgba(15, 23, 42, 0.1);
-  --timer-work: #c2410c;
-  --timer-break: #0d9488;
-  --timer-idle: #64748b;
-  --timer-dot-work: #ea580c;
-  --timer-dot-break: #14b8a6;
-  --timer-dot-idle: #94a3b8;
-  --timer-pill-bg: rgba(15, 23, 42, 0.06);
-  --timer-divider: rgba(15, 23, 42, 0.08);
+  --timer-text: var(--color-ink);
+  --timer-muted: var(--color-ink-muted);
+  --timer-faint: color-mix(in srgb, var(--color-ink-muted) 75%, transparent);
+  --timer-track: var(--color-line);
+  --timer-work: var(--color-accent);
+  --timer-break: #6e8cae;
+  --timer-idle: var(--color-ink-muted);
+  --timer-pill-bg: color-mix(in srgb, var(--color-ink) 6%, transparent);
+  --timer-divider: var(--color-line);
 }
 
 :host-context(html.dark) {
   background-color: var(--color-dark);
   color: var(--color-dark-text);
 
-  --timer-text: #f1f5f9;
-  --timer-muted: #94a3b8;
-  --timer-faint: #64748b;
-  --timer-track: rgba(148, 163, 184, 0.15);
-  --timer-work: #fb923c;
-  --timer-break: #2dd4bf;
-  --timer-idle: #64748b;
-  --timer-dot-work: #fb923c;
-  --timer-dot-break: #5eead4;
-  --timer-dot-idle: #64748b;
-  --timer-pill-bg: rgba(148, 163, 184, 0.1);
-  --timer-divider: rgba(148, 163, 184, 0.12);
+  --timer-text: var(--color-dark-text);
+  --timer-muted: var(--color-dark-text-muted);
+  --timer-faint: color-mix(in srgb, var(--color-dark-text-muted) 80%, transparent);
+  --timer-track: var(--color-dark-border);
+  --timer-work: var(--color-dark-accent);
+  --timer-break: #8fb0d4;
+  --timer-idle: var(--color-dark-text-muted);
+  --timer-pill-bg: color-mix(in srgb, white 6%, transparent);
+  --timer-divider: var(--color-dark-border);
 }
 
 .timer-shell {
@@ -52,9 +45,10 @@
   flex: 1;
   width: 100%;
   min-height: 0;
-  padding: 0.4rem 0.55rem 0.35rem;
+  padding: 0.5rem 0.65rem 0.4rem;
   box-sizing: border-box;
   overflow: hidden;
+  font-family: var(--font-sans);
 }
 
 .timer-atmosphere {
@@ -68,61 +62,110 @@
 .timer-grain {
   position: absolute;
   inset: 0;
-  opacity: 0.12;
+  opacity: 0.08;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: multiply;
 }
 
 :host-context(html.dark) .timer-grain {
-  opacity: 0.07;
+  opacity: 0.05;
   mix-blend-mode: overlay;
 }
 
-.timer-glow {
+.timer-wash {
   position: absolute;
-  width: 14rem;
-  height: 14rem;
+  inset: 0;
+  opacity: calc(var(--wash-intensity, 0) * 0.35);
+  transition: opacity 0.6s ease, background 0.6s ease;
+  background: radial-gradient(circle at 50% 0%, var(--timer-idle) 0%, transparent 70%);
+}
+
+.timer-wash[data-phase='work'] {
+  background: radial-gradient(circle at 50% 0%, var(--timer-work) 0%, transparent 70%);
+}
+
+.timer-wash[data-phase='break'] {
+  background: radial-gradient(circle at 50% 0%, var(--timer-break) 0%, transparent 70%);
+}
+
+.timer-topbar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding-bottom: 0.35rem;
+}
+
+.timer-nav-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: var(--timer-muted);
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.timer-nav-btn:hover {
+  color: var(--timer-text);
+  background: var(--timer-pill-bg);
+}
+
+.timer-phase-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: var(--timer-pill-bg);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--timer-muted);
+}
+
+.timer-phase-dot {
+  width: 0.4rem;
+  height: 0.4rem;
   border-radius: 50%;
-  top: -5rem;
-  right: -4rem;
-  filter: blur(65px);
-  opacity: 0.2;
-  transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease;
-  background: radial-gradient(circle, var(--timer-idle) 0%, transparent 72%);
+  background: var(--timer-idle);
+  transition: background 0.35s ease;
 }
 
-.timer-glow[data-phase='work'] {
-  background: radial-gradient(circle, var(--timer-work) 0%, transparent 72%);
-  opacity: 0.28;
-  animation: glow-pulse-work 6s infinite alternate ease-in-out;
+.timer-phase-chip[data-phase='work'] .timer-phase-dot {
+  background: var(--timer-work);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--timer-work) 55%, transparent);
 }
 
-.timer-glow[data-phase='break'] {
-  background: radial-gradient(circle, var(--timer-break) 0%, transparent 72%);
-  opacity: 0.28;
-  animation: glow-pulse-break 6s infinite alternate ease-in-out;
+.timer-phase-chip[data-phase='break'] .timer-phase-dot {
+  background: var(--timer-break);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--timer-break) 50%, transparent);
 }
 
-@keyframes glow-pulse-work {
-  0% {
-    transform: scale(0.9) translate(0, 0);
-    opacity: 0.22;
-  }
-  100% {
-    transform: scale(1.15) translate(-10px, 10px);
-    opacity: 0.38;
-  }
+.timer-session-pill {
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  background: var(--timer-pill-bg);
+  color: var(--timer-faint);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
-@keyframes glow-pulse-break {
-  0% {
-    transform: scale(0.9) translate(0, 0);
-    opacity: 0.22;
-  }
-  100% {
-    transform: scale(1.15) translate(-10px, 10px);
-    opacity: 0.38;
-  }
+.timer-topbar-spacer {
+  width: 1.75rem;
+  flex-shrink: 0;
 }
 
 .timer-body {
@@ -134,7 +177,7 @@
   gap: 0.5rem 0.75rem;
   flex: 1;
   min-height: 0;
-  padding: 0.1rem 0.15rem 0;
+  padding: 0.1rem 0.1rem 0;
 }
 
 .timer-ring-column {
@@ -150,37 +193,37 @@
   transition: transform 0.3s ease;
 }
 
-.timer-ring-host:hover {
-  transform: scale(1.04);
+.timer-ring-host--celebrate {
+  animation: timer-celebrate 0.9s ease-out;
 }
 
-/* Rotating dashed outline when timer runs */
+@keyframes timer-celebrate {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
 .timer-ring-host--running::before {
   content: '';
   position: absolute;
   inset: -4px;
   border-radius: 50%;
   border: 1.5px dashed var(--timer-work);
-  opacity: 0.35;
-  animation: rotate-ring-halo 16s linear infinite;
+  opacity: 0.3;
+  animation: timer-rotate-halo 18s linear infinite;
 }
 
 .timer-ring-host--running[data-phase='break']::before {
   border-color: var(--timer-break);
 }
 
-.timer-ring-host--running[data-phase='idle']::before,
-.timer-ring-host--running:not([data-phase])::before {
+.timer-ring-host--running[data-phase='idle']::before {
   border-color: var(--timer-idle);
 }
 
-@keyframes rotate-ring-halo {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes timer-rotate-halo {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .timer-svg {
@@ -199,30 +242,20 @@
   fill: none;
   stroke-width: 3.5;
   stroke-linecap: round;
-  transition: stroke-dasharray 0.4s cubic-bezier(0.33, 1, 0.68, 1), stroke 0.35s ease;
+  transition: stroke-dasharray 0.4s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 .timer-ring-fill--work {
-  stroke: var(--timer-work);
-  filter: drop-shadow(0 0 4px rgba(194, 65, 12, 0.45));
-}
-
-:host-context(html.dark) .timer-ring-fill--work {
-  filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.65));
+  stroke: url(#ring-grad-work);
 }
 
 .timer-ring-fill--break {
-  stroke: var(--timer-break);
-  filter: drop-shadow(0 0 4px rgba(13, 148, 136, 0.45));
-}
-
-:host-context(html.dark) .timer-ring-fill--break {
-  filter: drop-shadow(0 0 6px rgba(45, 212, 191, 0.65));
+  stroke: url(#ring-grad-break);
 }
 
 .timer-ring-fill--idle {
   stroke: var(--timer-idle);
-  opacity: 0.45;
+  opacity: 0.4;
 }
 
 .timer-digits-wrap {
@@ -234,10 +267,10 @@
 }
 
 .timer-digits {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: var(--timer-text);
   line-height: 1;
 }
@@ -249,51 +282,7 @@
   flex-direction: column;
   justify-content: center;
   gap: 0.2rem;
-  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-}
-
-.timer-phase-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.5rem;
-}
-
-.timer-phase-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: var(--timer-dot-idle);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--timer-muted) 35%, transparent);
-  transition: background 0.35s ease, box-shadow 0.35s ease;
-}
-
-.timer-phase-dot[data-phase='work'] {
-  background: var(--timer-dot-work);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--timer-dot-work) 55%, transparent);
-}
-
-.timer-phase-dot[data-phase='break'] {
-  background: var(--timer-dot-break);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--timer-dot-break) 50%, transparent);
-}
-
-.timer-phase-label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--timer-muted);
-}
-
-.timer-session-pill {
-  font-size: 0.625rem;
-  font-weight: 600;
-  padding: 0.1rem 0.4rem;
-  border-radius: 9999px;
-  background: var(--timer-pill-bg);
-  color: var(--timer-faint);
-  letter-spacing: 0.02em;
+  font-family: var(--font-heading);
 }
 
 .timer-task-line {
@@ -312,29 +301,13 @@
   margin-top: 0.25rem;
   padding: 0.4rem 0.5rem;
   border-radius: 0.6rem;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.015);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:host-context(html.dark) .timer-spotify {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--timer-pill-bg);
+  border: 1px solid var(--timer-divider);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
 .timer-spotify:hover {
-  background: rgba(255, 255, 255, 0.55);
-  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
-}
-
-:host-context(html.dark) .timer-spotify:hover {
-  background: rgba(30, 41, 59, 0.55);
-  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .timer-spotify-hint {
@@ -358,15 +331,10 @@
   border-radius: 0.35rem;
   object-fit: cover;
   background: var(--timer-pill-bg);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .timer-spotify-art--placeholder {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--timer-muted) 40%, transparent),
-    var(--timer-pill-bg)
-  );
+  background: linear-gradient(135deg, color-mix(in srgb, var(--timer-muted) 35%, transparent), var(--timer-pill-bg));
 }
 
 .timer-spotify-text {
@@ -434,7 +402,26 @@
   letter-spacing: 0.01em;
 }
 
-/* Controles al ras del fondo: solo un trazo muy suave, sin “caja” */
+.timer-pips {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+.timer-pip {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--timer-track);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.timer-pip--done {
+  background: var(--timer-work);
+  transform: scale(1.1);
+}
+
 .timer-toolbar--unified {
   position: relative;
   z-index: 1;
@@ -447,9 +434,6 @@
   margin-top: 0.15rem;
   padding-top: 0.35rem;
   border-top: 1px solid var(--timer-divider);
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
 }
 
 .timer-btn {
@@ -465,6 +449,11 @@
   height: 1rem;
 }
 
+.timer-icon--primary {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .timer-btn--grow {
   flex: 1 1 100%;
   min-width: 0;
@@ -475,10 +464,6 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-  }
-
-  .timer-phase-row {
-    justify-content: center;
   }
 
   .timer-meta {
